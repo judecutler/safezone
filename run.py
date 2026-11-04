@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Callable
 
 from safezone.config import load_settings
-from safezone.meta import MetaClient
+from safezone.meta import MetaClient, MetaUnavailable
 from safezone.room.pipeline import prepare_image, scan_room
 from safezone.shapes import RoomScan
 from safezone.transport import (NETWORK_FAILURE, LiveTransport, RecordingTransport, ReplayTransport, Request,
@@ -87,7 +87,11 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     client = MetaClient(transport_for(args), load_settings())
     name = args.name or Path(args.photo).stem.replace("_", " ")
-    print(render(scan_room(jpeg, name, client)))
+    try:
+        print(render(scan_room(jpeg, name, client)))
+    except MetaUnavailable as exc:
+        print(f"SAM 3.1 did not answer: {exc}", file=sys.stderr)
+        return 1
     return 0
 
 

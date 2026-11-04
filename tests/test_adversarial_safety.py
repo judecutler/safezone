@@ -181,3 +181,56 @@ def test_guards_that_hold():
     assert floor_rejection(floor, classified, SIZE) == "it is outside the photo"
     far = FloorProposal((1.5 * SIZE[0], 0.5 * SIZE[1]), "d", "r")
     assert floor_rejection(far, classified, SIZE) == "it is outside the photo"
+
+
+# Wording: every line the phone can show or say in both regions --------------------------------------------
+
+def _every_line(value):
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, dict):
+        for v in value.values():
+            yield from _every_line(v)
+    elif isinstance(value, (list, tuple)):
+        for v in value:
+            yield from _every_line(v)
+
+
+FORBIDDEN = ("guarantee", "safest", "safe route", "structural")
+ALLOWED = ("officials say it is safe", "safety is confirmed", "not a structural assessment")
+
+
+@pytest.mark.parametrize("region", ["us-ca", "jp"])
+def test_no_guidance_line_calls_anything_safe_or_structural(region):
+    from safezone import regions
+    import re
+    g = regions.guidance(region)
+    lines = [line for key in ("during", "during_special", "after", "go_now", "stay_away", "not_in_zone", "disclaimers")
+             for line in _every_line(g[key])]
+    assert lines
+    for line in lines:
+        stripped = line
+        for phrase in ALLOWED:
+            stripped = stripped.replace(phrase, "")
+        for word in FORBIDDEN:
+            assert word not in stripped.lower(), line
+        assert not re.search(r"\bsafe\b", stripped, re.IGNORECASE), line
+
+
+def test_outside_the_zone_still_names_the_natural_warning_signs():
+    """Unosumai 2011: most of the dead were in homes outside the mapped area. The map is a floor, not a limit."""
+    from safezone import rules
+    from safezone.japan import rules as jp_rules
+    assert "pulls back" in rules.NOT_IN_ZONE and "roar" in rules.NOT_IN_ZONE and "go inland or uphill now" in rules.NOT_IN_ZONE
+    assert "beach or in a harbor" in rules.NOT_IN_ZONE
+    assert "still move to high ground" in jp_rules.NOT_IN_ZONE
+    assert "home" not in rules.NOT_IN_ZONE.lower(), "the place may be a workplace or school"
+
+
+def test_shelter_notes_explain_the_rank():
+    from safezone.shelter.pipeline import RANKING, shelter_notes
+    sh = Shelter(id="1", name="s", address="a", lon=0, lat=0, status="OPEN", capacity=None, residents=None,
+                 ada=None, wheelchair=True, pets_code=None, source_url="u")
+    assert any("rank first" in n for n in shelter_notes(sh, None, Household()))
+    assert any("rank first" in n for n in shelter_notes(sh, 0.9, Household()))
+    assert "walking time" in RANKING

@@ -116,7 +116,7 @@ def _mask(fields: dict[str, str]) -> SamMask | None:
 
 
 def segment_image(jpeg: bytes, image_size: tuple[int, int], client: MetaClient) -> Segmentation:
-    """Run every phrase in parallel. Raises MetaUnavailable only when no phrase got an answer."""
+    """Run every phrase at once. Raises MetaUnavailable only when no phrase got an answer."""
     def run(phrase: str):
         try:
             text, provenance = client.segment(jpeg, phrase)
@@ -124,7 +124,7 @@ def segment_image(jpeg: bytes, image_size: tuple[int, int], client: MetaClient) 
         except (HttpError, MetaUnavailable, ValueError, KeyError):
             return phrase, None, None
 
-    with ThreadPoolExecutor(max_workers=4) as pool:
+    with ThreadPoolExecutor(max_workers=len(PHRASES)) as pool:
         results = list(pool.map(run, PHRASES))
 
     answered = [(p, recs, prov) for p, recs, prov in results if recs is not None]

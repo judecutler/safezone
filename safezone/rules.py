@@ -16,6 +16,7 @@ SOURCES = {
                     "https://conservation.ca.gov/cgs/tsunami/preparedness"),
     "cgs_survive": ("California Geological Survey: How to survive a tsunami",
                     "https://www.conservation.ca.gov/cgs/Documents/Tsunami/How-to-Survive-a-Tsunami.pdf"),
+    "ready_gov_kit": ("Ready.gov: Build a Kit", "https://www.ready.gov/kit"),
     "pge": ("PG&E: Earthquake safety", "https://www.pge.com/assets/pge/docs/newsroom/safety-action-center/earthquake.pdf"),
 }
 
@@ -57,15 +58,21 @@ NO_CHECKED_ROUTE = (
     "Walk inland and uphill, away from the water, and follow tsunami evacuation signs."
 )
 STAY_AWAY = "Waves can keep arriving for 8 hours or longer. Return only when officials say it is safe."
+# CGS: outside the hazard zone, stay where you are; on a beach or in a harbor, move at once; and the natural
+# warning signs (water receding unusually far, a loud ocean roar) mean a tsunami may be coming wherever you are.
+# The map is not the limit of a tsunami, so the signs are named here too, not only inside the zone.
 NOT_IN_ZONE = (
-    "Your home address is outside the mapped tsunami hazard area. If you are there, stay unless the building "
-    "is damaged or officials tell you to leave. If you are on a beach or in a harbor, go inland or to high ground now."
+    "This address is outside the mapped tsunami hazard area. If you are there, stay unless the building "
+    "is damaged or officials tell you to leave. If you are on a beach or in a harbor, go inland or to high ground now. "
+    "A tsunami can reach beyond the map: if the water pulls back unusually far, you hear a loud ocean roar, "
+    "or officials order it, go inland or uphill now."
 )
 
 DISCLAIMERS = [
     "SafeZone shows hazards it can see in your photos and flags from official public data. "
     "It is not a structural assessment and it does not have your building's plans.",
-    "Routes are planning aids computed from California's tsunami hazard map. They are not official evacuation routes.",
+    "Routes are planning aids computed from California's tsunami hazard map. They are not official evacuation routes, "
+    "and a real tsunami can go beyond the mapped area.",
     "Shelter listings come from FEMA data that can lag behind reality. Call ahead and confirm with local officials.",
     "Official instructions and local evacuation signs always override this app.",
 ]
@@ -92,3 +99,29 @@ HAZARD_LABELS: dict[HazardKind, str] = {
     "bed_under_window": "Bed under a window",
     "cabinet_doors": "Doors can swing open",
 }
+
+# Ready.gov's Basic Disaster Supplies Kit, in its order. The model only says which ids it can see.
+# Labels name the item only: "seen" must never read as "enough" (Ready.gov's amounts are on its page).
+GO_BAG: list[tuple[str, str]] = [
+    ("water", "Water"),
+    ("food", "Non-perishable food"),
+    ("radio", "Battery-powered or hand crank radio"),
+    ("flashlight", "Flashlight"),
+    ("first_aid", "First aid kit"),
+    ("batteries", "Extra batteries"),
+    ("whistle", "Whistle"),
+    ("dust_mask", "Dust mask"),
+    ("sheeting_tape", "Plastic sheeting, scissors and duct tape"),
+    ("sanitation", "Moist towelettes, garbage bags and plastic ties"),
+    ("wrench", "Wrench or pliers"),
+    ("can_opener", "Manual can opener"),
+    ("maps", "Local maps"),
+    ("phone_power", "Phone charger and backup battery"),
+]
+GO_BAG_SOURCE = "ready_gov_kit"
+GO_BAG_SEEN = "Seen in the photo"
+GO_BAG_NOT_SEEN = "Not seen"
+GO_BAG_CAVEAT = (
+    "This lists what the photo shows. It cannot tell whether your kit is enough for your household: "
+    "items can be hidden, packed or out of frame. Check the full list at Ready.gov."
+)

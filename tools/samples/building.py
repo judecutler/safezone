@@ -5,7 +5,7 @@ import json
 import re
 
 from safezone.building import cgs, osm, softstory
-from safezone.building.geocode import NOMINATIM_URL
+from safezone.building.geocode import NOMINATIM_REVERSE_URL, NOMINATIM_URL
 from safezone.geo import LocalFrame, haversine_m, point_in_ring
 from safezone.transport import NETWORK_FAILURE, Request, Response
 
@@ -45,6 +45,18 @@ def _nominatim(params: dict[str, str]) -> Response:
                  "category": "amenity", "type": "building", "address": address}])
 
 
+REVERSE_RADIUS_M = 150.0
+
+
+def _nominatim_reverse(params: dict[str, str]) -> Response:
+    point = (float(params["lon"]), float(params["lat"]))
+    for display, home, address in PLACES.values():
+        if haversine_m(point, home) <= REVERSE_RADIUS_M:
+            return _ok({"place_id": 1, "lat": f"{home[1]}", "lon": f"{home[0]}", "display_name": display,
+                        "category": "amenity", "type": "building", "address": address})
+    return _ok({"error": "Unable to geocode"})
+
+
 def _cgs(params: dict[str, str]) -> Response:
     xs = [float(v) for v in params["geometry"].split(",")]
     if params["geometryType"] == "esriGeometryPoint":
@@ -76,6 +88,8 @@ def respond(request: Request) -> Response | None:
     params = dict(request.params)
     if request.url == NOMINATIM_URL:
         return _nominatim(params)
+    if request.url == NOMINATIM_REVERSE_URL:
+        return _nominatim_reverse(params)
     if request.url == cgs.QUERY_URL:
         return _cgs(params)
     if request.url == softstory.SF_ENDPOINT:

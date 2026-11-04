@@ -8,9 +8,9 @@ import { EMERGENCY_SCREENS, TRANSITIONS, initialScreen, next } from '../js/machi
 const WEB = new URL('..', import.meta.url).pathname;
 
 test('emergency is reachable from every screen and leaves to the plan only when one exists', () => {
-  for (const screen of Object.keys(TRANSITIONS)) assert.equal(next(screen, 'emergency', { hasPlan: false }), 'shaking');
-  assert.equal(next('shelters', 'exit_emergency', { hasPlan: true }), 'plan');
-  assert.equal(next('shaking', 'exit_emergency', { hasPlan: false }), 'start');
+  for (const screen of Object.keys(TRANSITIONS)) assert.equal(next(screen, 'emergency', { hasPlaces: false }), 'shaking');
+  assert.equal(next('shelters', 'exit_emergency', { hasPlaces: true }), 'places');
+  assert.equal(next('shaking', 'exit_emergency', { hasPlaces: false }), 'landing');
 });
 
 test('the shaking screen has exactly one way forward, and it does not route', () => {
@@ -18,7 +18,7 @@ test('the shaking screen has exactly one way forward, and it does not route', ()
 });
 
 test('unknown events throw instead of silently staying put', () => {
-  assert.throws(() => next('start', 'stopped', { hasPlan: false }));
+  assert.throws(() => next('landing', 'stopped', { hasPlaces: false }));
 });
 
 test('every transition target is a real screen', () => {
@@ -28,9 +28,9 @@ test('every transition target is a real screen', () => {
 });
 
 test('the manifest shortcut opens the shaking screen', () => {
-  assert.equal(initialScreen('?screen=emergency', { hasPlan: false }), 'shaking');
-  assert.equal(initialScreen('', { hasPlan: true }), 'plan');
-  assert.equal(initialScreen('', { hasPlan: false }), 'start');
+  assert.equal(initialScreen('?screen=emergency', { hasPlaces: false }), 'shaking');
+  assert.equal(initialScreen('', { hasPlaces: true }), 'places');
+  assert.equal(initialScreen('', { hasPlaces: false }), 'landing');
 });
 
 test('the local frame agrees with haversine within 0.5% over a few km', () => {

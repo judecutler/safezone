@@ -45,7 +45,7 @@ def find_shelters(origin: LonLat, profile: BuildingProfile, household: Household
 
     matches = sorted((build_match(s, cell, origin, household) for s, cell in zip(kept, cells)), key=rank_key)
     return ShelterResult(origin=origin, matches=matches, excluded=excluded, fetched_at=now, replay=replay,
-                         provenance=weakest(*provenances))
+                         ranking=RANKING, provenance=weakest(*provenances))
 
 
 def filter_shelters(shelters: Sequence[Shelter], origin: LonLat, household: Household, hazard_check: HazardCheck,
@@ -100,12 +100,16 @@ def fill_ratio(shelter: Shelter) -> float | None:
     return shelter.residents / shelter.capacity
 
 
+RANKING = "Shelters that report room come first, then by walking time."
+"""Shown with the list so the order reads as intended."""
+
+
 def shelter_notes(shelter: Shelter, fill: float | None, household: Household) -> list[str]:
     notes = []
     if fill is None:
-        notes.append("Capacity not reported.")
+        notes.append("Capacity not reported, so shelters that report room rank first.")
     elif fill >= FILL_WARN:
-        notes.append(f"Nearly full: about {round(fill * 100)}% of capacity.")
+        notes.append(f"Nearly full: about {round(fill * 100)}% of capacity, so shelters with more room rank first.")
     if household.pets:
         notes.append(f"Pet accommodation code: {shelter.pets_code}. Call ahead about pets." if shelter.pets_code
                      else "No pet information. Call ahead about pets.")
@@ -117,5 +121,7 @@ def shelter_notes(shelter: Shelter, fill: float | None, household: Household) ->
 
 
 def rank_key(match: ShelterMatch) -> tuple[int, float]:
-    nearly_full = match.fill_ratio is not None and match.fill_ratio >= FILL_WARN
-    return (1 if nearly_full else 0, match.walk_min)
+    """Reported room first, then walking time. An unreported occupancy is no evidence of room, so it ranks with
+    nearly full, and walking time alone settles the order inside each group."""
+    has_room = match.fill_ratio is not None and match.fill_ratio < FILL_WARN
+    return (0 if has_room else 1, match.walk_min)

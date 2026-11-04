@@ -1,0 +1,234 @@
+/* Permissions and camera-first capture (workstream B). Tokens from tokens.css. */
+
+.permissions .pulse-dot, .capture .pulse-dot {
+  display: inline-block; width: 10px; height: 10px; flex: none; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 0 0 var(--accent);
+  animation: cap-pulse 1.4s ease-out infinite;
+}
+@keyframes cap-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 70%, transparent); }
+  100% { box-shadow: 0 0 0 10px transparent; }
+}
+
+/* Permissions ------------------------------------------------------------------------------ */
+
+.permissions { gap: 22px; }
+.perm-head { display: grid; gap: 10px; }
+.perm-head .btn-text { margin-left: -2px; }
+.perm-list { display: grid; gap: 12px; }
+.perm-row {
+  display: grid; grid-template-columns: 48px 1fr; gap: 14px; align-items: start;
+  padding: 16px; border: 1px solid var(--hair); border-radius: var(--radius); background: var(--card);
+}
+.perm-icon {
+  width: 48px; height: 48px; display: grid; place-items: center;
+  border: var(--stroke) solid var(--line); border-radius: 50%; background: var(--paper);
+}
+.perm-icon .icon { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.perm-ok .perm-icon { background: var(--accent); border-color: var(--accent-ink); color: var(--accent-ink); }
+.perm-body { display: grid; gap: 4px; }
+.perm-title { font: 800 1.125rem/1.2 var(--f-cond); font-stretch: condensed; letter-spacing: 0.02em; }
+.perm-why { color: var(--muted); font-size: 0.9375rem; }
+.perm-result { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-weight: 700; font-size: 0.9375rem; }
+.perm-result .icon-inline { fill: none; stroke: currentColor; stroke-width: 3.5; }
+.perm-off .perm-result { color: var(--muted); font-weight: 600; }
+.perm-actions { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+.perm-actions .btn { width: 100%; }
+.perm-skip { align-self: center; }
+
+/* Capture: layout -------------------------------------------------------------------------- */
+
+.capture {
+  --cap-bg: #0E0D0A;
+  --cap-fg: #FFF8E6;
+  --cap-muted: #C9C0AC;
+  position: fixed; inset: 0 var(--frame-x); z-index: 5;
+  display: flex; flex-direction: column;
+  background: var(--cap-bg); color: var(--cap-fg);
+  padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right);
+}
+.capture .demo-banner { position: relative; flex: none; }
+.cap-top {
+  flex: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px;
+  padding: max(10px, env(safe-area-inset-top)) 16px 12px;
+}
+.capture.is-demo .cap-top { padding-top: 10px; }
+
+.cap-nav { display: flex; align-items: center; gap: 8px; }
+.cap-back {
+  flex: none; width: 48px; height: 48px; border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, var(--cap-fg) 40%, transparent); background: transparent; color: inherit;
+  font-size: 1.75rem; line-height: 1; cursor: pointer; padding-bottom: 4px;
+}
+
+/* Step strip: one segment per shot kind, with its background status. */
+.cap-steps { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; min-width: 0; }
+.cap-step {
+  position: relative; overflow: hidden; width: 100%; min-height: 48px;
+  display: flex; align-items: center; justify-content: center; gap: 4px; padding: 4px 4px 10px;
+  border: 0; background: none; color: var(--cap-muted); cursor: pointer;
+  font: 700 0.75rem/1.1 var(--f-cond); font-stretch: condensed; letter-spacing: 0.02em; text-align: center;
+}
+.cap-step::after {
+  content: ""; position: absolute; left: 2px; right: 2px; bottom: 4px; height: 4px; border-radius: 2px;
+  background: color-mix(in srgb, var(--cap-fg) 22%, transparent);
+}
+.cap-step.is-current { color: var(--cap-fg); }
+.cap-step.is-current::after { background: var(--cap-fg); }
+.cap-step.is-done::after { background: var(--accent); }
+.cap-step.is-queued::after, .cap-step.is-working::after { background: color-mix(in srgb, var(--accent) 45%, transparent); }
+.cap-step.is-failed { color: var(--sev-3); }
+.cap-step.is-failed::after { background: var(--sev-3); }
+.cap-step.is-skipped .cap-step-title { text-decoration: line-through; text-decoration-thickness: 1px; }
+.cap-step .icon-inline { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 5; }
+.cap-step.is-done .icon-inline { stroke: var(--accent); }
+.cap-step-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cap-step-count {
+  display: inline-grid; place-items: center; min-width: 16px; height: 16px; margin-left: 4px; padding: 0 4px;
+  border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-size: 0.6875rem;
+}
+.cap-step-dash { font-weight: 800; }
+.cap-shimmer {
+  position: absolute; left: 2px; right: 2px; bottom: 4px; height: 4px; border-radius: 2px; overflow: hidden;
+  background: linear-gradient(90deg, transparent 0, var(--accent) 50%, transparent 100%) no-repeat;
+  background-size: 40% 100%; animation: cap-shimmer 1.2s linear infinite;
+}
+@keyframes cap-shimmer { from { background-position: -60% 0; } to { background-position: 160% 0; } }
+
+/* Background location lookup. */
+.cap-loc {
+  justify-self: start; max-width: 100%;
+  display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 4px 12px;
+  border-radius: 16px; border: 1px solid color-mix(in srgb, var(--cap-fg) 30%, transparent);
+  font-size: 0.8125rem; font-weight: 600; color: var(--cap-fg);
+}
+.cap-loc-text { min-width: 0; line-height: 1.3; padding: 3px 0; }
+.cap-loc-dot { width: 10px; height: 10px; flex: none; border-radius: 50%; background: var(--cap-muted); }
+.cap-loc.is-ok .cap-loc-dot { background: var(--accent); }
+.cap-loc.is-alert { border-color: var(--sev-4); }
+.cap-loc.is-alert .cap-loc-dot { background: var(--sev-4); }
+.cap-loc.is-off { color: var(--cap-muted); }
+
+.cap-prompt { display: grid; gap: 4px; }
+.cap-count { color: var(--accent); }
+.cap-title { font: 800 1.375rem/1.15 var(--f-cond); font-stretch: condensed; letter-spacing: 0.005em; }
+.cap-why { font-size: 0.875rem; color: var(--cap-muted); }
+.cap-failed { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; color: var(--sev-3); font-weight: 700; font-size: 0.875rem; }
+.cap-failed .icon-inline { fill: none; stroke: currentColor; stroke-width: 3.5; }
+.cap-failed .btn-text, .cap-took-status .btn-text { color: inherit; min-height: 40px; }
+
+/* Capture: live stage ---------------------------------------------------------------------- */
+
+.cap-stage {
+  position: relative; flex: 1 1 auto; min-height: 160px; margin: 0 12px;
+  overflow: hidden; border-radius: var(--radius); background: #000;
+}
+.cap-video, .cap-still { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; max-width: none; }
+.cap-video[hidden], .cap-still[hidden], .cap-fallback[hidden], .cap-guide[hidden] { display: none; }
+
+.cap-guide { position: absolute; inset: 14px; pointer-events: none; }
+.cap-corner { position: absolute; width: 28px; height: 28px; border: 0 solid color-mix(in srgb, #fff 85%, transparent); }
+.cap-tl { top: 0; left: 0; border-top-width: 3px; border-left-width: 3px; border-top-left-radius: 8px; }
+.cap-tr { top: 0; right: 0; border-top-width: 3px; border-right-width: 3px; border-top-right-radius: 8px; }
+.cap-bl { bottom: 0; left: 0; border-bottom-width: 3px; border-left-width: 3px; border-bottom-left-radius: 8px; }
+.cap-br { bottom: 0; right: 0; border-bottom-width: 3px; border-right-width: 3px; border-bottom-right-radius: 8px; }
+
+.cap-fallback {
+  position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 14px;
+  padding: 24px; text-align: center; color: var(--cap-fg); background: #1A1813;
+}
+.cap-fallback p { max-width: 30ch; font-size: 0.9375rem; }
+.cap-fallback-icon { width: 48px; height: 48px; fill: none; stroke: var(--cap-fg); stroke-width: 2.2; stroke-linejoin: round; }
+.cap-fallback .btn-ghost { color: var(--cap-fg); border-color: var(--cap-fg); }
+.cap-fallback .btn-ghost:hover { background: color-mix(in srgb, var(--cap-fg) 12%, transparent); }
+
+.cap-flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+.cap-flash.is-on { animation: cap-flash 260ms ease-out; }
+@keyframes cap-flash { 0% { opacity: 0.85; } 100% { opacity: 0; } }
+
+.cap-error { margin: 10px 16px 0; color: var(--sev-3); font-weight: 700; font-size: 0.875rem; }
+
+/* Capture: meter, hint and shutter --------------------------------------------------------- */
+
+.cap-bottom {
+  flex: none; display: grid; gap: 10px; justify-items: center;
+  padding: 12px 16px max(14px, env(safe-area-inset-bottom));
+}
+.cap-hint {
+  display: inline-flex; align-items: center; gap: 8px; max-width: 100%; min-height: 36px; padding: 6px 14px;
+  border-radius: 999px; background: color-mix(in srgb, var(--cap-fg) 12%, transparent);
+  font-weight: 700; font-size: 0.9375rem;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+.cap-hint-dot { width: 10px; height: 10px; flex: none; border-radius: 50%; background: var(--sev-2); transition: background-color 200ms ease; }
+.cap-hint.is-idle .cap-hint-dot { background: var(--cap-muted); }
+.cap-hint.is-good { background: var(--accent); color: var(--accent-ink); }
+.cap-hint.is-good .cap-hint-dot { background: var(--accent-ink); }
+
+.cap-names { display: flex; gap: 6px; overflow-x: auto; max-width: 100%; padding: 2px; scrollbar-width: none; }
+.cap-names::-webkit-scrollbar { display: none; }
+.cap-chip { flex: none; min-height: 48px; background: transparent; color: var(--cap-fg); border-color: color-mix(in srgb, var(--cap-fg) 45%, transparent); }
+.cap-chip:hover { background: color-mix(in srgb, var(--cap-fg) 10%, transparent); }
+
+.cap-controls { width: 100%; max-width: 420px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; }
+.cap-side {
+  min-height: 48px; min-width: 48px; padding: 8px 10px; border: 0; background: none; color: var(--cap-fg); cursor: pointer;
+  font: 700 1rem/1.1 var(--f-cond); font-stretch: condensed; letter-spacing: 0.02em;
+}
+.cap-library { justify-self: start; text-decoration: underline; text-underline-offset: 4px; }
+.cap-skip, .cap-next { justify-self: end; }
+.cap-skip { text-decoration: underline; text-underline-offset: 4px; }
+.cap-next {
+  border: var(--stroke) solid var(--cap-fg); border-radius: 999px; padding: 8px 18px;
+}
+
+.cap-shutter {
+  position: relative; width: 88px; height: 88px; padding: 0; border: 0; border-radius: 50%;
+  background: none; cursor: pointer; color: var(--cap-fg);
+}
+.cap-shutter:disabled { opacity: 0.5; cursor: progress; }
+.cap-ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.cap-ring-track { fill: none; stroke: color-mix(in srgb, var(--cap-fg) 25%, transparent); stroke-width: 7; }
+.cap-ring-fill {
+  fill: none; stroke: var(--cap-fg); stroke-width: 7; stroke-linecap: round;
+  transition: stroke-dashoffset 120ms linear, stroke 200ms ease;
+}
+.cap-shutter-core {
+  position: absolute; inset: 15px; border-radius: 50%; background: var(--cap-fg);
+  transition: background-color 200ms ease, transform 120ms ease;
+}
+.cap-shutter:active .cap-shutter-core { transform: scale(0.92); }
+.cap-shutter.is-good .cap-ring-fill { stroke: var(--accent); }
+.cap-shutter.is-good .cap-shutter-core { background: var(--accent); box-shadow: 0 0 0 3px var(--cap-bg) inset; }
+.cap-shutter:focus-visible, .cap-side:focus-visible, .cap-back:focus-visible, .cap-step:focus-visible {
+  outline: 3px solid var(--accent); outline-offset: 3px;
+}
+
+/* Capture: after a photo ------------------------------------------------------------------- */
+
+.cap-took {
+  flex: none; margin: 12px 12px max(12px, env(safe-area-inset-bottom));
+  background: var(--card); color: var(--ink); border-color: transparent;
+}
+.cap-took-head { display: grid; grid-template-columns: 72px 1fr; gap: 14px; align-items: center; }
+.cap-thumb { width: 72px; height: 72px; border-radius: var(--radius-sm); object-fit: cover; background: var(--paper-2); border: 1px solid var(--hair); }
+.cap-took-title { font: 800 1.125rem/1.2 var(--f-cond); font-stretch: condensed; }
+.cap-took-status { display: flex; align-items: center; gap: 8px; font-size: 0.875rem; color: var(--muted); }
+.cap-took-status .icon-inline { fill: none; stroke: var(--ink); stroke-width: 4; }
+.cap-took-status.is-failed { color: var(--sev-4-text); font-weight: 700; flex-wrap: wrap; }
+.cap-took-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.cap-took-actions .btn { flex: 1 1 160px; }
+.cap-took-actions .btn-ghost { flex: 1 1 140px; min-height: 48px; font-size: 1rem; }
+
+@media (min-height: 760px) {
+  .cap-title { font-size: 1.5rem; }
+}
+@media (max-height: 640px) {
+  .cap-why { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .permissions .pulse-dot, .capture .pulse-dot, .cap-shimmer, .cap-flash.is-on { animation: none; }
+  .cap-shimmer { background: var(--accent); background-size: 100% 100%; opacity: 0.6; }
+  .cap-ring-fill, .cap-shutter-core, .cap-hint, .cap-hint-dot { transition: none; }
+}

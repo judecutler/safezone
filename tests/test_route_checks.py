@@ -48,10 +48,32 @@ def test_seaward_leg_is_rejected_when_the_polygon_covers_the_water():
 
 
 def test_seaward_leg_is_rejected_when_the_shoreline_is_the_boundary():
-    # Walking toward the water here brings the path closer to the polygon edge, so a depth
-    # check alone would accept it. Only the exit-axis check sees the seaward leg.
+    # Walking toward the water brings the path closer to the polygon edge but farther from mapped land.
     failures = check_route(HOME, path((0, 0), (-90, 0), (-90, 100), (300, 100)), SHORELINE_EDGED, LAND)
-    assert failures == ["moves_away_from_exit"]
+    assert "moves_away_from_exit" in failures
+    assert "goes_deeper" in failures
+
+
+def test_diagonal_walk_to_the_waters_edge_is_deeper():
+    # Toward the exit along the shore and toward the water at once: the exit-axis projection stays
+    # positive, so only depth measured from mapped land can see it.
+    failures = check_route(HOME, path((0, 0), (-100, 100), (300, 100)), SHORELINE_EDGED, LAND)
+    assert "goes_deeper" in failures
+
+
+# Shoreline 30 m west of home; the 180 m hazard band narrows to 100 m between 700 m and 900 m north.
+NOTCHED = [[[ll(-30, -2000), ll(150, -2000), ll(150, 700), ll(50, 700), ll(50, 900), ll(150, 900), ll(150, 2000),
+             ll(-30, 2000)]]]
+NOTCHED_LAND = [[[ll(150, -2000), ll(6000, -2000), ll(6000, 2000), ll(150, 2000), ll(150, 900), ll(50, 900),
+                  ll(50, 700), ll(150, 700)]]]
+
+
+def test_a_long_walk_on_the_beach_counts_as_time_inside():
+    # The beach past a shoreline-edged polygon is outside the polygon but it is not mapped land.
+    beach = path((0, 0), (-40, 0), (-40, 800), (300, 800))
+    sidewalk = path((0, 0), (-20, 0), (-20, 800), (300, 800))
+    assert "too_long_inside" in check_route(HOME, sidewalk, NOTCHED, NOTCHED_LAND)
+    assert "too_long_inside" in check_route(HOME, beach, NOTCHED, NOTCHED_LAND)
 
 
 def test_small_detours_inside_are_tolerated():
@@ -108,3 +130,32 @@ def test_candidate_requires_room_to_push_outward():
         x, y = FRAME.to_xy(c)
         assert not (150 < x < 210 and abs(y) < 2000)
         assert geo.distance_to_boundary_m(c, sandwiched) >= pipeline.CLEARANCE_M - 0.01
+
+
+def test_an_opening_loop_around_the_start_reads_as_one_walk_to_the_path():
+    from safezone.route.osrm import FOLDED_START, parse_route
+    start = (-122.50998, 37.76947)
+    def step(kind, loc, dist, modifier=None, bearing=0):
+        return {"maneuver": {"type": kind, "location": list(loc), "modifier": modifier, "bearing_after": bearing},
+                "distance": dist, "name": ""}
+    data = {"code": "Ok", "routes": [{"distance": 300, "geometry": {"coordinates": [list(start), [-122.5095, 37.772]]},
+            "legs": [{"steps": [
+                step("depart", (-122.51003, 37.76930), 25, bearing=270),
+                step("turn", (-122.51031, 37.76928), 48, "right"),
+                step("turn", (-122.51033, 37.76972), 48, "right", bearing=20),
+                step("turn", (-122.50985, 37.76968), 180, "left", bearing=0),
+                step("arrive", (-122.5095, 37.772), 0)]}]}]}
+    route = parse_route(data)
+    assert [s.instruction for s in route.steps] == [FOLDED_START, "Head north", "Arrive"]
+    assert route.steps[0].distance_m == 121
+
+
+def test_a_route_that_starts_by_walking_away_keeps_its_steps():
+    from safezone.route.osrm import parse_route
+    start = (-122.50998, 37.76947)
+    data = {"code": "Ok", "routes": [{"distance": 300, "geometry": {"coordinates": [list(start), [-122.505, 37.769]]},
+            "legs": [{"steps": [
+                {"maneuver": {"type": "depart", "location": list(start), "bearing_after": 90}, "distance": 150, "name": ""},
+                {"maneuver": {"type": "turn", "location": [-122.5083, 37.7695], "modifier": "left"}, "distance": 150, "name": ""},
+                {"maneuver": {"type": "arrive", "location": [-122.505, 37.769]}, "distance": 0, "name": ""}]}]}]}
+    assert [s.instruction for s in parse_route(data).steps] == ["Head east", "Turn left", "Arrive"]

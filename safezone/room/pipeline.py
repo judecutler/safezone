@@ -6,14 +6,13 @@ import io
 
 from PIL import Image, ImageOps, UnidentifiedImageError
 
-from ..meta import MetaClient, MetaUnavailable
+from ..meta import MetaClient
 from ..shapes import ModelUse, RoomScan, weakest
 from .classify import classify
 from .score import fixes_for, rank_spots
 from .segment import segment_image
 
 MAX_SIDE = 1600
-SEGMENTATION_UNAVAILABLE = "Segmentation unavailable; showing general guidance."
 
 
 def prepare_image(raw: bytes) -> bytes:
@@ -35,18 +34,11 @@ def prepare_image(raw: bytes) -> bytes:
 
 
 def scan_room(jpeg: bytes, name: str, client: MetaClient) -> RoomScan:
+    """Raises MetaUnavailable when no SAM request answered: an empty room would read as a room with no hazards."""
     with Image.open(io.BytesIO(jpeg)) as img:
         size = img.size
     settings = client.settings
-    try:
-        seg = segment_image(jpeg, size, client)
-    except MetaUnavailable:
-        spots, notes = rank_spots([], None, size)
-        return RoomScan(
-            id=_scan_id(jpeg), name=name, image_size=size, classified=[], spots=spots, fixes=[],
-            models=ModelUse(segmenter=settings.segment_model, classifier=None, classifier_ok=False),
-            notes=[SEGMENTATION_UNAVAILABLE, *notes], provenance=weakest(), relations=[], exit_note=None,
-        )
+    seg = segment_image(jpeg, size, client)
 
     cls = classify(jpeg, seg.segments, size, client)
     spots, spot_notes = rank_spots(cls.classified, cls.floor, size)

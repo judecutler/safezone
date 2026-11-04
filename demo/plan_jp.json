@@ -1,0 +1,166 @@
+{
+ "plan": {
+  "building": {
+   "address": "鎌倉市御成町18-10",
+   "display_name": "鎌倉市役所, 18-10, 御成町, 鎌倉市, 神奈川県, 248-8686, 日本",
+   "lon": 139.5466,
+   "lat": 35.3192,
+   "city": "鎌倉市",
+   "footprint": null,
+   "flags": [
+    {
+     "kind": "tsunami_zone",
+     "tone": "alert",
+     "value": "In the tsunami inundation area (under 0.3 m)",
+     "detail": "The prefecture's tsunami inundation assumption reaches this address. After strong or long shaking, go on foot to high ground or a designated evacuation site right away.",
+     "status": null,
+     "source_name": "ハザードマップポータルサイト: オープンデータ (Hazard Map Portal: open data tiles)",
+     "source_url": "https://disaportaldata.gsi.go.jp/hazardmap/copyright/opendata.html",
+     "provenance": "sample"
+    }
+   ],
+   "hazard_area": {
+    "contains_home": true,
+    "polygons": [],
+    "land_polygons": [],
+    "county": null,
+    "map_url": "https://disaportal.gsi.go.jp/",
+    "source_url": "https://disaportaldata.gsi.go.jp/raster/04_tsunami_newlegend_data/{z}/{x}/{y}.png"
+   },
+   "provenance": "sample"
+  },
+  "household": {
+   "children": true,
+   "wheelchair": false,
+   "medical": false,
+   "pets": true
+  },
+  "rooms": [],
+  "route": {
+   "kind": "site_route",
+   "origin": [
+    139.5466,
+    35.3192
+   ],
+   "destination": [
+    139.548,
+    35.3262
+   ],
+   "site": {
+    "name": "Sample site A (hill)",
+    "address": "Sample address, Kamakura",
+    "lon": 139.548,
+    "lat": 35.3262,
+    "kind": "high_ground",
+    "instruction": "Designated site outside the mapped inundation area.",
+    "depth": "no mapped inundation",
+    "remarks": "SAMPLE: not from the city's list.",
+    "source_name": "国土地理院: 指定緊急避難場所・指定避難所データ (GSI: designated evacuation sites)",
+    "source_url": "https://cyberjapandata.gsi.go.jp/xyz/skhb05/10/908/404.geojson",
+    "provenance": "sample"
+   },
+   "path": [
+    [
+     139.5466,
+     35.3192
+    ],
+    [
+     139.5466,
+     35.3262
+    ],
+    [
+     139.548,
+     35.3262
+    ]
+   ],
+   "steps": [
+    {
+     "instruction": "Head north on Sample street 1",
+     "distance_m": 778.4
+    },
+    {
+     "instruction": "Turn right onto Sample street 2",
+     "distance_m": 127.0
+    },
+    {
+     "instruction": "Arrive",
+     "distance_m": 0.0
+    }
+   ],
+   "distance_m": 905.4,
+   "walk_min": 15.09,
+   "home_depth": "under 0.3 m",
+   "computed_at": "2026-11-04T17:00:00Z",
+   "provenance": "sample"
+  },
+  "shelters": {
+   "origin": [
+    139.5466,
+    35.3192
+   ],
+   "matches": [
+    {
+     "shelter": {
+      "id": "139.548000,35.326200",
+      "name": "Sample site A (hill)",
+      "address": "Sample address, Kamakura",
+      "lon": 139.548,
+      "lat": 35.3262,
+      "status": "Designated emergency evacuation site (tsunami)",
+      "capacity": null,
+      "residents": null,
+      "ada": null,
+      "wheelchair": null,
+      "pets_code": null,
+      "source_url": "https://cyberjapandata.gsi.go.jp/xyz/skhb05/10/908/404.geojson"
+     },
+     "walk_min": 17.08833333333333,
+     "walk_method": "route",
+     "fill_ratio": null,
+     "notes": [
+      "An evacuation site, not a place to stay. Ask the city which shelter (指定避難所) opens after.",
+      "Municipal note: SAMPLE: not from the city's list.",
+      "No pet information. Ask the city about pets."
+     ]
+    },
+    {
+     "shelter": {
+      "id": "139.535500,35.324800",
+      "name": "Sample site C (temple grounds)",
+      "address": "Sample address, Kamakura",
+      "lon": 139.5355,
+      "lat": 35.3248,
+      "status": "Designated emergency evacuation site (tsunami)",
+      "capacity": null,
+      "residents": null,
+      "ada": null,
+      "wheelchair": null,
+      "pets_code": null,
+      "source_url": "https://cyberjapandata.gsi.go.jp/xyz/skhb05/10/908/404.geojson"
+     },
+     "walk_min": 25.653333333333332,
+     "walk_method": "route",
+     "fill_ratio": null,
+     "notes": [
+      "An evacuation site, not a place to stay. Ask the city which shelter (指定避難所) opens after.",
+      "No pet information. Ask the city about pets."
+     ]
+    }
+   ],
+   "excluded": {
+    "not_open": 0,
+    "in_hazard_area": 1,
+    "hazard_check_failed": 0,
+    "not_wheelchair_accessible": 0
+   },
+   "fetched_at": "2026-11-04T17:00:00Z",
+   "replay": false,
+   "ranking": "Designated tsunami evacuation sites, nearest walk first.",
+   "provenance": "sample"
+  },
+  "generated_at": "2026-11-04T17:00:00Z"
+ },
+ "images": {},
+ "note": "Sample household: no room was scanned for this address, so the room section is empty. The room scan demo is the Bay Area household.",
+ "shelters_error": null
+}

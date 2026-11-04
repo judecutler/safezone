@@ -114,17 +114,20 @@ def test_nearly_full_near_shelter_ranks_after_half_full_far_one():
     result = run(Scripted(features))
     assert [m.shelter.name for m in result.matches] == ["Shelter 2", "Shelter 1"]
     assert result.matches[1].fill_ratio == pytest.approx(0.85)
-    assert "Nearly full: about 85% of capacity." in result.matches[1].notes
+    assert "Nearly full: about 85% of capacity, so shelters with more room rank first." in result.matches[1].notes
     assert result.matches[0].notes == []
+    assert result.ranking == "Shelters that report room come first, then by walking time."
 
 
-def test_unknown_fill_ranks_with_the_not_full_group_by_walk_time():
-    features = [feature(1, 3000, capacity=None), feature(2, 2000, capacity=100, population=90),
-                feature(3, 4000, capacity=0, population=5)]
+def test_unknown_occupancy_is_no_evidence_of_room_so_walk_time_decides_against_nearly_full():
+    """An unreported occupancy never outranks a nearer, nearly full shelter: both lack reported room."""
+    features = [feature(1, 1000, capacity=200, population=60), feature(2, 5000, capacity=None, population=12),
+                feature(3, 3000, capacity=100, population=85), feature(4, 4000, capacity=0, population=5)]
     result = run(Scripted(features))
-    assert [m.shelter.name for m in result.matches] == ["Shelter 1", "Shelter 3", "Shelter 2"]
-    assert result.matches[0].fill_ratio is None and "Capacity not reported." in result.matches[0].notes
-    assert result.matches[1].fill_ratio is None
+    assert [m.shelter.name for m in result.matches] == ["Shelter 1", "Shelter 3", "Shelter 4", "Shelter 2"]
+    assert result.matches[3].fill_ratio is None
+    assert "Capacity not reported, so shelters that report room rank first." in result.matches[3].notes
+    assert result.matches[2].fill_ratio is None
 
 
 def test_walk_time_comes_from_the_table_at_one_metre_per_second():

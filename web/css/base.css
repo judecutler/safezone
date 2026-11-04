@@ -1,0 +1,208 @@
+/* Noto Sans JP only for the bilingual micro-labels; the text subset keeps the download to a few KB. */
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700&display=swap&text=%E5%9C%B0%E9%9C%87%E6%B4%A5%E6%B3%A2%E9%81%BF%E9%9B%A3%E5%A0%B4%E6%89%80%E5%82%99%E3%81%88%E6%B8%88%E5%AE%89%E5%85%A8%E5%AE%B6");
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.5 var(--f-body);
+  overflow-x: hidden;
+}
+
+p, h1, h2, h3, h4, ul, ol, figure, dl, dd { margin: 0; }
+h1, h2, h3, .dch-words { text-wrap: balance; }
+ul, ol { padding: 0; list-style: none; }
+a { color: inherit; text-underline-offset: 3px; }
+button, input { font: inherit; color: inherit; }
+img { max-width: 100%; display: block; }
+
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; box-shadow: 0 0 0 5px var(--ink); }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* Layout primitives ----------------------------------------------------------- */
+
+.screen {
+  min-height: 100vh; min-height: 100dvh;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  display: flex; flex-direction: column;
+}
+
+.stack { display: flex; flex-direction: column; gap: 16px; }
+.stack > * { margin: 0; }
+.stack-tight { gap: 8px; }
+.stack-loose { gap: 28px; }
+
+/* Sticky, not fixed: the dock keeps its own space at the end of the page, so it never covers the last card. */
+.dock {
+  position: sticky; bottom: 0; z-index: 10;
+  margin: 16px calc(-1 * max(16px, env(safe-area-inset-right))) calc(-1 * max(16px, env(safe-area-inset-bottom))) calc(-1 * max(16px, env(safe-area-inset-left)));
+  display: grid; gap: 10px;
+  padding: 12px max(16px, env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border-top: 1px solid var(--hair);
+}
+.dock > * { width: 100%; max-width: 640px; justify-self: center; }
+
+/* Laptop and desktop: the app stays a phone-width column over the neighborhood art, so nothing stretches.
+   Fixed layers inset by --frame-x to line up with the column. */
+:root { --frame-w: 430px; --frame-x: 0px; }
+.backdrop { display: none; }
+@media (min-width: 720px) {
+  :root { --frame-x: calc((100% - var(--frame-w)) / 2); }
+  body { background: var(--paper-2); }
+  .backdrop { display: block; position: fixed; inset: 0; z-index: 0; opacity: 0.4; pointer-events: none; }
+  .backdrop > .nb { width: 100%; height: 100%; display: block; }
+  #app {
+    position: relative; z-index: 1;
+    max-width: var(--frame-w); min-height: 100vh; min-height: 100dvh; margin: 0 auto;
+    background: var(--paper); border-inline: 1px solid var(--hair);
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--paper) 70%, transparent), 0 30px 80px -30px rgba(23, 21, 15, 0.45);
+  }
+}
+
+/* Type ---------------------------------------------------------------------------- */
+
+.display, .title, .label, .section-title, .btn, .btn-ghost, .chip, .tag-sample, .tag-demo, .tag-replay, .demo-banner {
+  font-family: var(--f-cond);
+  font-stretch: condensed;
+}
+
+.display {
+  font-size: clamp(2.25rem, 10vw, 3.5rem); line-height: 0.96; font-weight: 800; letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+.title {
+  font-size: clamp(1.75rem, 7.5vw, 2.375rem); line-height: 1.04; font-weight: 800; letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.lede { font-size: 1.0625rem; color: var(--muted); max-width: 60ch; }
+.label { font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.mono { font-family: var(--f-mono); font-size: 0.8125rem; }
+.fine { font-size: 0.8125rem; color: var(--muted); }
+.fine.mono { font-size: 0.75rem; }
+
+/* Bilingual micro-label: small, muted Japanese under an English heading. Never body text. */
+.jp {
+  display: block; margin-top: 0.5rem;
+  font: 500 0.6875rem/1.2 var(--f-jp); letter-spacing: 0.14em; color: var(--muted);
+  text-transform: none; font-stretch: normal;
+}
+
+/* Buttons ---------------------------------------------------------------------------- */
+
+.btn, .btn-ghost {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 56px; padding: 12px 22px;
+  border: var(--stroke) solid var(--accent-ink); border-radius: 999px;
+  background: var(--accent); color: var(--accent-ink);
+  font-size: 1.125rem; font-weight: 800; letter-spacing: 0.02em; line-height: 1.1;
+  text-decoration: none; cursor: pointer; text-align: center;
+  transition: transform 120ms ease, background-color 120ms ease, box-shadow 120ms ease;
+  box-shadow: 0 2px 0 var(--accent-ink);
+}
+.btn:hover { background: #FFD24F; }
+.btn:active { transform: translateY(2px); box-shadow: 0 0 0 var(--accent-ink); }
+
+.btn-ghost {
+  background: transparent; color: var(--ink); border-color: var(--line); box-shadow: none;
+}
+.btn-ghost:hover { background: var(--paper-2); }
+.btn-ghost:active { transform: translateY(1px); }
+
+.btn:disabled, .btn.is-disabled, .btn-ghost:disabled, .btn-ghost.is-disabled {
+  opacity: 0.45; cursor: default; pointer-events: none;
+}
+
+.btn-text {
+  justify-self: start; align-self: flex-start;
+  min-height: 48px; border: 0; background: none; padding: 8px 2px;
+  font-weight: 600; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 4px;
+  cursor: pointer; color: var(--ink);
+}
+.btn-text:hover { text-decoration-color: var(--accent); text-decoration-thickness: 3px; }
+
+/* Chips ----------------------------------------------------------------------------------- */
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 48px; padding: 6px 16px;
+  border: 1.5px solid var(--line); border-radius: 999px; background: var(--card);
+  font-size: 0.9375rem; font-weight: 700; letter-spacing: 0.02em; cursor: pointer;
+}
+.chip:hover { background: var(--paper-2); }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent-ink); }
+
+/* Cards ------------------------------------------------------------------------------------- */
+
+.card {
+  background: var(--card); border: 1px solid var(--hair); border-radius: var(--radius);
+  padding: 18px; display: grid; gap: 14px;
+  box-shadow: var(--shadow);
+}
+
+/* Severity: text and border colour. The text colour is the darker AA-safe tone of each step. */
+.sev-1 { color: var(--sev-1-text); border-color: var(--sev-1); }
+.sev-2 { color: var(--sev-2-text); border-color: var(--sev-2); }
+.sev-3 { color: var(--sev-3-text); border-color: var(--sev-3); }
+.sev-4 { color: var(--sev-4-text); border-color: var(--sev-4); }
+.sev-bar { height: 6px; border-radius: 3px; background: var(--sev-gradient); }
+
+/* Labels for sample, replay and demo data ------------------------------------------------- */
+
+.tag-sample, .tag-demo, .tag-replay {
+  display: inline-flex; align-items: center;
+  border: 1.5px solid var(--line); border-radius: 4px;
+  background: var(--card); color: var(--ink);
+  font-size: 0.6875rem; font-weight: 800; line-height: 1; text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 3px 6px 3px 0; white-space: nowrap; vertical-align: middle; overflow: hidden;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.tag-sample::before, .tag-demo::before {
+  content: ""; align-self: stretch; width: 12px; margin: -3px 6px -3px 0;
+  border-right: 1.5px solid var(--line);
+  background: repeating-linear-gradient(-45deg, var(--ink) 0 2px, var(--card) 2px 4.5px);
+}
+.tag-demo::before { background: repeating-linear-gradient(-45deg, var(--ink) 0 2px, var(--accent) 2px 4.5px); }
+.tag-replay { padding-left: 6px; }
+
+.demo-banner {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 32px; padding: 6px 16px; padding-top: max(6px, env(safe-area-inset-top));
+  background: repeating-linear-gradient(-45deg, var(--accent) 0 12px, #FFD24F 12px 24px);
+  color: var(--accent-ink); border-bottom: 1.5px solid var(--accent-ink);
+  font-size: 0.8125rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+}
+.screen > .demo-banner:first-child {
+  margin: calc(-1 * max(16px, env(safe-area-inset-top))) calc(-1 * max(16px, env(safe-area-inset-right))) 0 calc(-1 * max(16px, env(safe-area-inset-left)));
+}
+.demo-banner button { min-height: 48px; margin: -8px 0; border: 0; background: none; text-decoration: underline; font: inherit; cursor: pointer; padding: 0 4px; }
+
+/* Signs and seal ------------------------------------------------------------------------------ */
+
+.sign { width: 40px; height: 40px; flex: none; display: block; }
+.sign-tri { fill: var(--accent); stroke: #17150F; stroke-width: 3.5; stroke-linejoin: round; }
+.sign-wave { fill: #17150F; }
+.sign-green { fill: var(--sign-green); }
+.sign-white { fill: #fff; }
+.sign-wave-line { fill: none; stroke: var(--sign-green); stroke-width: 1.8; stroke-linecap: round; }
+.sign-figure { fill: none; stroke: var(--sign-green); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+
+.seal { width: 40px; height: 40px; flex: none; display: block; transform: rotate(-4deg); }
+.seal-outer { fill: none; stroke: var(--sev-4); stroke-width: 2; }
+.seal-inner { fill: none; stroke: var(--sev-4); stroke-width: 0.8; }
+.seal-text { fill: var(--sev-4); font-family: var(--f-jp); font-weight: 700; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

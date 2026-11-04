@@ -1,60 +1,75 @@
 # SafeZone: context for any new session
 
-Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last updated Nov 3, about 11:25 PM PT.
+Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last updated Nov 4, about 9:15 AM PT.
 
 ## Deadline and state
 
-- Meta Global AI Developer Hackathon. Submission deadline: **Nov 4, 9 PM ET = 6 PM PT**. Three-minute demo video, public repo, and a live URL judges use.
+- Meta Global AI Developer Hackathon. Submission deadline: **Nov 4, 9 PM ET = 6 PM PT**. Three-minute demo video, public repo, and a live URL judges use. The user films around 2 PM PT.
 - Judging: Impact 30%, Meta AI tooling 25%, Demo 25%, Technical depth 20%. "Simple image analyzers" are an anti-project, so pitch the whole plan, not the photo scan.
-- Repo: https://github.com/judecutler/safezone (branch `main`). The user is new to development and works on Windows in PowerShell, Python 3.12, in `C:\Users\roaan\OneDrive\Documents\CodeStuff\safezone\safezone`. The folder is inside OneDrive, which can lock folders: git may ask "Deletion of directory ... failed. Should I try again?"; answer n. Give copy-paste, PowerShell-safe commands. The user allows commits and pushes.
-- The cloud sandbox has push access to the repo (attached via add_repo); a working clone may need `git clone https://github.com/judecutler/safezone`.
-- There is no API call budget. Ignore any earlier note about `MAX_API_CALLS`.
+- Repo: https://github.com/judecutler/safezone. The user is new to development and works on Windows in PowerShell, Python 3.12, in `C:\Users\roaan\OneDrive\Documents\CodeStuff\safezone\safezone`. The folder is inside OneDrive, which can lock folders: git may ask "Deletion of directory ... failed. Should I try again?"; answer n. Give short copy-paste, PowerShell-safe commands. The user allows commits and pushes.
+- Branches: `main` is the live app (Vercel redeploys on every push to main: https://safezone-alpha-one.vercel.app/, `MODEL_API_KEY` set). `redesign` holds the new app built overnight. The user approved merging `redesign` into `main` once every test, the full browser check and the independent safety review pass. In this sandbox the clone is shallow; `git config --add remote.origin.fetch '+refs/heads/redesign:refs/remotes/origin/redesign'` lets `git status` track it.
+- The cloud sandbox cannot reach the Meta API or any data service. Live calls and recordings run on the user's machine.
 
-## What is built (all of it works end to end on saved responses)
+## What the app is (redesign branch)
 
-- `safezone/`: four pipelines and a Starlette server. FastAPI is not used.
-  - `room/`: SAM 3.1 (13 phrases, one request each) feeds one Muse Spark call with a strict JSON schema. The model returns roles, spatial relations (tip zone, under stored items, near glass, blocks exit), a proposed floor spot and an exit note. Deterministic code in `room/score.py` ranks spots, guards the floor spot, and builds fixes from a fixed table in `rules.py`.
-  - `building/`: Nominatim, the CGS tsunami hazard layer (hazard polygons plus the map's own "outside" land polygons), DataSF soft-story (San Francisco only), and Overpass.
-  - `route/`: OSRM foot routes to candidates on mapped land, with checks in code: the route ends on land, never goes deeper into the zone, doesn't double back, and doesn't wander along the shore. It falls back to a direction toward proven land, then to "no checked route".
-  - `shelter/`: FEMA Open Shelters, filtered fail-closed (not open, in the hazard area, failed hazard check, not wheelchair accessible), ranked by walking time, then fullness.
-- `safezone/transport.py`: one boundary for every outside call. Live, recording and replay transports. Every value carries provenance (`live`, `recorded`, `sample`), and the UI labels sample data.
-- `safezone/rules.py`: every piece of safety wording, with sources (Ready.gov, ShakeOut, CGS, PG&E).
-- `web/`: vanilla JS PWA. Line-art white, black and red. Prepare flow, plan page, a two-page print fridge sheet, and a dark emergency mode that reads only IndexedDB. The service worker is versioned in `web/sw.js`; bump `VERSION` when web files change.
-- `index.py` and `vercel.json`: the Vercel entry point. `modal_app.py` also exists.
-- Tests: `python -m pytest -q` (147), `node --test web/tests/*.test.mjs`, and `node tools/verify_e2e.cjs <outdir> <base-url>` (drives every flow in a phone-sized Chromium against a running server).
+- Landing: a top-down line-art coastal neighborhood (seeded, procedural SVG) that loops calm, shaking, tsunami, recede. Yellow accent, a yellow-to-red severity scale (red only for danger and the hanko seal), restrained Japanese elements (seigaiha water, JIS-style tsunami and evacuation-site signs, small bilingual labels). Laptop widths show a phone-width column over the art.
+- Setup, camera first: one permissions screen (camera, location, iOS motion), then a guided shot list: room (repeatable), the way out, go bag, gas shutoff. Live quality meter (light, sharpness, steadiness, level). Skip and Back everywhere. The location lookup (GPS, then typed address as fallback) and every photo check run in the background. Review screen, then save as a mapped place.
+- Vision: rooms use SAM 3.1 (13 phrases, all at once) then one Muse Spark call with a strict JSON schema; code in `room/score.py` decides spots and fixes. The go bag uses one Muse Spark call over Ready.gov's fixed 14-item list; it reports "Seen in the photo" or "Not seen" and never judges the kit. Way-out and gas photos are saved for offline reference, no model call.
+- Places and standby: saved places, nearest one by GPS, standby listens for sustained shaking (devicemotion) while the app is open.
+- Emergency, voice led: shaking says only "Drop, cover and hold on" plus the saved spot, repeated every 15 s; taps in the first 3 s are ignored; the only way forward is "Shaking has stopped". After: the go-now line, then spoken turn-by-turn from GPS (`web/js/guide.js`), with wake lock and a mute toggle. Demo mode says "This is a demo" and simulates the walker.
+- Regions (`safezone/regions.py`): `us-ca` (the original pipelines: Nominatim, CGS tsunami hazard and land polygons, DataSF soft-story, Overpass, OSRM, FEMA shelters) and `jp` (Hazard Map Portal tsunami inundation tiles, GSI designated tsunami evacuation sites, Cabinet Office and JMA guidance quoted in Japanese with English). A point outside both gets `no_coverage`. Add a city per `docs/regions.md`.
+- Demo: "Run the demo" on the landing page. It walks the real setup on `demo/living_room.jpg` with recorded data, saves "Demo: Ocean Beach" and adds "Demo: Kamakura", then "Simulate an earthquake" runs the voice-led emergency. "Exit demo" removes the demo places.
 
 ## Real API facts (checked against real responses on Nov 3)
 
 - Key env var `MODEL_API_KEY` (`META_API_KEY` also works). Base `https://api.meta.ai/v1`.
-- SAM 3.1 is called on `POST /responses` with `stream: true`, one noun phrase, and the image as a data URL. Records look like `<0f>0<|box;x1..y2;w;h;c|><|mask;x=0;y=0;c;data=H,W,~payload|>`. Masks arrive downscaled to at most 1024 px on the long side and are stretched over the box. Lossless masks decode only with the `meta-sam-parser` package (in requirements.txt). Its `decode_mask_to_raster` returns row-major bytes (H x W of 0/1); `segment._raster_array` reshapes them. Any decode failure falls back to the box.
-- On the demo photo, real SAM found: wardrobes (one box spans the left and middle wardrobe), both beds, the boxes on the shelf, and several "door" hits that include wardrobe doors. It found no wire shelf ("bookshelf") and no ceiling light.
+- SAM 3.1 is called on `POST /responses` with `stream: true`, one noun phrase, and the image as a data URL. Records look like `<0f>0<|box;x1..y2;w;h;c|><|mask;x=0;y=0;c;data=H,W,~payload|>`. Masks arrive downscaled to at most 1024 px on the long side. Lossless masks decode only with the `meta-sam-parser` package (in requirements.txt). Any decode failure falls back to the box. A scan where SAM never answers is a 502, not an empty room.
+- On the demo photo, real SAM found the wardrobes, both beds, the boxes on the shelf, and "door" hits that are wardrobe doors (named "cabinet door" in the UI).
 - Models the key can call: muse-image-1.0, muse-spark-1.1, 1.2, 1.2-contributor, 1.3, 1.3-contributor, muse-voice-transcribe-1.0, muse-wonder-1.0, sam-3.1.
-- Muse Spark is called on `POST /chat/completions` with `response_format: json_schema` (strict, nullable fields as `anyOf` with null) and `reasoning_effort: low`. A tiny call took 10 s on `muse-spark-1.3`.
-- Overpass's main instance often answers 502 or times out; `building/osm.py` waits 60 s and tries `overpass.private.coffee`, then `overpass.kumi.systems`.
-- CGS: 1000 Great Highway (the demo address) is inside the official hazard area. Real CGS polygons near it: 24 hazard polygons (18k vertices) and 19 land polygons (17k vertices); the route checks run on them in about 2 s. DataSF rows can lack a street suffix or carry stray symbols, and San Francisco writes avenues as `AV`. OSRM foot routing works. FEMA is unverified: the user's probe hit a Windows certificate error.
-- The cloud sandbox cannot reach any of these services. Live calls run on the user's machine.
+- Muse Spark is called on `POST /chat/completions` with `response_format: json_schema` (strict, nullable fields as `anyOf` with null) and `reasoning_effort: low`.
+- Overpass often answers 502 or times out; `building/osm.py` waits 60 s and tries two mirrors.
+- CGS: 1000 Great Highway (the demo address) is inside the hazard area. FEMA listed 0 open shelters on Nov 3, so the demo shows labelled SAMPLE shelters.
+- Japan: Tokyo's own inundation study maps only its islands, so the 23 wards have no mapped tsunami inundation. The Japan demo place is Kamakura City Hall. Tile URL, zoom and legend colours are verified; GSI site field names are not (the recording will show them).
 
-## Fixtures
+## Route facts (independent review, Nov 4)
 
-- `fixtures/demo/`: REAL responses recorded on the user's machine (attempt 3, Nov 3, 11:24 PM), except FEMA (real answer was 0 open shelters, replaced by labelled SAMPLE shelters) and the outside-zone address (SAMPLE), both added by `python tools/demo.py fill-samples`. Overpass timed out and is never filled, so the building has no storeys flag. `demo/plan.json` is the demo household built from them. `tools/demo.py` refuses to write the plan where `meta-sam-parser` is missing (this sandbox), because masks would fall back to boxes; build or rebuild the plan on the user's machine only.
-- `python tools/record_fixtures.py` (on the user's machine, with the key) replaces them with real recorded responses and rebuilds the demo plan. Do this before filming. It records into a fresh `fixtures/demo.recording-<time>/` folder (gitignored), prints every failed call with its status and body, prints the room notes (which include the Muse Spark error if classification failed), falls back to labelled SAMPLE shelters if FEMA fails, and then copies the files into `fixtures/demo/`.
-- `fixtures/probe/`: the earlier session's first real SAM and Muse responses (Responses API, non-streaming).
+- The demo route is 602 m, 10 min. It exits the zone 290 m from home, never goes more than 40 m deeper than home, and ends 100 m clear on mapped land. The two shorter eastward routes were correctly rejected (70 m seaward first).
+- OSRM's opening loop around the start now reads "Walk to the nearby path" (`fold_start_loop` in `route/osrm.py`), not "Head west".
+- Route checks count "off mapped land" as inside the zone and measure depth to mapped land, so walking toward the water reads as deeper.
 
-## Still to do (state at handoff)
+## Fixtures and recording
 
-1. DONE: real fixtures recorded and pushed (dac8c44), sample shelters filled in. History: attempt 1 (commit d955d89) stopped after SAM; Muse Spark, OSRM and FEMA calls failed without saying why. Attempt 2 crashed decoding a real SAM mask (fixed in 0774842) and Overpass returned 502 (mirror added). Attempt 3 finished: Muse Spark, OSRM and FEMA succeeded (FEMA listed 0 open shelters); only Overpass timed out on both servers, now 60 s with a third server. Attempt 3's recording is being pushed for review. Next: user runs `git pull` then `python tools/record_fixtures.py` and pastes the output. If it shows failed calls, fix each from the printed status and body. Unknowns it will answer: whether the Muse Spark classification call (180 s timeout, strict schema in `room/classify.py`) succeeds, whether OSRM foot routes succeed from the user's machine, and whether FEMA is reachable (it hit a Windows certificate error in the probe; certifi is current).
-2. DONE: browser check passes all 23 checks on the real fixtures (`NODE_PATH=/opt/node22/lib/node_modules` in the sandbox). Real room: Muse Spark flags two wardrobes, the box up high and two wardrobe doors, puts the left bed in the tip zone and the right bed under the box, and its floor spot is rejected (doorway), so the spot is "no cover nearby". Real route: 10 min, 600 m. Open question for a route review: the turn list starts "Head west" (20 m, toward the sea) and runs about 250 m north before turning east.
-3. Vercel: deployed at https://safezone-alpha-one.vercel.app/ with `MODEL_API_KEY`; redeploys on every push to main. Live check pending.
-4. Film from `docs/video_script.md` (2:45, limit 3:00). The script now matches the real demo plan (room, route, sample shelters). Submit by Nov 4, 6 PM PT.
-5. Optional: `room.jpg` at the repo root is the user's dorm photo added by mistake; the demo uses `demo/living_room.jpg`. Offer to remove it.
+- `fixtures/demo/`: real US responses recorded Nov 3 (attempt 3), plus labelled SAMPLE shelters and outside-zone address (`python tools/demo.py fill-samples`), plus Japan samples. Recorders merge into this folder; they never empty it.
+- `demo/plan.json` (Ocean Beach) can only be rebuilt where `meta-sam-parser` installs (the user's machine); `tools/demo.py` refuses otherwise. `demo/plan_jp.json` (Kamakura) and `demo/gobag.json` are SAMPLE until recorded.
+- On the user's machine: `python tools/record_japan.py` (no key; rebuilds `demo/plan_jp.json` when every call succeeded) and `python tools/record_fixtures.py --gobag <photo.jpg>` (writes `demo/gobag.json`). `python tools/record_fixtures.py` rerecords the US household.
+
+## Tests
+
+- `python -m pytest -q` (230), `node --test web/tests/*.test.mjs` (31).
+- `node tools/verify_e2e.cjs <outdir> <base-url>` (126 checks: landing, demo flow with voice log, real flow and offline, no places, migration). In the sandbox: `NODE_PATH=/opt/node22/lib/node_modules`, and run the server with `SAFEZONE_FIXTURES=fixtures/demo MODEL_API_KEY=x python -m uvicorn safezone.app:create_app --factory --port 8000`.
+- After any web change run `python tools/sw_shell.py`: it rewrites the service worker's offline file list and bumps its version.
+
+## Submission materials
+
+- `README.md`, `docs/devpost.md`, `docs/judge_quickstart.md`: drafts. Each opens with a TODO block (credits name, recordings, live URL, test counts).
+- `docs/story.md`: verified disaster facts with sources (Dec 5, 2024 warning was 10:44 to 11:54 AM, not at night; Berkeley after-action survey; Kamaishi; furniture injuries; preparedness). Use only facts from it.
+- `docs/video_script.md`: must be rewritten for the new app before filming.
+
+## Still to do (Nov 4)
+
+1. Finish the independent safety review (it was cut off by a usage limit at 2:41 AM; resumed 9 AM). Then rerun every test and the browser check, merge `redesign` into `main`, and check the live URL.
+2. User records Kamakura and a go-bag check; review the output, fix failures, confirm the demo shows recorded data.
+3. Rewrite `docs/video_script.md` for the new flow.
+4. Fill the TODOs in the submission drafts. User films and submits by 6 PM PT.
 
 ## Safety rules (never break)
 
-- Never route or instruct anyone to move during shaking. The shaking screen has exactly one exit, "Shaking has stopped".
-- No structural claims from a photo. Never "safe route", "guarantees" or "structural".
-- Model output never becomes an instruction without a code guard. Fixes come only from `FIX_TABLE`.
-- Stale or sample data is always labelled.
+- Never route or instruct anyone to move during shaking. The shaking screen has exactly one way forward, "Shaking has stopped".
+- No structural claims from a photo. Never "safe route", "safest", "guarantees" or "structural". "Safe" appears only in the official "until officials say it is safe".
+- Model output never becomes an instruction without a code guard. Room fixes come only from `FIX_TABLE`; go-bag output never judges the kit.
+- Stale, sample, replay and demo data are always labelled.
+- Spoken directions never point a person back toward the water: no off-route pointer once outside the hazard area, and walking the route backward gets "Turn around".
 
 ## Decision trail
 
-`docs/decisions.tsv` records each fork chosen, why, and the evidence.
+`docs/decisions.tsv` records each fork chosen, why, and the evidence. `docs/redesign.md` is the contract the overnight rebuild followed.

@@ -41,10 +41,16 @@ export function routeView(route, building, { onMap } = {}) {
   }
   const map = routeMap(route, building?.hazard_area?.polygons);
   onMap?.(map);
+  const site = route.kind === 'site_route' ? route.site : null;
   return h('div', { class: 'route route-walk' },
     h('div', { class: 'route-figures' },
       h('div', null, h('span', { class: 'figure-num' }, walkMinutes(route.walk_min)), h('span', { class: 'figure-label' }, 'walk')),
-      h('div', null, h('span', { class: 'figure-num' }, formatDistance(route.distance_m)), h('span', { class: 'figure-label' }, 'to outside the hazard area'))),
+      h('div', null, h('span', { class: 'figure-num' }, formatDistance(route.distance_m)),
+        h('span', { class: 'figure-label' }, site ? 'to a designated evacuation site' : 'to outside the hazard area'))),
+    site ? h('div', { class: 'route-site' },
+      h('p', { class: 'route-site-name' }, site.name, h('span', { class: 'jp' }, ' 指定緊急避難場所')),
+      h('p', null, site.instruction),
+      h('p', { class: 'fine mono' }, h('a', { href: site.source_url, target: '_blank', rel: 'noopener' }, site.source_name), ' ', sampleTag(site))) : null,
     h('figure', { class: 'route-map' }, map.svg,
       h('figcaption', { class: 'map-key' },
         h('span', { class: 'key key-hazard' }, 'Tsunami hazard area'),
@@ -69,6 +75,7 @@ export function shelterSection(plan, sheltersError) {
   };
   return h('div', { class: 'shelters' },
     h('p', { class: 'call-ahead' }, 'Call ahead and confirm with local officials before you go. Shelter status changes fast.'),
+    result.ranking ? h('p', { class: 'fine' }, result.ranking) : null,
     result.matches.length === 0
       ? h('p', { class: 'notice' }, 'No open shelter in the data fits this household. Follow official instructions for where to go.')
       : h('ol', { class: 'shelter-list' }, result.matches.map((m) => shelterCard(m, result))),

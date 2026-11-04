@@ -3,7 +3,7 @@
   "functions": {
     "index.py": {
       "maxDuration": 300,
-      "excludeFiles": "{tests/**,docs/**,tools/**,fixtures/demo.recording/**,**/__pycache__/**}"
+      "excludeFiles": "{tests/**,docs/**,tools/**,fixtures/**,**/__pycache__/**}"
     }
   }
 }

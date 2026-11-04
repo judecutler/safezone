@@ -46,14 +46,46 @@ def parse_route(data: Any) -> OsrmRoute | None:
     path = [(float(lon), float(lat)) for lon, lat in route["geometry"]["coordinates"]]
     if len(path) < 2:
         return None
-    steps = [parse_step(s) for leg in route.get("legs", []) for s in leg.get("steps", [])]
+    raw = [s for leg in route.get("legs", []) for s in leg.get("steps", [])]
+    raw = fold_start_loop(raw, path[0])
+    steps = [parse_step(s) for s in raw]
     # A zero-length turn is noise in a list read under stress; the final "Arrive" step is always 0 m.
     steps = [step for i, step in enumerate(steps) if step.distance_m >= 1 or i == len(steps) - 1]
     return OsrmRoute(path=path, distance_m=float(route["distance"]), steps=steps)
 
 
+START_LOOP_M = 100.0
+FOLDED_START = "Walk to the nearby path"
+
+
+def fold_start_loop(raw: list[dict[str, Any]], origin: LonLat) -> list[dict[str, Any]]:
+    """Fold the opening steps that only loop around the start to reach the path network.
+
+    OSRM snaps the start to the nearest path node, which can sit behind the building; the first turns then circle
+    back toward the start. Read aloud at the coast, "Head west" toward the sea for 25 m is alarming and wrong in
+    intent. When a later maneuver lies nearer the start than the one before it, and within START_LOOP_M of the start,
+    the steps before it become one "Walk to the nearby path" step, and the walk resumes with a compass heading.
+    """
+    def dist(step: dict[str, Any]) -> float | None:
+        loc = step.get("maneuver", {}).get("location")
+        return geo.haversine_m(origin, (float(loc[0]), float(loc[1]))) if loc else None
+
+    near = [dist(s) for s in raw]
+    cut = 0
+    for k in range(1, min(len(raw) - 1, 5)):
+        if near[k] is not None and near[k - 1] is not None and near[k] < near[k - 1] and near[k] <= START_LOOP_M:
+            cut = k
+    if not cut:
+        return raw
+    folded = {"maneuver": {"type": "folded"}, "distance": sum(float(s.get("distance", 0.0)) for s in raw[:cut])}
+    resume = {**raw[cut], "maneuver": {**raw[cut].get("maneuver", {}), "type": "depart"}}
+    return [folded, resume, *raw[cut + 1:]]
+
+
 def parse_step(step: dict[str, Any]) -> RouteStep:
     m = step.get("maneuver", {})
+    if m.get("type") == "folded":
+        return RouteStep(instruction=FOLDED_START, distance_m=float(step.get("distance", 0.0)))
     text = step_text(m.get("type", ""), m.get("modifier"), step.get("name") or "", m.get("bearing_after"))
     return RouteStep(instruction=text, distance_m=float(step.get("distance", 0.0)))
 

@@ -1,0 +1,60 @@
+:root {
+  --paper: #FBF8F1;
+  --paper-2: #F3EEE2;
+  --card: #FFFFFF;
+  --ink: #17150F;
+  --muted: #6B655A;
+  --faint: #B9B1A2;
+  --line: #17150F;
+  --hair: #D9D2C3;
+  --accent: #FFC629;
+  --accent-ink: #17150F;
+  --accent-soft: #FFF1C2;
+  --sev-1: #FFD84D;
+  --sev-2: #FFB020;
+  --sev-3: #FF7A1A;
+  --sev-4: #E8322B;
+  --sev-gradient: linear-gradient(90deg, var(--sev-1), var(--sev-2), var(--sev-3), var(--sev-4));
+  /* Text-safe versions of the severity colours, for words on paper (AA at body size). */
+  --sev-1-text: #7A5E00;
+  --sev-2-text: #8F5A00;
+  --sev-3-text: #A84300;
+  --sev-4-text: #C8211B;
+  --water: #DCE5E8;
+  --water-line: #8FA6AE;
+  --sign-green: #00875A;
+
+  --stroke: 2px;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 0 rgba(23, 21, 15, 0.06), 0 10px 30px -12px rgba(23, 21, 15, 0.28);
+
+  --f-body: "Inter", "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  --f-cond: "Archivo Narrow", "DIN Condensed", "Avenir Next Condensed", "Roboto Condensed", sans-serif-condensed, "Arial Narrow", "Helvetica Neue Condensed", "DejaVu Sans Condensed", "Liberation Sans Narrow", sans-serif;
+  --f-mono: ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  --f-jp: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+
+  color-scheme: light;
+}
+
+[data-mode="emergency"] {
+  --paper: #0E0D0A;
+  --paper-2: #1A1813;
+  --card: #1A1813;
+  --ink: #FFF8E6;
+  --muted: #C9C0AC;
+  --faint: #6E675A;
+  --line: #FFF8E6;
+  --hair: #3A362D;
+  --accent: #FFC629;
+  --accent-ink: #17150F;
+  --accent-soft: #3A2F0A;
+  --sev-1-text: #FFD84D;
+  --sev-2-text: #FFB020;
+  --sev-3-text: #FF7A1A;
+  --sev-4-text: #FF5A4F;
+  --water: #1E2A2E;
+  --water-line: #5C7880;
+  --shadow: none;
+  color-scheme: dark;
+}

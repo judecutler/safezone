@@ -6,6 +6,7 @@ let hatchSeq = 0;
 // Offline route drawing: no tiles, just the hazard area, the path and the two ends in a local metric frame.
 // Returns the svg and a function that moves the live position dot.
 export function routeMap(route, hazardPolygons) {
+  const site = route.kind === 'site_route';
   const project = localFrame(route.origin);
   const toSvg = (ll) => { const [x, y] = project(ll); return [x, -y]; };
   const keyPoints = [route.origin, route.destination, ...(route.path ?? [])].map(project);
@@ -38,17 +39,17 @@ export function routeMap(route, hazardPolygons) {
 
   const svg = s('svg', {
     class: 'routemap', viewBox: `${vb.x} ${vb.y} ${vb.w} ${vb.h}`, role: 'img',
-    'aria-label': `Route map: ${formatDistance(route.distance_m ?? route.straight_m)} to outside the hazard area`,
+    'aria-label': `Route map: ${formatDistance(route.distance_m ?? route.straight_m)} to ${site ? 'a designated evacuation site' : 'outside the hazard area'}`,
   },
   s('defs', null, s('pattern', { id, width: 2.2 * u, height: 2.2 * u, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' },
     s('line', { x1: 0, y1: 0, x2: 0, y2: 2.2 * u, class: 'rm-hatch' }))),
   s('rect', { x: vb.x, y: vb.y, width: vb.w, height: vb.h, class: 'rm-paper' }),
   hazard,
-  s('polyline', { points: line, class: route.kind === 'walking_route' ? 'rm-path' : 'rm-path rm-path-direct' }),
+  s('polyline', { points: line, class: route.kind === 'walking_route' || site ? 'rm-path' : 'rm-path rm-path-direct' }),
   s('circle', { cx: ox, cy: oy, r: 2.2 * u, class: 'rm-start' }),
   label(ox, oy + 5 * u, 'HOME'),
   s('rect', { x: dx - 2.2 * u, y: dy - 2.2 * u, width: 4.4 * u, height: 4.4 * u, class: 'rm-end' }),
-  label(dx, dy - 3.4 * u, 'OUT OF ZONE'),
+  label(dx, dy - 3.4 * u, site ? 'SITE' : 'OUT OF ZONE'),
   s('g', { class: 'rm-north' },
     s('path', { d: `M${nx},${ny - 4 * u} L${nx + 2.4 * u},${ny + 3 * u} L${nx},${ny + 1.6 * u} L${nx - 2.4 * u},${ny + 3 * u} Z` }),
     s('text', { x: nx, y: ny + 8 * u, 'font-size': 3.4 * u, 'text-anchor': 'middle' }, 'N')),

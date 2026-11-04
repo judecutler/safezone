@@ -1,37 +1,96 @@
 import * as api from './api.js';
 import * as db from './db.js';
 import { EMERGENCY_SCREENS, initialScreen, next } from './machine.js';
+import { neighborhood } from './art/neighborhood.js';
+import { h } from './dom.js';
 import { toUploadJpeg } from './photo.js';
-import { renderEmergency } from './screens/emergency.js';
-import { renderPrepare } from './screens/prepare.js';
+import { loadPlaces, nearestPlace, placeFromSession, savePlaces } from './places.js';
+import { renderCapture } from './screens/capture.js';
+import { renderEmergency, stopEmergency } from './screens/emergency.js';
+import { renderLanding } from './screens/landing.js';
+import { renderPermissions } from './screens/permissions.js';
+import { renderPlace, renderPlaces } from './screens/places.js';
+import { renderReview } from './screens/review.js';
+import { simulateQuake as shakeScreen, stopStandby } from './standby.js';
 
-// `saved` is the committed plan the emergency screens use: { plan: Plan, shelters_error }.
-// `draft` is what the prepare screens edit: { building, household, rooms }. Build commits it.
+// `places` are the committed plans; the emergency screens read them from IndexedDB only.
+// `session` is the setup in progress. Background jobs (location, scans, go bag) write into it as they finish.
 const state = {
-  screen: 'start',
-  saved: null,
-  draft: null,
+  screen: 'landing',
+  demo: false,
+  places: [],
+  activePlaceId: null,
+  session: null,
   guidance: null,
   images: {},
   emergency: null,
-  ui: { busy: null, error: null, scanning: null },
+  ui: { error: null, busy: null },
 };
 
 const NO_NEEDS = { children: false, wheelchair: false, medical: false, pets: false };
-
 const ERRORS = {
   offline: 'SafeZone could not reach its server. Check your connection and try again.',
   address_not_found: 'No match for that address. Check the street number and city, then try again.',
-  decode: 'This photo could not be read. Try a JPEG, or take a new photo with the camera.',
+  decode: 'This photo could not be read. Take it again.',
 };
-const errorText = (e, fallback) => ERRORS[e?.code] ?? fallback;
-const EDIT_SCREENS = new Set(['address', 'household', 'rooms']);
+const errorText = (e, fallback) => e?.reason ?? ERRORS[e?.code] ?? fallback;
+const uid = () => crypto.randomUUID?.() ?? `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-const hasPlan = () => Boolean(state.saved?.plan?.generated_at);
+let demoData = null;
+const evacJobs = new Map();
+let renderQueued = false;
+
+function render() {
+  if (renderQueued) return;
+  renderQueued = true;
+  queueMicrotask(() => {
+    renderQueued = false;
+    const root = document.getElementById('app');
+    const emergency = EMERGENCY_SCREENS.has(state.screen);
+    document.documentElement.dataset.mode = emergency ? 'emergency' : 'prepare';
+    document.documentElement.dataset.demo = String(state.demo);
+    document.querySelector('meta[name=theme-color]').content = emergency ? '#0E0D0A' : '#FBF8F1';
+    root.replaceChildren(SCREENS[state.screen](state, actions));
+  });
+}
+
+const SCREENS = {
+  landing: renderLanding,
+  permissions: renderPermissions,
+  capture: renderCapture,
+  review: renderReview,
+  places: renderPlaces,
+  place: renderPlace,
+  shaking: renderEmergency,
+  after: renderEmergency,
+  shelters: renderEmergency,
+};
+
+function newSession() {
+  return {
+    id: uid(), placeId: null, demo: state.demo, name: '', kind: 'home',
+    location: { status: 'idle' }, household: { ...NO_NEEDS }, shots: [], evac: { status: 'idle' },
+  };
+}
+
+// Adding photos to a saved place reopens setup with what that place already knows.
+function sessionForPlace(place) {
+  const session = newSession();
+  if (!place) return session;
+  Object.assign(session, {
+    placeId: place.id, demo: Boolean(place.demo), name: place.name, kind: place.kind,
+    household: { ...NO_NEEDS, ...place.plan.household },
+    location: place.plan.building ? { status: 'found', building: place.plan.building } : { status: 'idle' },
+    evac: { status: 'done', household: { ...NO_NEEDS, ...place.plan.household }, route: place.plan.route, shelters: place.plan.shelters, shelters_error: place.plan.shelters_error },
+    shots: place.plan.rooms.map((room) => ({ id: uid(), kind: 'room', name: room.name, image_id: room.id, status: 'done', result: room })),
+  });
+  return session;
+}
 
 async function persist() {
-  await db.putKV('saved', state.saved);
-  await db.putKV('draft', state.draft);
+  await savePlaces(state.places);
+  await db.putKV('session', state.session);
 }
 
 function setUi(patch) {
@@ -41,9 +100,11 @@ function setUi(patch) {
 
 async function go(event) {
   const from = state.screen;
-  const to = next(from, event, { hasPlan: hasPlan() });
-  if (event === 'cancel') { state.draft = null; await persist(); }
-  if (EDIT_SCREENS.has(to) && !state.draft) state.draft = draftFromPlan();
+  const to = next(from, event, { hasPlaces: state.places.length > 0 });
+  if ((event === 'begin' || event === 'demo' || event === 'new_place') && !state.session) state.session = newSession();
+  if (event === 'add_shots') state.session = sessionForPlace(state.places.find((p) => p.id === state.activePlaceId));
+  if (EMERGENCY_SCREENS.has(from) && !EMERGENCY_SCREENS.has(to)) stopEmergency();
+  if (from === 'places' && to !== 'places') stopStandby();
   if (EMERGENCY_SCREENS.has(to) && !EMERGENCY_SCREENS.has(from)) await loadEmergency();
   state.screen = to;
   state.ui.error = null;
@@ -52,164 +113,369 @@ async function go(event) {
   window.scrollTo(0, 0);
 }
 
-function draftFromPlan() {
-  const p = state.saved?.plan;
-  return p ? { building: p.building, household: p.household, rooms: p.rooms } : { building: null, household: { ...NO_NEEDS }, rooms: [] };
+function jump(screen) {
+  state.screen = screen;
+  history.pushState({ screen }, '', location.pathname);
+  render();
+  window.scrollTo(0, 0);
 }
 
-// The emergency screens read IndexedDB only, so what they show is exactly what survives offline.
+// The emergency uses the place nearest to where the phone is, else the one last opened, else the first.
 async function loadEmergency() {
-  const [saved, guidance] = await Promise.all([db.getKV('saved'), db.getKV('guidance')]);
-  const rooms = saved?.plan?.rooms ?? [];
-  state.emergency = { saved: saved ?? null, guidance: guidance ?? null, images: await db.loadImageUrls(rooms.map((r) => r.id)) };
+  const places = await loadPlaces();
+  let place = places.find((p) => p.id === state.activePlaceId) ?? places[0] ?? null;
+  const here = await currentPosition(3000);
+  if (here && places.length) place = nearestPlace(places, here)?.place ?? place;
+  const guidance = await db.getKV(guidanceKey(place?.plan?.building?.region));
+  state.emergency = { place, guidance: guidance ?? null, images: await db.loadImageUrls(placeImageIds(place)), demo: state.demo || Boolean(place?.demo) };
 }
+
+const REGIONS = ['us-ca', 'jp'];
+const guidanceKey = (region) => (region && region !== 'us-ca' ? `guidance:${region}` : 'guidance');
+const placeImageIds = (place) => [
+  ...(place?.plan?.rooms ?? []).map((r) => r.id),
+  ...['exit', 'gas'].map((k) => place?.plan?.extras?.[k]).filter(Boolean),
+];
+
+function currentPosition(timeoutMs) {
+  if (state.demo || !('geolocation' in navigator)) return Promise.resolve(null);
+  return new Promise((resolve) => {
+    navigator.geolocation.getCurrentPosition((p) => resolve([p.coords.longitude, p.coords.latitude]), () => resolve(null),
+      { enableHighAccuracy: false, maximumAge: 60000, timeout: timeoutMs });
+  });
+}
+
+function shot(id) {
+  return state.session?.shots.find((s) => s.id === id);
+}
+
+// Unnamed rooms are numbered by the rooms present now, so removing Room 1 makes the next one Room 1.
+function numberRooms(session) {
+  session.shots.filter((s) => s.kind === 'room' && s.status !== 'skipped').forEach((s, i) => {
+    if (!s.autoName) return;
+    s.name = `Room ${i + 1}`;
+    if (s.result) s.result.name = s.name;
+  });
+}
+
+async function updateShot(sessionId, id, patch) {
+  const session = state.session?.id === sessionId ? state.session : null;
+  const target = session?.shots.find((s) => s.id === id);
+  if (target) Object.assign(target, patch);
+  if (session) numberRooms(session);
+  if (patch.status === 'done') await attachToSavedPlace(sessionId, target ?? { id, ...patch });
+  await persist();
+  render();
+}
+
+// A photo that finishes after the place was saved is added to that place.
+async function attachToSavedPlace(sessionId, s) {
+  const place = state.places.find((p) => p.sessionId === sessionId);
+  if (!place || !s?.result) return;
+  if (s.kind === 'room') place.plan.rooms = [...place.plan.rooms.filter((r) => r.id !== s.result.id), s.result];
+  if (s.kind === 'gobag') place.plan.extras = { ...place.plan.extras, gobag: s.result };
+}
+
+async function runShot(s) {
+  const sessionId = state.session.id;
+  if (s.kind === 'exit' || s.kind === 'gas') return updateShot(sessionId, s.id, { status: 'done' });
+  await updateShot(sessionId, s.id, { status: 'working', error: null });
+  const blob = await db.getImage(s.image_id);
+  try {
+    let result;
+    if (s.kind === 'room') {
+      result = state.session.demo ? await demoRoom(s.name) : await api.scanRoom(s.name, blob);
+      await db.putImage(result.id, blob);
+      state.images[result.id] = state.images[s.image_id];
+    } else {
+      result = state.session.demo ? await demoGoBag() : await api.checkGoBag(blob);
+    }
+    await updateShot(sessionId, s.id, { status: 'done', result });
+  } catch (e) {
+    await updateShot(sessionId, s.id, { status: 'failed', error: errorText(e, 'The check did not finish. Try again, or skip this photo.') });
+  }
+}
+
+async function demoRoom(name) {
+  await sleep(2500);
+  const room = structuredClone(demoData.plan.rooms[0]);
+  return { ...room, name: name || room.name };
+}
+
+async function demoGoBag() {
+  await sleep(1800);
+  return structuredClone(demoData.gobag);
+}
+
+async function locateWith(lookup) {
+  const sessionId = state.session.id;
+  const loc = state.session.location;
+  Object.assign(loc, { status: 'locating', error: null });
+  render();
+  try {
+    const building = await lookup();
+    if (state.session?.id !== sessionId) return;
+    state.session.location = { status: 'found', coords: [building.lon, building.lat], building };
+    startEvac();
+  } catch (e) {
+    if (state.session?.id !== sessionId) return;
+    state.session.location = { status: 'failed', error: errorText(e, 'The location lookup did not finish. Type the address instead.') };
+  }
+  await persist();
+  render();
+}
+
+// The route and shelters start as soon as the place is known, so saving is quick.
+function startEvac() {
+  const session = state.session;
+  const household = { ...session.household };
+  session.evac = { status: 'working', household };
+  const job = session.demo
+    ? sleep(800).then(() => ({ route: demoData.plan.route, shelters: demoData.plan.shelters, shelters_error: null }))
+    : api.getEvac(session.location.building, household);
+  evacJobs.set(session.id, job);
+  job.then((evac) => {
+    if (session.evac.household !== household) return;
+    session.evac = { status: 'done', household, ...evac };
+    persist().then(render);
+  }, () => { session.evac = { status: 'failed', household }; render(); });
+}
+
+const sameNeeds = (a, b) => Object.keys(NO_NEEDS).every((k) => Boolean(a[k]) === Boolean(b[k]));
 
 const actions = {
   go,
 
-  async lookupAddress(address) {
-    if (!address.trim()) return;
-    setUi({ busy: 'address', error: null });
-    try {
-      const building = await api.getProfile(address.trim());
-      state.draft = { ...state.draft, building };
-      await persist();
-      setUi({ busy: null });
-    } catch (e) {
-      setUi({ busy: null, error: errorText(e, 'The address lookup did not respond. Try again in a minute.') });
-    }
+  startLocate() {
+    const session = state.session;
+    if (!session || session.location.status === 'locating' || session.location.status === 'found') return;
+    if (session.demo) return locateWith(async () => { await sleep(1500); return demoData.plan.building; });
+    if (!('geolocation' in navigator)) { session.location = { status: 'failed', error: 'Location is not available here. Type the address instead.' }; return render(); }
+    session.location = { status: 'locating' };
+    render();
+    navigator.geolocation.getCurrentPosition(
+      (p) => locateWith(() => api.getProfileAt(p.coords.longitude, p.coords.latitude)),
+      () => { session.location = { status: 'failed', error: 'Location is off. Type the address instead.' }; persist().then(render); },
+      { enableHighAccuracy: true, maximumAge: 30000, timeout: 20000 });
+  },
+
+  lookupAddress(address) {
+    if (!address?.trim()) return;
+    return locateWith(() => api.getProfile(address.trim()));
   },
 
   async toggleNeed(key) {
-    state.draft.household = { ...state.draft.household, [key]: !state.draft.household[key] };
+    const h = state.session.household;
+    h[key] = !h[key];
     await persist();
     render();
   },
 
-  async scanPhoto(name, file) {
-    const roomName = name.trim() || `Room ${state.draft.rooms.length + 1}`;
+  async setPlaceName(name, kind) {
+    Object.assign(state.session, { name, kind });
+    await persist();
+    render();
+  },
+
+  async addShot(kind, name, file) {
     let jpeg;
     try {
       jpeg = await toUploadJpeg(file);
     } catch {
-      return setUi({ error: ERRORS.decode });
+      setUi({ error: ERRORS.decode });
+      return null;
     }
-    const preview = URL.createObjectURL(jpeg.blob);
-    setUi({ busy: 'scan', error: null, scanning: { name: roomName, preview } });
-    try {
-      const scan = await api.scanRoom(roomName, jpeg.blob);
-      await db.putImage(scan.id, jpeg.blob);
-      state.images[scan.id] = preview;
-      state.draft.rooms = [...state.draft.rooms.filter((r) => r.id !== scan.id), scan];
-      await persist();
-      setUi({ busy: null, scanning: null });
-      document.getElementById(`room-${scan.id}`)?.scrollIntoView({ block: 'start' });
-    } catch (e) {
-      URL.revokeObjectURL(preview);
-      setUi({ busy: null, scanning: null, error: errorText(e, 'The room scan did not finish. Try the photo again.') });
-    }
+    const s = { id: uid(), kind, image_id: uid(), status: 'queued', name: name?.trim() ?? '' };
+    if (kind === 'room' && !s.name) s.autoName = true;
+    await db.putImage(s.image_id, jpeg.blob);
+    state.images[s.image_id] = URL.createObjectURL(jpeg.blob);
+    state.session.shots.push(s);
+    numberRooms(state.session);
+    state.ui.error = null;
+    await persist();
+    render();
+    runShot(s);
+    return s.id;
   },
 
-  async removeRoom(roomId) {
-    state.draft.rooms = state.draft.rooms.filter((r) => r.id !== roomId);
-    if (!state.saved?.plan?.rooms.some((r) => r.id === roomId)) await db.deleteImage(roomId);
+  retryShot(id) {
+    const s = shot(id);
+    if (s) runShot(s);
+  },
+
+  async skipShot(kind) {
+    state.session.shots.push({ id: uid(), kind, status: 'skipped', name: '' });
     await persist();
     render();
   },
 
-  async toggleFix(where, roomId, fixId) {
-    const target = where === 'plan' ? state.saved.plan : state.draft;
-    target.rooms = target.rooms.map((room) => room.id !== roomId ? room : {
-      ...room, fixes: room.fixes.map((f) => (f.id === fixId ? { ...f, done: !f.done } : f)),
-    });
+  async removeShot(id) {
+    const s = shot(id);
+    if (!s) return;
+    state.session.shots = state.session.shots.filter((x) => x.id !== id);
+    numberRooms(state.session);
+    if (s.image_id) await db.deleteImage(s.image_id);
     await persist();
     render();
   },
 
-  async buildPlan() {
-    const { building, household, rooms } = state.draft;
-    setUi({ busy: 'build', error: null });
+  removeRoom(roomId) {
+    const s = state.session?.shots.find((x) => x.result?.id === roomId);
+    return s ? actions.removeShot(s.id) : null;
+  },
+
+  async savePlace() {
+    const session = state.session;
+    if (session.location.status !== 'found') return;
+    setUi({ busy: 'save', error: null });
     try {
-      const evac = await api.getEvac(building, household);
-      state.saved = {
-        plan: { building, household, rooms, route: evac.route, shelters: evac.shelters, generated_at: new Date().toISOString() },
-        shelters_error: evac.shelters_error,
-      };
-      state.draft = null;
+      if (session.evac.status !== 'done' || !sameNeeds(session.evac.household, session.household)) {
+        startEvac();
+        await evacJobs.get(session.id);
+      }
+      const place = placeFromSession(session, session.name || 'Home', session.kind, { demo: session.demo, id: session.placeId ?? undefined });
+      place.sessionId = session.id;
+      state.places = [...state.places.filter((p) => p.id !== place.id), place];
+      if (session.demo) await addJapanDemoPlace();
+      state.activePlaceId = place.id;
+      session.placeId = place.id;
       await persist();
       state.ui.busy = null;
-      await go('built');
+      await go('save');
     } catch (e) {
       setUi({ busy: null, error: errorText(e, 'The route and shelter lookup did not respond. Try again.') });
     }
   },
 
-  async loadDemo() {
+  async openPlace(id) {
+    state.activePlaceId = id;
+    const place = state.places.find((p) => p.id === id);
+    Object.assign(state.images, await db.loadImageUrls(placeImageIds(place)));
+    await go('open_place');
+  },
+
+  async deletePlace(id) {
+    const place = state.places.find((p) => p.id === id);
+    state.places = state.places.filter((p) => p.id !== id);
+    for (const id of placeImageIds(place)) await db.deleteImage(id);
+    if (state.activePlaceId === id) state.activePlaceId = null;
+    await persist();
+    if (state.screen === 'place') await go('back'); else render();
+  },
+
+  async toggleFix(where, roomId, fixId) {
+    const flip = (rooms) => rooms.map((room) => room.id !== roomId ? room : {
+      ...room, fixes: room.fixes.map((f) => (f.id === fixId ? { ...f, done: !f.done } : f)),
+    });
+    if (where === 'draft') {
+      for (const s of state.session.shots) if (s.result?.id === roomId) s.result = flip([s.result])[0];
+    } else {
+      const place = state.places.find((p) => p.id === where) ?? state.places.find((p) => p.id === state.activePlaceId);
+      if (place) place.plan.rooms = flip(place.plan.rooms);
+    }
+    await persist();
+    render();
+  },
+
+  async startDemo() {
     setUi({ busy: 'demo', error: null });
     try {
-      const { plan, images } = await api.getDemo();
-      for (const [roomId, url] of Object.entries(images)) {
-        const blob = await api.fetchBlob(url);
-        await db.putImage(roomId, blob);
-        state.images[roomId] = URL.createObjectURL(blob);
-      }
-      state.saved = { plan, shelters_error: null };
-      state.draft = null;
-      await persist();
+      demoData ??= await api.getDemo();
+      const blob = await api.fetchBlob(demoData.images[demoData.plan.rooms[0].id]);
+      demoData.photo = blob;
+      state.demo = true;
+      state.session = newSession();
+      state.session.demo = true;
+      state.session.household = { ...demoData.plan.household };
+      state.session.name = 'Demo: Ocean Beach';
       state.ui.busy = null;
-      await go('open_plan');
+      await persist();
+      await go(state.screen === 'landing' ? 'demo' : 'new_place');
     } catch (e) {
-      setUi({ busy: null, error: errorText(e, 'The demo household did not load. Try again.') });
+      setUi({ busy: null, error: errorText(e, 'The demo did not load. Try again.') });
     }
   },
 
-  async reset() {
-    if (!confirm('Delete this plan and its photos from this device?')) return;
-    const guidance = state.guidance;
-    await db.clearAll();
-    if (guidance) await db.putKV('guidance', guidance);
-    Object.values(state.images).forEach(URL.revokeObjectURL);
-    Object.assign(state, { saved: null, draft: null, images: {} });
-    await go('reset');
+  demoPhoto() {
+    return demoData?.photo ?? null;
+  },
+
+  async exitDemo() {
+    state.demo = false;
+    state.places = state.places.filter((p) => !p.demo);
+    if (state.session?.demo) state.session = null;
+    await persist();
+    jump(state.places.length ? 'places' : 'landing');
+  },
+
+  simulateQuake() {
+    shakeScreen(() => go('simulate'));
   },
 };
 
-function render() {
-  const root = document.getElementById('app');
-  const emergency = EMERGENCY_SCREENS.has(state.screen);
-  document.documentElement.dataset.mode = emergency ? 'emergency' : 'prepare';
-  document.querySelector('meta[name=theme-color]').content = emergency ? '#000000' : '#ffffff';
-  root.replaceChildren(emergency ? renderEmergency(state, actions) : renderPrepare(state, actions));
+// The second demo region is a prebuilt sample plan, so the places list shows both cities.
+async function addJapanDemoPlace() {
+  if (state.places.some((p) => p.demo && p.plan.building?.region === 'jp')) return;
+  try {
+    const jp = await api.getDemo('jp');
+    const plan = { extras: {}, ...jp.plan, building: { ...jp.plan.building, region: 'jp' } };
+    state.places = [...state.places, { id: uid(), name: 'Demo: Kamakura', kind: 'work', demo: true, plan, saved_at: plan.generated_at }];
+  } catch {
+    // The demo still runs with the Bay Area alone.
+  }
 }
 
+// Each region's guidance is stored for offline use; the emergency reads the one for its place.
 async function refreshGuidance() {
-  try {
-    state.guidance = await api.getGuidance();
-    await db.putKV('guidance', state.guidance);
-    render();
-  } catch {
-    // Offline: the stored copy from the last visit stays in use.
+  for (const region of REGIONS) {
+    try {
+      const g = await api.getGuidance(region);
+      await db.putKV(guidanceKey(region), g);
+      if (region === 'us-ca') state.guidance = g;
+    } catch {
+      // Offline: the stored copy from the last visit stays in use.
+    }
   }
+  render();
+}
+
+// Plans saved before places existed become one place, so nobody loses their plan.
+async function migrateSavedPlan() {
+  const saved = await db.getKV('saved');
+  if (!saved?.plan?.generated_at) return;
+  if (!state.places.length) {
+    state.places = [{ id: uid(), name: 'Home', kind: 'home', demo: false, plan: { extras: {}, ...saved.plan }, saved_at: saved.plan.generated_at }];
+    await savePlaces(state.places);
+  }
+  await db.putKV('saved', null);
 }
 
 async function boot() {
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
-  const [saved, draft, guidance] = await Promise.all([db.getKV('saved'), db.getKV('draft'), db.getKV('guidance')]);
-  Object.assign(state, { saved: saved ?? null, draft: draft ?? null, guidance: guidance ?? null });
-  const roomIds = [...(saved?.plan?.rooms ?? []), ...(draft?.rooms ?? [])].map((r) => r.id);
-  state.images = await db.loadImageUrls([...new Set(roomIds)]);
-  state.screen = initialScreen(location.search, { hasPlan: hasPlan() });
+  const [places, session, guidance] = await Promise.all([loadPlaces(), db.getKV('session'), db.getKV('guidance')]);
+  Object.assign(state, { places: places ?? [], session: session ?? null, guidance: guidance ?? null });
+  await migrateSavedPlan();
+  state.demo = state.places.some((p) => p.demo) || Boolean(state.session?.demo);
+  if (state.demo) demoData = await api.getDemo().catch(() => null);
+  for (const s of state.session?.shots ?? []) if (s.status === 'queued' || s.status === 'working') s.status = 'failed';
+  const ids = [...state.places.flatMap(placeImageIds), ...(state.session?.shots ?? []).map((s) => s.image_id).filter(Boolean)];
+  state.images = await db.loadImageUrls([...new Set(ids)]);
+  state.screen = initialScreen(location.search, { hasPlaces: state.places.length > 0 });
   if (EMERGENCY_SCREENS.has(state.screen)) await loadEmergency();
   history.replaceState({ screen: state.screen }, '');
+  document.body.prepend(h('div', { class: 'backdrop', 'aria-hidden': 'true' }, neighborhood({ animate: false })));
   render();
   refreshGuidance();
 }
 
 window.addEventListener('popstate', async (e) => {
   const screen = e.state?.screen;
-  if (!screen) return;
+  if (!screen || !SCREENS[screen]) return;
+  if (EMERGENCY_SCREENS.has(state.screen) && !EMERGENCY_SCREENS.has(screen)) stopEmergency();
+  if (state.screen === 'places' && screen !== 'places') stopStandby();
   if (EMERGENCY_SCREENS.has(screen) && !state.emergency) await loadEmergency();
-  if (EDIT_SCREENS.has(screen) && !state.draft) state.draft = draftFromPlan();
+  if ((screen === 'capture' || screen === 'review' || screen === 'permissions') && !state.session) return;
+  if (screen === 'place' && !state.activePlaceId) return;
   state.screen = screen;
   render();
 });
