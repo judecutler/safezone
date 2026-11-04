@@ -54,8 +54,8 @@ Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last upd
 
 ## Tests
 
-- `python -m pytest -q` (235), `node --test web/tests/*.test.mjs` (36).
-- `node tools/verify_e2e.cjs <outdir> <base-url>` (132 checks: landing, demo flow with voice log, real flow and offline, no places, migration). In the sandbox: `NODE_PATH=/opt/node22/lib/node_modules`, and run the server with `SAFEZONE_FIXTURES=fixtures/demo MODEL_API_KEY=x python -m uvicorn safezone.app:create_app --factory --port 8000`.
+- `python -m pytest -q` (236), `node --test web/tests/*.test.mjs` (37).
+- `node tools/verify_e2e.cjs <outdir> <base-url>` (140 checks: landing, demo flow with voice log, real flow and offline, no places, migration). In the sandbox: `NODE_PATH=/opt/node22/lib/node_modules`, and run the server with `SAFEZONE_FIXTURES=fixtures/demo MODEL_API_KEY=x python -m uvicorn safezone.app:create_app --factory --port 8000`.
 - After any web change run `python tools/sw_shell.py`: it rewrites the service worker's offline file list and bumps its version.
 
 ## Submission materials

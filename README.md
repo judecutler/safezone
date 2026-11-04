@@ -179,9 +179,9 @@ To record fresh responses on your own machine, run `python tools/record_fixtures
 
 ## Tests
 
-- `python -m pytest -q` runs 234 Python tests, including adversarial safety tests, record-then-replay tests and a test of the whole demo plan.
-- `node --test web/tests/*.test.mjs` runs 36 tests of the photo-quality meter, the turn-by-turn guide (including GPS noise and walking the route backward) and the app logic.
-- `node tools/verify_e2e.cjs <outdir> <base-url>` (needs Playwright and a running server) makes 132 checks in a phone-sized Chromium: the demo end to end with the spoken voice log, the real flow, offline, a phone with no saved places, and plans saved by the old app.
+- `python -m pytest -q` runs 236 Python tests, including adversarial safety tests, record-then-replay tests and a test of the whole demo plan.
+- `node --test web/tests/*.test.mjs` runs 37 tests of the photo-quality meter, the turn-by-turn guide (including GPS noise and walking the route backward) and the app logic.
+- `node tools/verify_e2e.cjs <outdir> <base-url>` (needs Playwright and a running server) makes 140 checks in a phone-sized Chromium: the demo end to end with the spoken voice log, the real flow, offline, a phone with no saved places, and plans saved by the old app.
 
 ## Honest limits
 

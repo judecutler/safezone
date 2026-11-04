@@ -96,7 +96,7 @@ Two regions work today. The San Francisco demo (1000 Great Highway, inside the o
 - In the real demo room, Muse Spark proposed a floor spot in a doorway, and SafeZone's own check set it aside. The model reasons, and code decides.
 - A voice-led emergency that only speaks official guidance, the saved spot and checked route steps, and never tells anyone to move during shaking.
 - Two regions behind one registry, with Japanese guidance quoted verbatim from the Cabinet Office and JMA. Kamakura runs on labelled sample data until it is recorded.
-- 234 Python tests (including adversarial safety tests and a test of the whole demo plan), 36 web tests, and a 132-check browser run that drives every flow in a phone-sized Chromium and checks what the voice says.
+- 236 Python tests (including adversarial safety tests and a test of the whole demo plan), 37 web tests, and a 140-check browser run that drives every flow in a phone-sized Chromium and checks what the voice says.
 
 ## What we learned
 
