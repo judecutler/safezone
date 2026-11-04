@@ -93,7 +93,7 @@ def build_plan(transport: Transport, shelter_replay: bool, now: datetime) -> dic
 
 def build_plan_jp(transport: Transport, now: datetime) -> dict:
     """The Kamakura demo household, from whatever answers `transport` gives: samples, or a replayed recording."""
-    region, profile = regions.profile_for_address(japan.JP_DEMO_ADDRESS, transport)
+    region, profile = regions.profile_for_point(*japan.JP_DEMO_HOME, transport)
     assert region.id == "jp"
     evac = regions.evacuate(profile, JP_DEMO_HOUSEHOLD, transport, transport, now, True)
     plan = Plan(building=profile, household=JP_DEMO_HOUSEHOLD, rooms=[], route=evac.route, shelters=evac.shelters,

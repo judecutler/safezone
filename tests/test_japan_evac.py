@@ -99,5 +99,5 @@ def test_map_outage_reads_unknown_and_gives_no_route():
 def test_japan_run_records_and_replays_identically(tmp_path, transport):
     from tools.record_japan import run
 
-    recorded = run(RecordingTransport(transport, tmp_path, provenance="sample"), sample.JP_DEMO_ADDRESS, NOW)
-    assert run(ReplayTransport(tmp_path), sample.JP_DEMO_ADDRESS, NOW) == recorded
+    recorded = run(RecordingTransport(transport, tmp_path, provenance="sample"), sample.JP_DEMO_HOME, NOW)
+    assert run(ReplayTransport(tmp_path), sample.JP_DEMO_HOME, NOW) == recorded

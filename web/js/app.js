@@ -37,6 +37,7 @@ const uid = () => crypto.randomUUID?.() ?? `${Date.now().toString(36)}${Math.ran
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 let demoData = null;
+const RELOAD_SAFE = new Set(['landing', 'places', 'about']);
 const evacJobs = new Map();
 let renderQueued = false;
 
@@ -452,7 +453,15 @@ async function migrateSavedPlan() {
 }
 
 async function boot() {
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+  if ('serviceWorker' in navigator) {
+    // The shell is served from the offline cache first, so a new release shows only on the next load. When a new
+    // version takes over, reload once, but only on a screen where nothing is in progress.
+    const hadController = Boolean(navigator.serviceWorker.controller);
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (hadController && RELOAD_SAFE.has(state.screen)) location.reload();
+    });
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
   const [places, session, guidance] = await Promise.all([loadPlaces(), db.getKV('session'), db.getKV('guidance')]);
   Object.assign(state, { places: places ?? [], session: session ?? null, guidance: guidance ?? null });
   await migrateSavedPlan();
