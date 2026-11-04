@@ -31,7 +31,7 @@ Four independent pipelines each fill one part of a `Plan` (`safezone/shapes.py`)
 |---|---|---|
 | Room | SAM 3.1 (Meta Model API, Responses endpoint, one text prompt per object class) then one Muse Spark vision call with a strict JSON schema; scoring and fixes in plain Python | `safezone/room/` |
 | Building | Nominatim geocoding; CGS tsunami hazard area (ArcGIS point and polygon queries); DataSF soft-story list; Overpass for storeys | `safezone/building/` |
-| Route | Candidate points just outside the official hazard polygon, OSRM foot routes to each, and hard checks in code: the route must end outside the area, must never go deeper into it than home, and must not re-enter. Pace 1.0 m/s for children and older adults. If no route passes, it gives a compass direction instead | `safezone/route/` |
+| Route | Candidate points on the map's own "outside hazard area" land, OSRM foot routes to each, and hard checks in code: the route must end on that land, must never go deeper into the hazard area than home or double back toward the water, must not re-enter, and must not wander along the shore. Pace 1.0 m/s for children and older adults. If no route passes, it gives a compass direction toward proven land, and if there is none, it says it could not check a route | `safezone/route/` |
 | Shelter | FEMA Open Shelters layer; drops closed shelters and any inside the hazard area (fail closed); wheelchair-accessible only when needed; ranked by walking time, then fullness | `safezone/shelter/` |
 
 The only Meta model calls are SAM 3.1 and Muse Spark. The building flags, the route and the shelter filters come from official data and deterministic code you can check by hand.
@@ -49,6 +49,8 @@ python tools/record_fixtures.py # optional: record real responses for the demo h
 uvicorn safezone.app:create_app --factory --port 8000
 ```
 
+On Windows PowerShell the same steps work; start the server with `python -m uvicorn safezone.app:create_app --factory --port 8000`. If a recording run fails with `CERTIFICATE_VERIFY_FAILED`, run `pip install --upgrade certifi` and retry.
+
 Open http://localhost:8000 on your phone (same network) or in a mobile-sized browser window. "Load the demo household" shows a full plan without any API calls.
 
 Command-line checks:
@@ -60,6 +62,10 @@ python -m pytest -q
 ```
 
 Deploy: `modal deploy modal_app.py`.
+
+### What has been checked against real responses
+
+A probe run on Nov 3 (`tools/probe_apis.py`) recorded one real response from each service. The parsers were checked against them: SAM 3.1's box and mask format (masks arrive downscaled to at most 1024 px and are stretched over their box), Muse Spark's strict JSON schema mode, the CGS point query (the demo address is inside the official hazard area), DataSF soft-story rows, and OSRM foot routes. The FEMA layer has not been checked against a real response yet.
 
 ### About the demo data
 
