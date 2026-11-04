@@ -7,6 +7,10 @@
   border-bottom: 1px solid var(--hair);
 }
 .landing-map > .nb { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.landing-map > .nb-stack { position: absolute; inset: -16px; }
+.nb-stack > svg, .nb-stack > .nb-flash { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.nb-stack > .nb-layer { background: none; overflow: visible; }
+.landing-map > .nb-debris { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
 
 .landing-top {
   position: absolute; left: 0; right: 0; top: 0;
@@ -42,127 +46,232 @@
 .landing-card .display { font-size: clamp(2.125rem, 10.5vw, 3.25rem); }
 .landing-actions { display: grid; gap: 10px; }
 .landing-actions .btn-text { justify-self: center; }
+.landing-fact { font-size: 0.875rem; line-height: 1.45; color: var(--muted); border-left: 3px solid var(--accent); padding-left: 10px; max-width: 60ch; }
+.landing-fact a { color: var(--ink); text-underline-offset: 3px; }
 .landing { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
 
-/* The art --------------------------------------------------------------------------------------- */
-
-.nb { background: var(--paper); }
-.nb-paper { fill: var(--paper); }
-.nb-pat-bg { fill: #FFFDF8; }
-.nb-pat-tree { fill: #F4F1E8; }
-.nb-dot { fill: #4A463E; }
-.nb-sand { fill: #B6AD9C; }
-.nb-sea { stroke: none; }
-.nb-scale { fill: #E6ECEC; stroke: #9DB0B5; stroke-width: 0.6; }
-.nb-scale-ring { fill: none; }
-.nb-fscale { fill: #CFDCE0; stroke: #6F8C95; stroke-width: 0.6; }
-.nb-fscale-ring { fill: none; }
-.nb-shore { fill: none; stroke: #6F6A60; stroke-width: 0.9; }
-.nb-surf { fill: none; stroke: #9DB0B5; stroke-width: 0.6; stroke-dasharray: 3 3; }
-.nb-contour { fill: none; stroke: #C9C0AE; stroke-width: 0.7; }
-.nb-contour-major { stroke: #ADA28D; stroke-width: 0.9; }
-.nb-park { stroke: #8E877A; stroke-width: 0.7; }
-.nb-trail { fill: none; stroke: #8E877A; stroke-width: 0.7; stroke-dasharray: 1.5 2; }
-.nb-casing, .nb-road { fill: none; stroke-linecap: round; stroke-linejoin: round; }
-.nb-casing { stroke: #5A554B; }
-.nb-road { stroke: var(--paper); }
-.nb-casing-end { fill: #5A554B; }
-.nb-road-end { fill: var(--paper); }
-.nb-side { fill: #6B655A; }
-.nb-roof { stroke: #2F2C25; stroke-width: 0.6; stroke-linejoin: round; }
-.nb-tree { stroke: #3D3A33; stroke-width: 0.55; }
-.nb-marker { fill: var(--paper); stroke: #3D3A33; stroke-width: 0.9; }
-.nb-ripple { fill: none; stroke: #3D3A33; stroke-width: 0.8; opacity: 0; transform-box: fill-box; transform-origin: center; }
-.nb-label {
-  font: 700 7px var(--f-cond); font-stretch: condensed; letter-spacing: 0.32em; fill: #7E786C;
-  paint-order: stroke; stroke: var(--paper); stroke-width: 2.4px; stroke-linejoin: round;
+/* Short windows (a laptop with its browser chrome): a tighter card so the map keeps at least 40% of the height. */
+@media (max-height: 760px) {
+  .landing-map { height: 54vh; height: 54dvh; min-height: 260px; }
+  .landing-card { margin-top: -28px; padding: 16px 18px 14px; gap: 10px; }
+  .landing-card .display { font-size: clamp(1.75rem, 7.5vw, 2.25rem); }
+  .landing-card .lede { font-size: 0.9375rem; line-height: 1.45; }
+  .landing-fact { font-size: 0.8125rem; }
+  .landing-actions { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .landing-actions .btn, .landing-actions .btn-ghost { min-height: 48px; padding-inline: 10px; font-size: 1.0625rem; white-space: nowrap; }
+  .landing-actions .btn-text { grid-column: 1 / -1; }
 }
+
+/* The art: a tilted map in soft colour. Light-grey prisms with fine ink edges, light-green crowns, a blue-green sea. */
+
+.nb { background: #F1EEE7; }
+.nb-paper { fill: #F1EEE7; }
+.nb-hill { fill: #C9E3B0; opacity: 0.32; stroke: none; }
+.nb-sand { fill: #F1D9A4; }
+.nb-wrack { fill: none; stroke: #DDBF80; stroke-width: 0.8; stroke-dasharray: 5 3 1.5 3; }
+.nb-sea-base { fill: #A9D6DA; }
+.nb-sea { stroke: none; }
+.nb-scale { fill: #A9D6DA; stroke: #84BCC3; stroke-width: 0.6; }
+.nb-scale-ring { fill: none; }
+.nb-fscale { fill: #86C0C4; stroke: #5B979C; stroke-width: 0.6; }
+.nb-fscale-ring { fill: none; }
+.nb-shore { fill: none; stroke: #5E8F94; stroke-width: 0.8; }
+.nb-surf { fill: none; stroke: #FFFFFF; stroke-width: 1.1; stroke-dasharray: 4 3; }
+.nb-contour { fill: none; stroke: #A9C98E; stroke-width: 0.6; }
+.nb-contour-major { stroke: #8CB46F; stroke-width: 0.8; }
+.nb-park { fill: #CDE6B6; stroke: #9DC283; stroke-width: 0.6; }
+.nb-field { fill: #DCEFC8; }
+.nb-trail { fill: none; stroke: #9DC283; stroke-width: 0.8; stroke-dasharray: 2 2; }
+.nb-casing, .nb-road { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.nb-casing { stroke: #A6A299; }
+.nb-road { stroke: #D9D6CF; }
+.nb-road.nb-main { stroke: #CFCBC3; }
+.nb-casing.nb-main { stroke: #97928A; }
+.nb-casing-end { fill: #A6A299; }
+.nb-road-end { fill: #D9D6CF; }
+.nb-cast { fill: rgba(80, 70, 52, 0.16); }
+.nb-house-wall, .nb-house-roof, .nb-home-wall, .nb-home-roof { stroke: #36322B; stroke-width: 0.45; stroke-linejoin: round; }
+.nb-house-wall { fill: #CFCBC3; }
+.nb-house-wall-dark { fill: #AEA89D; }
+.nb-house-roof { fill: #E7E5E0; }
+.nb-house-roof-dark { fill: #CBC7BF; }
+.nb-block.nb-house-wall { fill: #C7C4BE; }
+.nb-block.nb-house-wall-dark { fill: #A39E95; }
+.nb-home-wall, .nb-home-roof { stroke-width: 0.8; stroke: var(--ink); }
+.nb-home-wall { fill: #F2B71C; }
+.nb-home-wall-dark { fill: #D99A00; }
+.nb-home-roof { fill: var(--accent); }
+.nb-home-roof-dark { fill: #EDB000; }
+.nb-tree-shadow { fill: rgba(60, 86, 40, 0.18); }
+.nb-tree-0 { fill: #BCE39A; }
+.nb-tree-1 { fill: #A3D67E; }
+.nb-pole { fill: none; stroke: #5B554B; stroke-width: 0.7; stroke-linecap: round; }
+.nb-wire { fill: none; stroke: #5B554B; stroke-width: 0.3; opacity: 0.85; }
+.nb-post { stroke: var(--ink); stroke-width: 0.9; }
+.nb-marker { fill: #FFFCF4; stroke: #36322B; stroke-width: 0.9; }
+.nb-ripple { fill: none; stroke: #36322B; stroke-width: 0.8; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.nb-label {
+  font: 700 7px var(--f-cond); font-stretch: condensed; letter-spacing: 0.32em; fill: #5F5A4F;
+  paint-order: stroke; stroke: #F1EEE7; stroke-width: 2.4px; stroke-linejoin: round;
+}
+.nb-label-sea { fill: #3F7378; stroke: #A9D6DA; }
 .nb-label-small { font-size: 5.5px; letter-spacing: 0.24em; fill: var(--sev-3-text); }
 .nb-label-strong { font-size: 7.5px; fill: var(--ink); letter-spacing: 0.18em; }
-.nb-hazard { fill: none; stroke: var(--sev-3); stroke-width: 1.1; stroke-dasharray: 4 2.5; }
+.nb-hazard { fill: none; stroke: var(--sev-3); stroke-width: 1.2; stroke-dasharray: 4 2.5; }
 .nb-route-case { fill: none; stroke: var(--ink); stroke-width: 4.4; stroke-linecap: round; stroke-linejoin: round; }
 .nb-route { fill: none; stroke: var(--accent); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 5 3.5; }
-.nb-home-ring { fill: rgba(255, 198, 41, 0.28); stroke: var(--ink); stroke-width: 1; }
-.nb-home { fill: var(--accent); stroke: var(--ink); stroke-width: 1.2; stroke-linejoin: round; }
+.nb-home-ring { fill: rgba(255, 198, 41, 0.32); stroke: var(--ink); stroke-width: 1; }
+.nb-flash { background: #1E1A14; opacity: 0; pointer-events: none; }
 
-.nb-flood { opacity: 0; transform: translateX(-215px); }
-.nb-flood-water { stroke: none; opacity: 0.78; }
+/* The flood is drawn twice: solid water under the buildings, so houses stand in it, and a thin wash over them. */
+.nb-flood { opacity: 0; transform: translate(-215px, -27.95px); }
+.nb-flood-base { fill: #8DC3C6; }
+.nb-flood-water { stroke: none; opacity: 0.32; }
 .nb-edge { fill: none; stroke-width: 1.4; stroke-linecap: round; }
 .nb-edge-1 { stroke: var(--sev-1); }
 .nb-edge-3 { stroke: var(--sev-3); }
-.nb-crest { fill: none; stroke: #3C5862; stroke-width: 1.1; stroke-linecap: round; }
+.nb-crest { fill: none; stroke: #2F5F62; stroke-width: 1.1; stroke-linecap: round; }
 
-/* The loop: 14 s. Calm 0-5 s, shaking 5-8 s, the wave floods 8-11 s, recedes 11-13 s, calm to 14 s. */
+/* The loop: 15 s. Calm 0-4.5 s; shaking 4.5-8.4 s with jolts at 4.5, 5.7 and 6.9 s (the debris canvas uses the same
+   times, see neighborhood.js); the wave floods 8.4-11.7 s, recedes to 13.8 s; calm to 15 s. */
 
-.nb-animate .nb-quake { animation: nb-quake 14s linear infinite; }
-.nb-animate .nb-houses-0 { animation: nb-house-a 14s linear infinite; }
-.nb-animate .nb-houses-1 { animation: nb-house-b 14s linear infinite; }
-.nb-animate .nb-ripple { animation: nb-ripple 14s ease-out infinite; }
-.nb-animate .nb-flood { animation: nb-flood 14s infinite; }
-.nb-animate .nb-route { animation: nb-march 1.6s linear infinite; }
-.nb-animate .nb-home-ring { animation: nb-breathe 3.5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
-.landing-map:has(.nb-animate) .landing-phase-0 { animation: nb-phase-0 14s step-end infinite; }
-.landing-map:has(.nb-animate) .landing-phase-1 { animation: nb-phase-1 14s step-end infinite; }
-.landing-map:has(.nb-animate) .landing-phase-2 { animation: nb-phase-2 14s step-end infinite; }
-.landing-map:has(.nb-animate) .landing-phase-3 { animation: nb-phase-3 14s step-end infinite; }
-.landing-map:has(.nb-animate) .landing-phase-sign { animation: nb-sign 14s step-end infinite; }
+/* The shake moves the whole layer stack and the jitter moves single band layers: compositor work, no repaint. */
+.landing-map > .nb-stack { animation: nb-quake 15s ease-in-out infinite; }
+.nb-stack .nb-band-0 { animation: nb-jitter-a 15s linear infinite; }
+.nb-stack .nb-band-1 { animation: nb-jitter-b 15s linear infinite; }
+.nb-stack .nb-band-2 { animation: nb-jitter-c 15s linear infinite; }
+.nb-stack .nb-band-3 { animation: nb-jitter-a 15s linear -0.3s infinite reverse; }
+.nb-stack .nb-band-4 { animation: nb-jitter-b 15s linear 0.2s infinite; }
+.nb-stack .nb-band-5 { animation: nb-jitter-c 15s linear -0.15s infinite reverse; }
+.nb-stack .nb-wire-layer { animation: nb-swing 15s ease-in-out infinite; }
+.nb-stack .nb-flash { animation: nb-flash 15s linear infinite; }
+.nb-stack .nb-ripple { animation: nb-ripple 15s ease-out infinite; }
+.nb-stack .nb-flood { animation: nb-flood 15s infinite; }
+.nb-stack .nb-route { animation: nb-march 1.6s linear infinite; }
+.nb-stack .nb-home-ring { animation: nb-breathe 3.5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.landing-map:has(.nb-animate) .landing-phase-0 { animation: nb-phase-0 15s step-end infinite; }
+.landing-map:has(.nb-animate) .landing-phase-1 { animation: nb-phase-1 15s step-end infinite; }
+.landing-map:has(.nb-animate) .landing-phase-2 { animation: nb-phase-2 15s step-end infinite; }
+.landing-map:has(.nb-animate) .landing-phase-3 { animation: nb-phase-3 15s step-end infinite; }
+.landing-map:has(.nb-animate) .landing-phase-sign { animation: nb-sign 15s step-end infinite; }
+.landing-map:has(.nb-animate) .landing-phase { animation: nb-pill 15s linear infinite; }
 
+/* Three jolts that each snap hard and ring down, with a low rumble between them: not a steady buzz. */
 @keyframes nb-quake {
-  0%, 35.7% { transform: translate(0, 0); }
-  37% { transform: translate(-1.6px, 0.8px); }
-  38.4% { transform: translate(1.8px, -0.6px); }
-  39.8% { transform: translate(-1.2px, -1px); }
-  41.2% { transform: translate(2px, 0.9px); }
-  42.6% { transform: translate(-2px, 0.4px); }
-  44% { transform: translate(1.4px, -1.2px); }
-  45.4% { transform: translate(-1.8px, 1px); }
-  46.8% { transform: translate(1.6px, 0.5px); }
-  48.2% { transform: translate(-1.2px, -0.8px); }
-  49.6% { transform: translate(1.2px, 0.8px); }
-  51% { transform: translate(-0.9px, -0.4px); }
-  52.4% { transform: translate(0.8px, 0.5px); }
-  53.8% { transform: translate(-0.5px, 0.2px); }
-  55.2% { transform: translate(0.3px, -0.2px); }
-  57.1%, 100% { transform: translate(0, 0); }
+  0%, 29.9% { transform: translate(0, 0) rotate(0); }
+  30.3% { transform: translate(-7px, 3px) rotate(-0.5deg); }
+  30.8% { transform: translate(6px, -4px) rotate(0.45deg); }
+  31.4% { transform: translate(-4px, 2.5px) rotate(-0.2deg); }
+  32.1% { transform: translate(3px, -1.5px) rotate(0.1deg); }
+  33% { transform: translate(-1.6px, 1px) rotate(0); }
+  34.1% { transform: translate(1.1px, -0.6px); }
+  35.3% { transform: translate(-1.3px, 0.9px); }
+  36.4% { transform: translate(0.8px, 0.4px); }
+  37.4% { transform: translate(-0.5px, -0.6px); }
+  37.9% { transform: translate(0, 0) rotate(0); }
+  38.2% { transform: translate(9px, -3px) rotate(0.7deg); }
+  38.7% { transform: translate(-8px, 4.5px) rotate(-0.6deg); }
+  39.3% { transform: translate(6px, -3.5px) rotate(0.35deg); }
+  40% { transform: translate(-4px, 2.5px) rotate(-0.2deg); }
+  40.8% { transform: translate(2.8px, -1.2px) rotate(0.1deg); }
+  41.7% { transform: translate(-1.8px, 1.3px) rotate(0); }
+  42.7% { transform: translate(1.3px, -0.9px); }
+  43.7% { transform: translate(-1.1px, 0.5px); }
+  44.7% { transform: translate(0.9px, 0.7px); }
+  45.6% { transform: translate(-0.4px, -0.4px); }
+  45.9% { transform: translate(0, 0) rotate(0); }
+  46.2% { transform: translate(4.5px, 2.5px) rotate(0.3deg); }
+  46.7% { transform: translate(-4px, -2px) rotate(-0.25deg); }
+  47.3% { transform: translate(2.4px, 1.2px) rotate(0.1deg); }
+  48.2% { transform: translate(-1.4px, -0.7px) rotate(0); }
+  49.5% { transform: translate(0.9px, 0.5px); }
+  51% { transform: translate(-0.5px, 0.3px); }
+  52.5% { transform: translate(0.3px, -0.2px); }
+  54%, 100% { transform: translate(0, 0) rotate(0); }
 }
-@keyframes nb-house-a {
-  0%, 35.7%, 57.1%, 100% { transform: translate(0, 0); }
-  38.4%, 44%, 49.6% { transform: translate(1.2px, -0.8px); }
-  41.2%, 46.8%, 52.4% { transform: translate(-1px, 0.9px); }
+@keyframes nb-jitter-a {
+  0%, 30%, 54%, 100% { transform: translate(0, 0); }
+  30.6%, 38.5%, 46.5% { transform: translate(1.6px, -1.1px); }
+  31.6%, 39.6%, 47.6% { transform: translate(-1.3px, 1.2px); }
+  33%, 41%, 49% { transform: translate(0.7px, 0.5px); }
+  35%, 43.5%, 51% { transform: translate(-0.4px, -0.3px); }
+  37.5%, 45.5% { transform: translate(0, 0); }
 }
-@keyframes nb-house-b {
-  0%, 35.7%, 57.1%, 100% { transform: translate(0, 0); }
-  39.8%, 45.4%, 51% { transform: translate(-1.2px, -0.6px); }
-  42.6%, 48.2%, 53.8% { transform: translate(1px, 1px); }
+@keyframes nb-jitter-b {
+  0%, 30.1%, 54%, 100% { transform: translate(0, 0); }
+  30.9%, 38.9%, 46.9% { transform: translate(-1.5px, -0.8px); }
+  32%, 40%, 48% { transform: translate(1.2px, 1.3px); }
+  33.6%, 41.8%, 49.8% { transform: translate(-0.6px, 0.4px); }
+  36%, 44%, 52% { transform: translate(0.3px, -0.3px); }
+  37.8%, 45.8% { transform: translate(0, 0); }
+}
+@keyframes nb-jitter-c {
+  0%, 30.2%, 54%, 100% { transform: translate(0, 0); }
+  30.5%, 38.3%, 46.3% { transform: translate(0.9px, 1.5px); }
+  31.2%, 39.1%, 47.1% { transform: translate(-1.4px, -0.9px); }
+  32.5%, 40.5%, 48.5% { transform: translate(0.8px, -0.6px); }
+  34.5%, 42.5%, 50.5% { transform: translate(-0.3px, 0.4px); }
+  37.6%, 45.6% { transform: translate(0, 0); }
+}
+@keyframes nb-swing {
+  0%, 30%, 56%, 100% { transform: translate(0, 0); }
+  31% { transform: translate(-2.6px, 0.6px); } 32.6% { transform: translate(2.2px, -0.4px); } 34.4% { transform: translate(-1.6px, 0.3px); }
+  36.4% { transform: translate(1px, 0); } 38.4% { transform: translate(3.2px, -0.6px); } 40% { transform: translate(-2.8px, 0.5px); }
+  41.8% { transform: translate(2px, -0.3px); } 43.8% { transform: translate(-1.3px, 0.2px); } 46.4% { transform: translate(-2px, 0.4px); }
+  48.2% { transform: translate(1.5px, -0.2px); } 50.4% { transform: translate(-0.9px, 0); } 53% { transform: translate(0.4px, 0); }
+}
+@keyframes nb-flash {
+  0%, 29.95% { opacity: 0; }
+  30.15% { opacity: 0.34; }
+  32.2% { opacity: 0; }
+  38.1% { opacity: 0; }
+  38.3% { opacity: 0.16; }
+  39.6%, 100% { opacity: 0; }
 }
 @keyframes nb-ripple {
-  0%, 35.7% { opacity: 0; transform: scale(1); }
-  36% { opacity: 0.9; transform: scale(1); }
-  42% { opacity: 0; transform: scale(3.2); }
-  42.1% { opacity: 0.9; transform: scale(1); }
-  48% { opacity: 0; transform: scale(3.2); }
-  48.1% { opacity: 0.7; transform: scale(1); }
-  55% { opacity: 0; transform: scale(3); }
+  0%, 29.9% { opacity: 0; transform: scale(1); }
+  30.1% { opacity: 0.9; transform: scale(1); }
+  37% { opacity: 0; transform: scale(3.4); }
+  38.1% { opacity: 0.9; transform: scale(1); }
+  45% { opacity: 0; transform: scale(3.4); }
+  46.1% { opacity: 0.7; transform: scale(1); }
+  53% { opacity: 0; transform: scale(3); }
   100% { opacity: 0; transform: scale(1); }
 }
 @keyframes nb-flood {
-  0%, 57.1% { opacity: 0; transform: translateX(-215px); animation-timing-function: ease-out; }
-  59% { opacity: 1; transform: translateX(-190px); animation-timing-function: cubic-bezier(0.3, 0.1, 0.25, 1); }
-  75% { opacity: 1; transform: translateX(0); }
-  78.6% { opacity: 1; transform: translateX(-3px); animation-timing-function: ease-in-out; }
-  91% { opacity: 1; transform: translateX(-205px); }
-  92.9%, 100% { opacity: 0; transform: translateX(-215px); }
+  0%, 56% { opacity: 0; transform: translate(-215px, -27.95px); animation-timing-function: ease-out; }
+  57.8% { opacity: 1; transform: translate(-190px, -24.7px); animation-timing-function: cubic-bezier(0.3, 0.1, 0.25, 1); }
+  73.5% { opacity: 1; transform: translateX(0); }
+  78% { opacity: 1; transform: translate(-3px, -0.39px); animation-timing-function: ease-in-out; }
+  90.5% { opacity: 1; transform: translate(-205px, -26.65px); }
+  92%, 100% { opacity: 0; transform: translate(-215px, -27.95px); }
 }
 @keyframes nb-march { to { stroke-dashoffset: -17; } }
 @keyframes nb-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
-@keyframes nb-phase-0 { 0% { opacity: 1; } 35.7% { opacity: 0; } 92.9% { opacity: 1; } }
-@keyframes nb-phase-1 { 0% { opacity: 0; } 35.7% { opacity: 1; } 57.1% { opacity: 0; } }
-@keyframes nb-phase-2 { 0% { opacity: 0; } 57.1% { opacity: 1; } 78.6% { opacity: 0; } }
-@keyframes nb-phase-3 { 0% { opacity: 0; } 78.6% { opacity: 1; } 92.9% { opacity: 0; } }
-@keyframes nb-sign { 0% { opacity: 0.35; } 35.7% { opacity: 1; } 92.9% { opacity: 0.35; } }
+@keyframes nb-phase-0 { 0% { opacity: 1; } 30% { opacity: 0; } 92% { opacity: 1; } }
+@keyframes nb-phase-1 { 0% { opacity: 0; } 30% { opacity: 1; } 56% { opacity: 0; } }
+@keyframes nb-phase-2 { 0% { opacity: 0; } 56% { opacity: 1; } 78% { opacity: 0; } }
+@keyframes nb-phase-3 { 0% { opacity: 0; } 78% { opacity: 1; } 92% { opacity: 0; } }
+@keyframes nb-sign { 0% { opacity: 0.35; } 30% { opacity: 1; } 92% { opacity: 0.35; } }
+@keyframes nb-pill {
+  0%, 30%, 34%, 100% { transform: translate(0, 0); }
+  30.4%, 38.4% { transform: translate(-2px, 1px); } 31%, 39% { transform: translate(2px, -1px); } 31.8%, 39.8% { transform: translate(-1px, 0); }
+  32.6%, 37.8%, 40.6% { transform: translate(0, 0); }
+}
 .landing-phase-sign { opacity: 0.35; }
 
 @media (prefers-reduced-motion: reduce) {
   .nb-flood { opacity: 0 !important; }
   .landing-phase { display: none; }
+}
+
+/* Phones: both buttons, including "Run the demo", fit on the first screen without scrolling. */
+@media (max-width: 520px) and (min-height: 761px) {
+  .landing-map { height: 46vh; height: 46dvh; }
+  .landing-card { padding: 18px 16px 16px; gap: 12px; }
+  .landing-card .display { font-size: clamp(1.875rem, 8.6vw, 2.5rem); }
+  .landing-card .lede { font-size: 1rem; line-height: 1.45; }
+  .landing-actions { grid-template-columns: 1fr 1fr; }
+  .landing-actions .btn-text { grid-column: 1 / -1; }
+  .landing-actions .btn, .landing-actions .btn-ghost { min-height: 52px; padding-inline: 8px; font-size: 1.0625rem; white-space: nowrap; }
 }

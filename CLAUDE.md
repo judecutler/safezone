@@ -1,6 +1,6 @@
 # SafeZone: context for any new session
 
-Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last updated Nov 4, about 9:15 AM PT.
+Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last updated Nov 4, about 10:05 AM PT.
 
 ## Deadline and state
 
@@ -8,7 +8,7 @@ Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last upd
 - Judging: Impact 30%, Meta AI tooling 25%, Demo 25%, Technical depth 20%. "Simple image analyzers" are an anti-project, so pitch the whole plan, not the photo scan.
 - Repo: https://github.com/judecutler/safezone. The user is new to development and works on Windows in PowerShell, Python 3.12, in `C:\Users\roaan\OneDrive\Documents\CodeStuff\safezone\safezone`. The folder is inside OneDrive, which can lock folders: git may ask "Deletion of directory ... failed. Should I try again?"; answer n. Give short copy-paste, PowerShell-safe commands. The user allows commits and pushes.
 - Branches: `main` is the live app (Vercel redeploys on every push to main: https://safezone-alpha-one.vercel.app/, `MODEL_API_KEY` set). `redesign` holds the new app built overnight. The user approved merging `redesign` into `main` once every test, the full browser check and the independent safety review pass. In this sandbox the clone is shallow; `git config --add remote.origin.fetch '+refs/heads/redesign:refs/remotes/origin/redesign'` lets `git status` track it.
-- The cloud sandbox cannot reach the Meta API or any data service. Live calls and recordings run on the user's machine.
+- The cloud sandbox cannot reach the Meta API, any data service or the Vercel URL. Live calls and recordings run on the user's machine. The user's Chrome (Claude in Chrome) can drive the live site; never play the emergency voice there without asking, it speaks out loud on their computer.
 
 ## What the app is (redesign branch)
 
@@ -18,6 +18,7 @@ Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last upd
 - Places and standby: saved places, nearest one by GPS, standby listens for sustained shaking (devicemotion) while the app is open.
 - Emergency, voice led: shaking says only "Drop, cover and hold on" plus the saved spot, repeated every 15 s; taps in the first 3 s are ignored; the only way forward is "Shaking has stopped". After: the go-now line, then spoken turn-by-turn from GPS (`web/js/guide.js`), with wake lock and a mute toggle. Demo mode says "This is a demo" and simulates the walker.
 - Regions (`safezone/regions.py`): `us-ca` (the original pipelines: Nominatim, CGS tsunami hazard and land polygons, DataSF soft-story, Overpass, OSRM, FEMA shelters) and `jp` (Hazard Map Portal tsunami inundation tiles, GSI designated tsunami evacuation sites, Cabinet Office and JMA guidance quoted in Japanese with English). A point outside both gets `no_coverage`. Add a city per `docs/regions.md`.
+- "How it works" (`web/js/screens/about.js`): the Meta model pipeline with the demo room's recorded output, for judges.
 - Demo: "Run the demo" on the landing page. It walks the real setup on `demo/living_room.jpg` with recorded data, saves "Demo: Ocean Beach" and adds "Demo: Kamakura", then "Simulate an earthquake" runs the voice-led emergency. "Exit demo" removes the demo places.
 
 ## Real API facts (checked against real responses on Nov 3)
@@ -27,9 +28,17 @@ Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last upd
 - On the demo photo, real SAM found the wardrobes, both beds, the boxes on the shelf, and "door" hits that are wardrobe doors (named "cabinet door" in the UI).
 - Models the key can call: muse-image-1.0, muse-spark-1.1, 1.2, 1.2-contributor, 1.3, 1.3-contributor, muse-voice-transcribe-1.0, muse-wonder-1.0, sam-3.1.
 - Muse Spark is called on `POST /chat/completions` with `response_format: json_schema` (strict, nullable fields as `anyOf` with null) and `reasoning_effort: low`.
-- Overpass often answers 502 or times out; `building/osm.py` waits 60 s and tries two mirrors.
+- Overpass often answers 502 or times out; `building/osm.py` tries three instances within one 10 s budget (180 s in the recorders).
 - CGS: 1000 Great Highway (the demo address) is inside the hazard area. FEMA listed 0 open shelters on Nov 3, so the demo shows labelled SAMPLE shelters.
 - Japan: Tokyo's own inundation study maps only its islands, so the 23 wards have no mapped tsunami inundation. The Japan demo place is Kamakura City Hall. Tile URL, zoom and legend colours are verified; GSI site field names are not (the recording will show them).
+
+## Live site facts (checked in the user's Chrome, Nov 4, 9:30 AM)
+
+- `main` is live with the redesign. A real room scan through Vercel (SAM 3.1 and Muse Spark with the user's key) took 49 s, decoded real mask outlines, and returned the same relations as the recording. A real route matched the recording, including "Walk to the nearby path". FEMA still lists 0 open shelters.
+- The address lookup took 56 s because Overpass timed out on every instance from Vercel. Overpass now has one 10 s budget across instances (recorders raise it to 180 s), and the lookup takes 13 s.
+- iOS Safari speaks only after speech starts inside a tap; `voice.js` speaks one silent line on the first tap.
+- To test a real scan in the user's Chrome without the native file dialog, patch `HTMLInputElement.prototype.click` in the page to set `files` from `/demo/living_room.jpg` (see the session log of Nov 4).
+- Merging to `main` from a clean worktree (`git worktree add /tmp/claude-0/wt <commit>`) keeps other agents' uncommitted edits out; run the browser check there first.
 
 ## Route facts (independent review, Nov 4)
 
@@ -45,8 +54,8 @@ Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last upd
 
 ## Tests
 
-- `python -m pytest -q` (230), `node --test web/tests/*.test.mjs` (31).
-- `node tools/verify_e2e.cjs <outdir> <base-url>` (126 checks: landing, demo flow with voice log, real flow and offline, no places, migration). In the sandbox: `NODE_PATH=/opt/node22/lib/node_modules`, and run the server with `SAFEZONE_FIXTURES=fixtures/demo MODEL_API_KEY=x python -m uvicorn safezone.app:create_app --factory --port 8000`.
+- `python -m pytest -q` (235), `node --test web/tests/*.test.mjs` (36).
+- `node tools/verify_e2e.cjs <outdir> <base-url>` (132 checks: landing, demo flow with voice log, real flow and offline, no places, migration). In the sandbox: `NODE_PATH=/opt/node22/lib/node_modules`, and run the server with `SAFEZONE_FIXTURES=fixtures/demo MODEL_API_KEY=x python -m uvicorn safezone.app:create_app --factory --port 8000`.
 - After any web change run `python tools/sw_shell.py`: it rewrites the service worker's offline file list and bumps its version.
 
 ## Submission materials
@@ -57,7 +66,7 @@ Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last upd
 
 ## Still to do (Nov 4)
 
-1. Finish the independent safety review (it was cut off by a usage limit at 2:41 AM; resumed 9 AM). Then rerun every test and the browser check, merge `redesign` into `main`, and check the live URL.
+1. DONE: independent safety review (verdict merge), merged to `main`, live site checked with a real scan. In progress: landing art restyle (isometric, light-grey houses, soft colour, dramatic quake with falling particles) after the user said the houses looked copied from the reference.
 2. User records Kamakura and a go-bag check; review the output, fix failures, confirm the demo shows recorded data.
 3. Rewrite `docs/video_script.md` for the new flow.
 4. Fill the TODOs in the submission drafts. User films and submits by 6 PM PT.

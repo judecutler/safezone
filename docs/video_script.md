@@ -26,7 +26,7 @@ Every line below matches what the redesigned app shows or says. Facts in the voi
 | 0:26 | Capture screen: the chip "Checking the tsunami map for this spot..." changes to red "In the tsunami hazard area" | "While you take photos, it checks your location against California's official tsunami hazard map. This home is inside it." |
 | 0:36 | The quality ring fills; "Stand in the doorway and fit the whole room in"; tap the shutter | "One wide photo per room. The meter coaches the shot: light, focus, steady, level." |
 | 0:44 | "Bedroom saved", then Next; skip through The way out, Go bag, Gas shutoff (or show the go-bag card if recorded) | "Then the things people forget: the way out, the go bag, the gas shutoff. Muse Spark ticks off which basic-kit items it can see in the go-bag photo, and never tells you the kit is enough. Skip anything, come back to anything." |
-| 0:58 | Review: the room result with red outlines and numbered hazards | "SAM 3.1 outlines everything that could fall. Two tall wardrobes that can tip, wardrobe doors that can swing open, a box stored up high." |
+| 0:58 | Review: the room result with outlined, numbered hazards | "SAM 3.1 outlines everything that could fall. Two tall wardrobes that can tip, wardrobe doors that can swing open, a box stored up high." |
 | 1:06 | "What Muse Spark noticed" and the spot card with the set-aside line | "Muse Spark reasons about the room. The left bed is in the wardrobes' tipping zone; the box sits above the other bed. It suggested a spot on the floor, and SafeZone's own checks set it aside: it's in a doorway. The model proposes; code decides." |
 | 1:18 | The fixes list; tap "Save this place" | "The fixes come from a fixed table, never from the model. Save it, and this is a mapped place." |
 

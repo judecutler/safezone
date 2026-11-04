@@ -5,6 +5,7 @@ import { neighborhood } from './art/neighborhood.js';
 import { h } from './dom.js';
 import { toUploadJpeg } from './photo.js';
 import { loadPlaces, nearestPlace, placeFromSession, savePlaces } from './places.js';
+import { renderAbout } from './screens/about.js';
 import { renderCapture } from './screens/capture.js';
 import { renderEmergency, stopEmergency } from './screens/emergency.js';
 import { renderLanding } from './screens/landing.js';
@@ -57,6 +58,7 @@ function render() {
 
 const SCREENS = {
   landing: renderLanding,
+  about: renderAbout,
   permissions: renderPermissions,
   capture: renderCapture,
   review: renderReview,

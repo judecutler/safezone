@@ -50,6 +50,8 @@ const PATHS = {
   info: [['path', { d: 'M20 11 V13 M20 18 V30' }], ['rect', { x: 5, y: 5, width: 30, height: 30 }]],
   camera: [['path', { d: 'M4 12 H12 L15 7 H25 L28 12 H36 V33 H4 Z' }], ['circle', { cx: 20, cy: 22, r: 7 }]],
   target: [['circle', { cx: 20, cy: 20, r: 10 }], ['path', { d: 'M20 2 V14 M20 26 V38 M2 20 H14 M26 20 H38' }]],
+  // The app mark, a line version of the home-screen icon: a home on high ground above a wave.
+  mark: [['path', { d: 'M12 38 C16 30 21 25 38 24' }], ['path', { d: 'M21 24 V17 L26 13 L31 17 V24 M18 18 L26 11 L34 18' }], ['path', { d: 'M2 33 H14 M4 33 a4 4 0 0 1 8 0' }]],
 };
 
 export function icon(name, cls = 'icon') {

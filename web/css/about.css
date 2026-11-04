@@ -1,0 +1,15 @@
+.about-pipeline { width: 100%; max-width: 340px; height: auto; display: block; margin: 0 auto; }
+.ap-box { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; }
+.ap-meta { fill: var(--accent); }
+.ap-code { fill: var(--ink); }
+.ap-title { font: 700 15px/1 var(--f-body); fill: var(--ink); }
+.ap-sub { font: 400 12px/1 var(--f-body); fill: var(--ink); opacity: 0.8; }
+.ap-code-text { fill: var(--paper); }
+.ap-arrow { stroke: var(--ink); stroke-width: 1.5; }
+.about-facts { display: grid; grid-template-columns: max-content 1fr; gap: 10px 14px; margin: 0; }
+.about-facts dt { font-family: var(--f-mono); font-size: 0.8rem; padding-top: 2px; }
+.about-facts dd { margin: 0; }
+.about-list { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; list-style: disc; }
+.about-quotes { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.about-foot { text-align: center; padding-bottom: 24px; }
+.about .review-head p { margin: 4px 0 0; }

@@ -3,7 +3,6 @@ TODO: put your name in the Credits line.
 TODO after tomorrow's recording:
 - Go-bag check: if `python tools/record_fixtures.py --gobag <photo>` succeeds, change "The demo's go-bag result is SAMPLE data" in "How it works" and "Honest limits" to say it is a recorded Muse Spark answer.
 - Kamakura: if `python tools/record_japan.py` succeeds and demo/plan_jp.json is rebuilt from it, change "Kamakura is SAMPLE data" in "Regions" and "Honest limits" to "recorded real data".
-- Live URL: confirm https://safezone-alpha-one.vercel.app/ serves the redesigned app (landing with "Run the demo") after the merge to main.
 -->
 
 # SafeZone
@@ -46,6 +45,9 @@ Turn your sound on. The emergency part is spoken. A phone works best, and a desk
 5. Listen. The phone says "This is a demo", then "Drop, cover and hold on" with the room's spot, and repeats it every 15 seconds. Tap **Shaking has stopped**.
 6. Listen to the go-now line, then watch the demo walker move along the 10-minute route with spoken turns. **Walker speed 8x** speeds it up.
 7. Tap **Shelters that fit your household**. These cards are tagged SAMPLE DATA because FEMA listed no open shelters on the day we recorded.
+8. Back on the landing page, **How it works** shows the Meta model pipeline with the demo room's recorded SAM 3.1 and Muse Spark output.
+
+To try it on your own home, tap **Map my home** instead. A real room scan on the live site takes about 50 seconds and runs in the background while you take the other photos.
 
 ## How it works
 
