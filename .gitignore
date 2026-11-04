@@ -16,4 +16,4 @@ tools/probe_out.json
 .venv/
 venv/
 .DS_Store
-fixtures/demo.recording/
+fixtures/demo.recording*/

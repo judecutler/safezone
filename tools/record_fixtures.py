@@ -57,6 +57,15 @@ class SampleWhenDown:
         return resp
 
 
+def replace_files(target: Path, source: Path) -> None:
+    """Swap the fixture files one by one instead of renaming folders, which fails on locked Windows folders."""
+    target.mkdir(parents=True, exist_ok=True)
+    for old in target.glob("*.json"):
+        old.unlink()
+    for new in source.glob("*.json"):
+        shutil.copy2(new, target / new.name)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--keep-sample-shelters", action="store_true")
@@ -74,9 +83,8 @@ def main() -> None:
         if wanted not in models:
             raise SystemExit(f"{wanted} is not in your model list; set META_VISION_MODEL / META_SEGMENT_MODEL in .env")
 
-    staging = ROOT / "fixtures" / "demo.recording"
-    if staging.exists():
-        shutil.rmtree(staging)
+    # A fresh folder per run: on Windows, OneDrive or an editor can hold an old one locked.
+    staging = ROOT / "fixtures" / f"demo.recording-{datetime.now():%Y%m%d-%H%M%S}"
     recorder = RecordingTransport(live, staging, provenance="recorded")
     sample_shelters = RecordingTransport(SampleResponder(), staging, "sample")
     fema = sample_shelters if args.keep_sample_shelters else SampleWhenDown(recorder, sample_shelters)
@@ -90,9 +98,8 @@ def main() -> None:
     notes = payload["plan"]["rooms"][0]["notes"]
     if notes:
         print("room notes:", *notes, sep="\n  ")
-    if FIXTURES.exists():
-        shutil.rmtree(FIXTURES)
-    staging.rename(FIXTURES)
+    replace_files(FIXTURES, staging)
+    shutil.rmtree(staging, ignore_errors=True)
     write_plan(build_plan(ReplayTransport(FIXTURES), True, datetime.now(timezone.utc)))
 
 
