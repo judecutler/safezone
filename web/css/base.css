@@ -14,6 +14,7 @@ body {
 }
 
 p, h1, h2, h3, h4, ul, ol, figure, dl, dd { margin: 0; }
+h1, h2, h3, .dch-words { text-wrap: balance; }
 ul, ol { padding: 0; list-style: none; }
 a { color: inherit; text-underline-offset: 3px; }
 button, input { font: inherit; color: inherit; }
@@ -39,8 +40,10 @@ img { max-width: 100%; display: block; }
 .stack-tight { gap: 8px; }
 .stack-loose { gap: 28px; }
 
+/* Sticky, not fixed: the dock keeps its own space at the end of the page, so it never covers the last card. */
 .dock {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+  position: sticky; bottom: 0; z-index: 10;
+  margin: 16px calc(-1 * max(16px, env(safe-area-inset-right))) calc(-1 * max(16px, env(safe-area-inset-bottom))) calc(-1 * max(16px, env(safe-area-inset-left)));
   display: grid; gap: 10px;
   padding: 12px max(16px, env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
   background: color-mix(in srgb, var(--paper) 92%, transparent);
@@ -48,6 +51,23 @@ img { max-width: 100%; display: block; }
   border-top: 1px solid var(--hair);
 }
 .dock > * { width: 100%; max-width: 640px; justify-self: center; }
+
+/* Laptop and desktop: the app stays a phone-width column over the neighborhood art, so nothing stretches.
+   Fixed layers inset by --frame-x to line up with the column. */
+:root { --frame-w: 430px; --frame-x: 0px; }
+.backdrop { display: none; }
+@media (min-width: 720px) {
+  :root { --frame-x: calc((100% - var(--frame-w)) / 2); }
+  body { background: var(--paper-2); }
+  .backdrop { display: block; position: fixed; inset: 0; z-index: 0; opacity: 0.4; pointer-events: none; }
+  .backdrop > .nb { width: 100%; height: 100%; display: block; }
+  #app {
+    position: relative; z-index: 1;
+    max-width: var(--frame-w); min-height: 100vh; min-height: 100dvh; margin: 0 auto;
+    background: var(--paper); border-inline: 1px solid var(--hair);
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--paper) 70%, transparent), 0 30px 80px -30px rgba(23, 21, 15, 0.45);
+  }
+}
 
 /* Type ---------------------------------------------------------------------------- */
 
@@ -72,7 +92,7 @@ img { max-width: 100%; display: block; }
 
 /* Bilingual micro-label: small, muted Japanese under an English heading. Never body text. */
 .jp {
-  display: block; margin-top: 2px;
+  display: block; margin-top: 0.5rem;
   font: 500 0.6875rem/1.2 var(--f-jp); letter-spacing: 0.14em; color: var(--muted);
   text-transform: none; font-stretch: normal;
 }
@@ -115,7 +135,7 @@ img { max-width: 100%; display: block; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
   display: inline-flex; align-items: center; gap: 6px;
-  min-height: 40px; padding: 6px 14px;
+  min-height: 48px; padding: 6px 16px;
   border: 1.5px solid var(--line); border-radius: 999px; background: var(--card);
   font-size: 0.9375rem; font-weight: 700; letter-spacing: 0.02em; cursor: pointer;
 }
@@ -163,7 +183,10 @@ img { max-width: 100%; display: block; }
   color: var(--accent-ink); border-bottom: 1.5px solid var(--accent-ink);
   font-size: 0.8125rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
 }
-.demo-banner button { min-height: 32px; border: 0; background: none; text-decoration: underline; font: inherit; cursor: pointer; padding: 0 4px; }
+.screen > .demo-banner:first-child {
+  margin: calc(-1 * max(16px, env(safe-area-inset-top))) calc(-1 * max(16px, env(safe-area-inset-right))) 0 calc(-1 * max(16px, env(safe-area-inset-left)));
+}
+.demo-banner button { min-height: 48px; margin: -8px 0; border: 0; background: none; text-decoration: underline; font: inherit; cursor: pointer; padding: 0 4px; }
 
 /* Signs and seal ------------------------------------------------------------------------------ */
 

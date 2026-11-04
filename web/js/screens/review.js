@@ -12,7 +12,7 @@ function locationCard(session, act) {
   if (loc.status === 'found') {
     return h('section', { class: 'card stack' },
       h('p', { class: 'label' }, 'This place'),
-      h('h2', { class: 'review-address' }, loc.building.display_name ?? loc.building.address),
+      h('h2', { class: 'review-address' }, loc.building.address ?? loc.building.display_name),
       flagList(loc.building));
   }
   const busy = loc.status === 'locating';

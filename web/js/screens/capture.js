@@ -290,10 +290,10 @@ function locationChip(state) {
   const flag = loc.building?.flags?.find((f) => f.kind === 'tsunami_zone');
   const where = loc.building?.address?.split(',')[0];
   const [tone, text] = {
-    idle: ['idle', 'Location not checked yet. You can type the address at the end.'],
-    locating: ['busy', 'Checking tsunami map for your location...'],
+    idle: ['idle', 'No location yet. Type the address at the end.'],
+    locating: ['busy', 'Checking the tsunami map for this spot...'],
     found: [flag?.tone === 'alert' ? 'alert' : 'ok', flag ? `${where}: ${flag.value}` : `${where}: checked`],
-    failed: ['off', 'Location not found. You can type the address at the end.'],
+    failed: ['off', 'Location not found. Type the address at the end.'],
   }[loc.status] ?? ['idle', ''];
   return h('p', { class: `cap-loc is-${tone}`, role: 'status', 'aria-live': 'polite' },
     tone === 'busy' ? h('span', { class: 'pulse-dot' }) : h('span', { class: 'cap-loc-dot' }),
@@ -365,7 +365,7 @@ function tookPanel(state, act, spec) {
     h('div', { class: 'cap-took-head' },
       url ? h('img', { class: 'cap-thumb', src: url, alt: '' }) : h('span', { class: 'cap-thumb' }),
       h('div', { class: 'stack-tight' },
-        h('p', { class: 'cap-took-title' }, shot?.kind === 'room' ? `${shot.name} saved` : `${spec.title} saved`),
+        h('p', { class: 'cap-took-title' }, `${shot?.kind === 'room' ? shot.name : spec.title} ${shot?.status === 'failed' ? 'not checked' : 'saved'}`),
         shotStatusLine(shot, act))),
     h('div', { class: 'cap-took-actions' },
       h('button', { class: 'btn-text', onclick: () => retake(state, act) }, 'Retake'),

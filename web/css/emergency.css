@@ -51,7 +51,7 @@
 .place-flag { display: flex; gap: 8px; align-items: center; font-weight: 800; font-size: 0.9375rem; border: 0; }
 .place-flag-sign { width: 22px; height: 22px; }
 .place-flag-big { font-size: 1.0625rem; margin-top: 6px; }
-.place-chevron { font-size: 1.75rem; color: var(--faint); line-height: 1; }
+.place-chevron { font-size: 1.75rem; color: var(--muted); line-height: 1; }
 .place-seal { width: 44px; height: 44px; }
 .place-seal-big { width: 56px; height: 56px; }
 .places-actions { display: grid; gap: 10px; }

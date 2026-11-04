@@ -319,6 +319,7 @@ async function realFlow(browser) {
   await page.locator('.review .chip', { hasText: /^School$/ }).click();
   check(await waitFor(page, () => document.querySelector('.review input[aria-label="Place name"]')?.value === 'School', null, 3000), 'real: an untyped name follows the kind chip');
   await page.locator('.review .chip', { hasText: /^Home$/ }).click();
+  await waitFor(page, () => document.querySelector('.review input[aria-label="Place name"]')?.value === 'Home', null, 3000);
   await page.locator('.review input[aria-label="Place name"]').fill('Beach house');
   await page.locator('.review input[aria-label="Place name"]').dispatchEvent('change');
   await shot('review-ready', true);

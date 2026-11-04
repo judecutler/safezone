@@ -10,6 +10,7 @@ import { roomResult } from './prepare.js';
 // Standby lives here: while this screen is on the page the phone listens for sustained shaking and, with one
 // low-accuracy fix, knows which saved place is nearest. Both only open the shaking screen, which moves nobody.
 
+const HERE_M = 150;
 const KIND_TEXT = { home: 'Home', work: 'Work', school: 'School', other: 'Place' };
 const KIND_SEAL = { home: '家', work: '職', school: '校', other: '備' };
 
@@ -28,9 +29,9 @@ function askFix(onFix) {
 function standbyHeader(state, act) {
   const near = fix ? nearestPlace(state.places, fix.lonlat) : null;
   const first = near?.place ?? state.places[0];
-  const line = near
-    ? `Nearest: ${first.name}, ${formatDistance(near.distance_m)} away`
-    : first ? `${first.name} is mapped` : 'No place mapped yet';
+  const line = !near ? (first ? `${first.name} is mapped` : 'No place mapped yet')
+    : near.distance_m <= HERE_M ? `You are at ${first.name}`
+    : `Nearest saved place: ${first.name}, ${formatDistance(near.distance_m)}`;
   const sensor = state.demo ? 'Demo: tap Simulate an earthquake below'
     : motionAvailable() ? 'Listening for strong shaking' : 'No motion sensor here; tap Emergency if the ground shakes';
   return h('header', { class: 'standby', 'aria-live': 'polite' },
@@ -104,7 +105,8 @@ function goBagCard(check) {
 // Bay Area demo data is recorded from the real services; the Japan demo is labelled sample data.
 function demoLine(place) {
   const recorded = place.plan.building?.provenance === 'recorded';
-  return `DEMO: ${recorded ? 'recorded real data' : 'sample data'} for ${place.plan.building?.address ?? place.name}`;
+  const where = (place.plan.building?.address ?? place.name).split(',')[0];
+  return `DEMO: ${recorded ? 'recorded real data' : 'sample data'} for ${where}`;
 }
 
 export function renderPlace(state, act) {

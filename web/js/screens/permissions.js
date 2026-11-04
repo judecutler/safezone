@@ -130,13 +130,13 @@ export function renderPermissions(state, act) {
       h('button', { class: 'btn-text', onclick: () => act.go('back') }, '‹ Back'),
       h('p', { class: 'label' }, 'Step 1 of 3'),
       h('h1', { class: 'title' }, 'Map this place in a few photos'),
-      h('p', { class: 'lede' }, 'While you walk around and take photos, SafeZone checks the tsunami map for this address in the background.')),
+      h('p', { class: 'lede' }, 'SafeZone checks the tsunami map for this address while you take the photos.')),
     h('ul', { class: 'perm-list' }, rows.map(row)),
     h('div', { class: 'perm-actions stack-tight' },
       primary,
       perm.asking || cameraAnswered ? null : h('button', { class: 'btn-text perm-skip', onclick: () => notNow(act) }, 'Not now'),
       h('p', { class: 'fine' }, state.demo
-        ? 'The demo asks for nothing and uses recorded data, labelled as such.'
+        ? 'The demo asks for no permissions. It uses recorded data, and says so on every screen.'
         : 'Your phone will ask you to confirm each one. You can change them later in your browser settings.')));
   mounted = { root, state, act };
   return root;

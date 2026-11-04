@@ -44,13 +44,6 @@
 .landing-actions .btn-text { justify-self: center; }
 .landing { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
 
-@media (min-width: 720px) {
-  .landing-map { height: 72vh; }
-  .landing-card { margin-top: -120px; padding: 28px; }
-  .landing-actions { grid-template-columns: 1fr 1fr; }
-  .landing-actions .btn-text { grid-column: 1 / -1; }
-}
-
 /* The art --------------------------------------------------------------------------------------- */
 
 .nb { background: var(--paper); }

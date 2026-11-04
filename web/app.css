@@ -73,7 +73,7 @@
 .sheet .btn:not(.btn-primary) { background: transparent; color: var(--ink); border-color: var(--line); box-shadow: none; }
 .sheet .btn:not(.btn-primary):hover { background: var(--paper-2); }
 .btn-camera .icon-inline { width: 26px; height: 26px; stroke-width: 3; }
-.btn-small { font-size: 0.875rem; padding: 0; min-height: 0; }
+.btn-small { font-size: 0.875rem; padding: 0 4px; min-height: 48px; min-width: 48px; }
 
 .icon, .icon-inline, .flag-icon, .need-icon {
   fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
@@ -131,6 +131,7 @@ input[type="text"]:focus { outline: 3px solid var(--accent); outline-offset: 0; 
 .flag-icon { width: 36px; height: 36px; padding: 5px; border: var(--stroke) solid var(--line); border-radius: 8px; stroke-width: 3.5; }
 .flag-value { font-weight: 800; font-size: 1.0625rem; line-height: 1.25; }
 .flag-detail { color: var(--muted); font-size: 0.9375rem; }
+.flag-source a { display: inline-block; padding: 12px 0; margin: -8px 0; }
 .flag-source { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .tone-alert .flag-icon { background: var(--sev-4); border-color: var(--sev-4); color: #fff; }
 .tone-alert .flag-value { color: var(--sev-4-text); }
@@ -373,7 +374,7 @@ html[data-mode="emergency"] body { font-size: 18px; }
 .em-spot p { font-size: 1.0625rem; }
 .em-muted { color: var(--muted); }
 .em-dock {
-  position: fixed; left: 0; right: 0; bottom: 0;
+  position: fixed; left: var(--frame-x); right: var(--frame-x); bottom: 0;
   background: var(--paper); border-top: var(--stroke) solid var(--line);
   padding: 12px 16px calc(8px + env(safe-area-inset-bottom));
   display: grid; justify-items: center; gap: 2px;
@@ -396,25 +397,6 @@ html[data-mode="emergency"] .turns li { font-size: 1.125rem; }
 html[data-mode="emergency"] .shelter { border-color: var(--line); }
 html[data-mode="emergency"] .fill-in { background: var(--ink); }
 html[data-mode="emergency"] .fill-high { background: var(--sev-4); }
-
-/* Wider screens -------------------------------------------------------------------- */
-
-@media (min-width: 720px) {
-  .bar { grid-template-columns: auto 1fr auto; grid-template-areas: "mark steps sos"; }
-  .steps { border-top: 0; border-left: var(--stroke) solid var(--line); }
-  .steps li { padding: 0 14px; }
-  .page { padding-top: 40px; gap: 28px; }
-  .actions { grid-template-columns: repeat(auto-fit, minmax(200px, max-content)); align-items: center; }
-  .input-row { grid-template-columns: 1fr auto; }
-  .needs { grid-template-columns: repeat(4, 1fr); }
-  .room-fig { margin: 0; }
-  .room-fig > .fine, .room-fig figcaption { padding: 0; }
-  .overlay { border: var(--stroke) solid var(--line); }
-  .tb-grid { grid-template-columns: repeat(4, 1fr); }
-  .tb-grid > div { border-bottom: 0; }
-  .tb-grid > div:nth-child(2n) { border-right: 1px solid var(--hair); }
-  .tb-grid > div:last-child { border-right: 0; }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .scan-line { animation: none; top: 50%; }

@@ -1,6 +1,8 @@
 import * as api from './api.js';
 import * as db from './db.js';
 import { EMERGENCY_SCREENS, initialScreen, next } from './machine.js';
+import { neighborhood } from './art/neighborhood.js';
+import { h } from './dom.js';
 import { toUploadJpeg } from './photo.js';
 import { loadPlaces, nearestPlace, placeFromSession, savePlaces } from './places.js';
 import { renderCapture } from './screens/capture.js';
@@ -147,10 +149,20 @@ function shot(id) {
   return state.session?.shots.find((s) => s.id === id);
 }
 
+// Unnamed rooms are numbered by the rooms present now, so removing Room 1 makes the next one Room 1.
+function numberRooms(session) {
+  session.shots.filter((s) => s.kind === 'room' && s.status !== 'skipped').forEach((s, i) => {
+    if (!s.autoName) return;
+    s.name = `Room ${i + 1}`;
+    if (s.result) s.result.name = s.name;
+  });
+}
+
 async function updateShot(sessionId, id, patch) {
   const session = state.session?.id === sessionId ? state.session : null;
   const target = session?.shots.find((s) => s.id === id);
   if (target) Object.assign(target, patch);
+  if (session) numberRooms(session);
   if (patch.status === 'done') await attachToSavedPlace(sessionId, target ?? { id, ...patch });
   await persist();
   render();
@@ -180,7 +192,7 @@ async function runShot(s) {
     }
     await updateShot(sessionId, s.id, { status: 'done', result });
   } catch (e) {
-    await updateShot(sessionId, s.id, { status: 'failed', error: errorText(e, 'This photo could not be checked. Try again, or skip it.') });
+    await updateShot(sessionId, s.id, { status: 'failed', error: errorText(e, 'The check did not finish. Try again, or skip this photo.') });
   }
 }
 
@@ -273,14 +285,12 @@ const actions = {
       setUi({ error: ERRORS.decode });
       return null;
     }
-    const roomCount = state.session.shots.filter((s) => s.kind === 'room').length;
-    const s = {
-      id: uid(), kind, image_id: uid(), status: 'queued',
-      name: kind === 'room' ? (name?.trim() || `Room ${roomCount + 1}`) : name ?? '',
-    };
+    const s = { id: uid(), kind, image_id: uid(), status: 'queued', name: name?.trim() ?? '' };
+    if (kind === 'room' && !s.name) s.autoName = true;
     await db.putImage(s.image_id, jpeg.blob);
     state.images[s.image_id] = URL.createObjectURL(jpeg.blob);
     state.session.shots.push(s);
+    numberRooms(state.session);
     state.ui.error = null;
     await persist();
     render();
@@ -303,6 +313,7 @@ const actions = {
     const s = shot(id);
     if (!s) return;
     state.session.shots = state.session.shots.filter((x) => x.id !== id);
+    numberRooms(state.session);
     if (s.image_id) await db.deleteImage(s.image_id);
     await persist();
     render();
@@ -452,6 +463,7 @@ async function boot() {
   state.screen = initialScreen(location.search, { hasPlaces: state.places.length > 0 });
   if (EMERGENCY_SCREENS.has(state.screen)) await loadEmergency();
   history.replaceState({ screen: state.screen }, '');
+  document.body.prepend(h('div', { class: 'backdrop', 'aria-hidden': 'true' }, neighborhood({ animate: false })));
   render();
   refreshGuidance();
 }

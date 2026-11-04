@@ -150,6 +150,11 @@ function scanningCard({ name, preview }) {
     h('p', { class: 'fine' }, 'This usually takes 10 to 30 seconds.'));
 }
 
+// Mask fallback and raw model errors are for developers. The boxes are already labelled, and the model line
+// already says when the hazard check was unavailable.
+const DEV_NOTE = /^(Masks not decoded|Muse Spark error:)/;
+const userNotes = (room) => room.notes.filter((n) => !DEV_NOTE.test(n));
+
 export function roomResult(room, state, act, where) {
   const guidance = state.guidance;
   const numbers = hazardNumbers(room);
@@ -195,7 +200,7 @@ export function roomResult(room, state, act, where) {
         h('span', { class: 'mono fine' }, `${done} of ${room.fixes.length} done`)),
       h('div', { class: 'progress', 'aria-hidden': 'true' }, room.fixes.map((f) => h('span', { class: f.done ? 'on' : '' }))),
       h('ul', { class: 'fixes' }, room.fixes.map((f) => fixItem(f, numbers, () => act.toggleFix(where, room.id, f.id))))) : null,
-    room.notes.length ? h('ul', { class: 'notes fine' }, room.notes.map((n) => h('li', null, n))) : null);
+    userNotes(room).length ? h('ul', { class: 'notes fine' }, userNotes(room).map((n) => h('li', null, n))) : null);
 }
 
 function fixItem(f, numbers, onToggle) {
