@@ -2,14 +2,15 @@ import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+ENV_PATH = ROOT / ".env"
 DEFAULT_BASE_URL = "https://api.meta.ai/v1"
 
 
-def load_env(path: Path = ROOT / ".env") -> None:
+def load_env(path: Path = ENV_PATH) -> None:
     """Read KEY=value lines from .env without overriding real environment variables."""
     if not path.exists():
         return
-    for line in path.read_text().splitlines():
+    for line in path.read_text(encoding="utf-8-sig").splitlines():
         line = line.strip()
         if not line or line.startswith("#") or "=" not in line:
             continue
@@ -22,7 +23,8 @@ def api_key() -> str:
     key = os.environ.get("MODEL_API_KEY", "")
     if not key:
         raise RuntimeError(
-            "MODEL_API_KEY is not set. Copy .env.example to .env and paste your key there."
+            f"MODEL_API_KEY is not set. Looked for a file named exactly '.env' at {ENV_PATH} "
+            f"(exists: {ENV_PATH.exists()}). It must contain a line MODEL_API_KEY=yourkey"
         )
     return key
 

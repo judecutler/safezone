@@ -43,6 +43,8 @@ class MetaClient:
             return json.loads(cached.read_text())
         if self.offline:
             raise OfflineCacheMiss(f"offline mode and no cached response for {path}")
+        if self.transport == self._http:
+            config.api_key()
         used = self.calls_used()
         if used >= self.max_calls:
             raise BudgetExceeded(

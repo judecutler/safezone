@@ -71,3 +71,15 @@ def test_cache_files_hold_only_responses(tmp_path):
     client.post("/responses", {"q": "x"})
     for path in tmp_path.glob("*.json"):
         assert set(json.loads(path.read_text())) == {"echo"}
+
+
+def test_missing_key_costs_nothing(tmp_path, monkeypatch):
+    from safezone import config
+
+    monkeypatch.delenv("MODEL_API_KEY", raising=False)
+    monkeypatch.setattr(config, "ENV_PATH", tmp_path / "absent.env")
+    monkeypatch.setattr(config, "load_env", lambda path=None: None)
+    client = MetaClient(cache_dir=tmp_path, max_calls=5, offline=False)
+    with pytest.raises(RuntimeError, match="MODEL_API_KEY"):
+        client.post("/responses", {"q": 1})
+    assert client.calls_used() == 0
