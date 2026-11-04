@@ -4,8 +4,9 @@ import { evacMarks } from './signs.js';
 // A coastal neighbourhood seen from above at a gentle tilt, drawn procedurally from a fixed seed so it is identical on
 // every load. Ocean at left, beach, coast road, a low street grid inside the hazard area, contoured high ground at right.
 // The layout is planned on flat ground coordinates; P() projects every point to the screen, and buildings rise from it as
-// prisms. The loop (landing.css): calm, shaking with falling debris (debris() below), a tsunami floods the low blocks up to
-// the hazard line, it recedes.
+// prisms. The loop (landing.css, timed by TIMELINE below): a small tremor, a larger one, the strong earthquake with falling
+// debris (debris() below), an eerie calm while the sea draws back off the beach, the tsunami floods the low blocks up to the
+// hazard line, it recedes.
 
 const SHORE = (y) => 58 + 5 * Math.sin(y / 53) + 3 * Math.sin(y / 17);
 const COAST = (y) => 92 + 3 * Math.sin(y / 120);
@@ -24,7 +25,20 @@ const LIGHT = [-0.6, -0.8];
 // The ground the tilted view needs to fill the 400 x 640 frame, with a margin for buildings rising at the bottom edge.
 const Y0 = -150, Y1 = 800, XE = 480;
 const BANDS = 6;
-export const LOOP_MS = 15000;
+// The loop, in ms. landing.css uses the same times as percentages of LOOP_MS; the pill label and level follow TIMELINE.
+export const LOOP_MS = 21000;
+const TIMELINE = [
+  [0, 'Calm', 0], [3000, 'Small tremor', 1], [3600, 'Calm', 0], [5100, 'Tremor', 1], [6100, 'Calm', 0],
+  [7100, 'Strong earthquake', 2], [10700, 'Water pulling back: go to high ground', 2], [13200, 'Tsunami', 2],
+  [16500, 'Water going back', 1], [18600, 'Calm', 0],
+];
+// Each shock's jolts and end; debris falls in bursts at the jolts and a trickle in between.
+const SHOCKS = [
+  { jolts: [3000], end: 3600, dust: 22, bit: 0, chunk: 0, fade: 0.55 },
+  { jolts: [5100], end: 6100, dust: 70, bit: 12, chunk: 0, fade: 0.8 },
+  { jolts: [7100, 8300, 9500], end: 10700, dust: 380, bit: 110, chunk: 14, fade: 1 },
+];
+const EBB = 30;
 
 // The projection: a gentle axonometric tilt. Ground x runs slightly downhill to the right, ground y is foreshortened and
 // slanted, and height goes straight up the screen. Chosen so the home stays where the flat plan had it.
@@ -273,6 +287,18 @@ function crestPath(dx) {
   return d;
 }
 
+// The sand the sea uncovers when it draws back before the wave: darker wet sand, tide ripples and a few rocks.
+function wetSand() {
+  const rand = random(777);
+  const rocks = range(Y0, Y1, 26).flatMap((y) => (rand() < 0.55 ? [] : [[SHORE(y) - 6 - rand() * (EBB - 10), y + rand() * 20, 1.2 + rand() * 1.8]]))
+    .map(([x, y, r]) => ellipse(at([x, y]), r, r * 0.6)).join('');
+  return [
+    s('path', { d: poly([...range(Y0 - 10, Y1 + 10, 10).map((y) => [SHORE(y) + 1, y]), ...range(Y1 + 10, Y0 - 10, -10).map((y) => [SHORE(y) - EBB - 8, y])]), class: 'nb-wet' }),
+    [10, 19].map((k) => s('path', { d: line(range(Y0 - 10, Y1 + 10, 10).map((y) => [SHORE(y) - k + 1.5 * Math.sin(y / 15 + k), y])), class: 'nb-wet-line' })),
+    s('path', { d: rocks, class: 'nb-rock' }),
+  ];
+}
+
 const seaPath = () => poly([[-120, Y0 - 10], ...range(Y0 - 10, Y1 + 10, 10).map((y) => [SHORE(y), y]), [-120, Y1 + 10]]);
 const beachPath = () => poly([[-120, Y0 - 10], ...range(Y0 - 10, Y1 + 10, 20).map((y) => [COAST(y), y]), [-120, Y1 + 10]]);
 const contour = (c) => curve(range(Y0 - 10, Y1 + 10, 40).map((y) => [c + 3 * Math.sin(y / 41 + c) + 2 * Math.sin(y / 19 + c * 0.3), y]), 10);
@@ -355,10 +381,7 @@ export function neighborhood({ animate }) {
     CONTOURS.map((c) => s('path', { class: 'nb-hill', d: poly([...contour(c), [XE + 80, Y1 + 10], [XE + 80, Y0 - 10]]) })),
     s('path', { d: beachPath(), class: 'nb-sand' }),
     s('path', { d: line(range(Y0 - 10, Y1 + 10, 10).map((y) => [SHORE(y) + 10 + 2 * Math.sin(y / 23), y])), class: 'nb-wrack' }),
-    s('path', { d: seaPath(), class: 'nb-sea-base' }),
-    s('path', { d: seaPath(), class: 'nb-sea', fill: url('sea') }),
-    s('path', { d: line(range(Y0 - 10, Y1 + 10, 10).map((y) => [SHORE(y) - 4, y])), class: 'nb-surf' }),
-    s('path', { d: line(range(Y0 - 10, Y1 + 10, 10).map((y) => [SHORE(y), y])), class: 'nb-shore' }),
+    wetSand(),
     CONTOURS.map((c, i) => s('path', { class: i % 2 ? 'nb-contour nb-contour-major' : 'nb-contour', d: line(contour(c)) })),
     s('path', { d: poly([[PARK.x0, PARK.y0], [PARK.x1, PARK.y0], [PARK.x1, PARK.y1], [PARK.x0, PARK.y1]]), class: 'nb-park' }),
     s('path', { d: line(curve([[PARK.x0, 228], [166, 236], [184, 262], [190, 290], [PARK.x1, 312]])), class: 'nb-trail' }),
@@ -368,6 +391,13 @@ export function neighborhood({ animate }) {
     STREETS.map((st) => s('path', { d: line(st.line), class: st.main ? 'nb-road nb-main' : 'nb-road', 'stroke-width': st.w })),
     STREETS.filter((st) => st.end).map((st) => { const p = at(st.line.at(-1)); return s('ellipse', { cx: f(p[0]), cy: f(p[1]), rx: st.w * 1.3, ry: st.w * 1.05, class: 'nb-road-end' }); }),
     s('g', { class: 'nb-flood' }, s('path', { d: flood, class: 'nb-flood-base' })),
+  ];
+  // The sea is its own layer so it can draw back off the beach as one compositor transform.
+  const sea = [
+    s('path', { d: seaPath(), class: 'nb-sea-base' }),
+    s('path', { d: seaPath(), class: 'nb-sea', fill: url('sea') }),
+    s('path', { d: line(range(Y0 - 10, Y1 + 10, 10).map((y) => [SHORE(y) - 4, y])), class: 'nb-surf' }),
+    s('path', { d: line(range(Y0 - 10, Y1 + 10, 10).map((y) => [SHORE(y), y])), class: 'nb-shore' }),
   ];
   const power = powerLines();
   const top = [
@@ -399,11 +429,11 @@ export function neighborhood({ animate }) {
   const bands = range(0, BANDS - 1, 1).map(bandGroup);
   const defs = s('defs', null, seigaiha(id, 'sea', 7, 'nb-scale'), seigaiha(id, 'flood', 7, 'nb-fscale'));
   const frame = (cls, ...kids) => s('svg', { class: cls, viewBox: '0 0 400 640', preserveAspectRatio: 'xMidYMid slice', 'aria-hidden': 'true' }, ...kids);
-  const summary = 'Map of a coastal neighbourhood. The ground shakes and debris falls, a tsunami floods the low streets up to '
-    + 'the hazard line, then the water goes back out. A dashed yellow route leads from a highlighted home uphill to high ground.';
+  const summary = 'Map of a coastal neighbourhood. Two small tremors, then a strong earthquake shakes the ground and debris falls. '
+    + 'The sea draws back off the beach, a tsunami floods the low streets up to the hazard line, then the water goes back out. A dashed yellow route leads from a highlighted home uphill to high ground.';
 
   if (!animate) {
-    const one = frame('nb', defs, ground, bands, power.wires, top, live);
+    const one = frame('nb', defs, ground, sea, bands, power.wires, top, live);
     one.removeAttribute('aria-hidden');
     one.setAttribute('role', 'img');
     one.setAttribute('aria-label', summary);
@@ -413,29 +443,33 @@ export function neighborhood({ animate }) {
   // on whole layers and never repaint the drawing. Only the flood, route and ripples repaint, in their own layers.
   return h('div', { class: 'nb-stack', role: 'img', 'aria-label': summary },
     frame('nb nb-animate', defs, ground),
+    frame('nb-layer nb-sea-layer', sea),
     bands.map((g, k) => frame(`nb-layer nb-band-${k}`, g)),
     frame('nb-layer nb-wire-layer', power.wires),
     frame('nb-layer nb-top', top),
     frame('nb-layer nb-live', live),
+    h('div', { class: 'nb-hush' }),
     h('div', { class: 'nb-flash' }));
 }
 
-// Falling debris during the shaking phase, drawn on a canvas over the map. Every particle is a pure function of the loop
+// Falling debris during the shocks, drawn on a canvas over the map. Every particle is a pure function of the loop
 // time read from the map's own CSS animation, so the two never drift apart and a paused or seeked animation shows a
-// matching frame. One requestAnimationFrame loop; it idles while the tab is hidden and ends once the map leaves the page.
-const JOLTS = [0.30, 0.38, 0.46].map((p) => p * LOOP_MS);
-const SHAKE_END = 0.53 * LOOP_MS;
+// matching frame. The same clock drives the phase pill through onPhase(label, level). One requestAnimationFrame loop; it
+// idles while the tab is hidden and ends once the map leaves the page.
+const FIRST = SHOCKS[0].jolts[0], LAST = SHOCKS.at(-1).end;
 const DUST = ['#A79E8E', '#C2B9A8', '#C9A24E', '#B07F2E', '#8F877A'];
 
 function particles() {
   const rand = random(4041);
   const list = [];
-  const add = (kind, n, spread) => {
-    for (let i = 0; i < n; i++) {
+  const add = (kind, shock, spread) => {
+    const { jolts, end, fade } = shock;
+    spread = Math.min(spread, end - jolts[0]);
+    for (let i = 0; i < shock[kind]; i++) {
       const burst = rand() < 0.75;
-      const t0 = burst ? JOLTS[Math.floor(rand() * 3)] + rand() * spread : JOLTS[0] + rand() * (SHAKE_END - JOLTS[0]);
+      const t0 = burst ? jolts[Math.floor(rand() * jolts.length)] + rand() * spread : jolts[0] + rand() * (end - jolts[0]);
       list.push({
-        kind, t0, x: rand(), y: -0.04 + rand() * (kind === 'chunk' ? 0.05 : 0.3),
+        kind, t0, fade, x: rand(), y: -0.04 + rand() * (kind === 'chunk' ? 0.05 : 0.3),
         life: kind === 'chunk' ? 1400 + rand() * 500 : 1600 + rand() * 1200,
         vx: (rand() - 0.5) * (kind === 'dust' ? 0.05 : 0.08), vy: rand() * 0.05,
         g: kind === 'chunk' ? 0.62 + rand() * 0.2 : kind === 'bit' ? 0.42 + rand() * 0.18 : 0.14 + rand() * 0.14,
@@ -446,16 +480,16 @@ function particles() {
       });
     }
   };
-  add('dust', 380, 1000); add('bit', 110, 800); add('chunk', 14, 400);
+  for (const shock of SHOCKS) { add('dust', shock, 1000); add('bit', shock, 800); add('chunk', shock, 400); }
   return list;
 }
 
-export function debris(svg) {
+export function debris(svg, onPhase = () => {}) {
   const canvas = h('canvas', { class: 'nb-debris', 'aria-hidden': 'true' });
   const ctx = canvas.getContext('2d');
   if (!ctx) return canvas;
   const list = particles();
-  let raf = 0, seen = false, size = '', drawn = false;
+  let raf = 0, seen = false, size = '', drawn = false, phase = 0;
 
   const clock = () => {
     const anim = svg.getAnimations()[0];
@@ -468,7 +502,7 @@ export function debris(svg) {
       canvas.width = Math.round(w * dpr); canvas.height = Math.round(ht * dpr);
       drawn = false;
     }
-    const active = t != null && t >= JOLTS[0] && t <= SHAKE_END + 3000;
+    const active = t != null && t >= FIRST && t <= LAST + 3000;
     if (!active && !drawn) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, ht);
@@ -483,7 +517,7 @@ export function debris(svg) {
       const x = (p.x + p.vx * sec) * w + Math.sin(p.sway + sec * 3) * (p.kind === 'dust' ? 6 : 2) * unit;
       const a = Math.min(1, age / 120) * (1 - (age / p.life) ** 2);
       if (a <= 0 || y > ht + 10) continue;
-      ctx.globalAlpha = p.kind === 'dust' ? a * 0.9 : a;
+      ctx.globalAlpha = (p.kind === 'dust' ? a * 0.9 : a) * p.fade;
       const r = p.size * unit;
       if (p.kind === 'dust') {
         ctx.fillStyle = p.color;
@@ -508,7 +542,10 @@ export function debris(svg) {
       if (seen) { document.removeEventListener('visibilitychange', wake); return; }
     } else {
       seen = true;
-      draw(clock());
+      const t = clock();
+      draw(t);
+      const now = t == null ? 0 : TIMELINE.findLastIndex(([at]) => t >= at);
+      if (now !== phase) { phase = now; onPhase(TIMELINE[now][1], TIMELINE[now][2]); }
     }
     if (!document.hidden) raf = requestAnimationFrame(frame);
   };

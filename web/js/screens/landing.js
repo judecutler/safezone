@@ -3,7 +3,6 @@ import { debris, neighborhood } from '../art/neighborhood.js';
 import { tsunamiSign } from '../art/signs.js';
 
 const SOURCE = 'https://dev.berkeleyca.gov/sites/default/files/documents/2025-04-18%20%202024%20Tsunami%20Warning%20-%20After%20Action%20Report%20and%20Community%20Survey%20Summary.pdf';
-const PHASES = ['Calm', 'Shaking', 'Tsunami', 'Water going back'];
 
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
@@ -11,15 +10,15 @@ export function renderLanding(state, act) {
   const places = state.places?.length ?? 0;
   const animate = !reducedMotion();
   const map = neighborhood({ animate });
+  const words = h('span', { class: 'landing-phase-words' }, 'Calm');
+  const pill = h('div', { class: 'landing-phase', 'aria-hidden': 'true', 'data-level': '0' }, tsunamiSign('sign landing-phase-sign'), words);
   return h('main', { class: 'landing' },
     h('div', { class: 'landing-map' },
       map,
-      animate ? debris(map) : null,
+      animate ? debris(map, (label, level) => { words.textContent = label; pill.dataset.level = level; }) : null,
       h('div', { class: 'landing-top' },
         h('div', { class: 'landing-mark' }, icon('mark', 'landing-mark-icon'), 'SafeZone'),
-        h('div', { class: 'landing-phase', 'aria-hidden': 'true' },
-          tsunamiSign('sign landing-phase-sign'),
-          h('span', { class: 'landing-phase-words' }, PHASES.map((p, i) => h('span', { class: `landing-phase-${i}` }, p)))))),
+        pill)),
     h('section', { class: 'landing-card card' },
       h('h1', { class: 'display' }, 'Know your way to high ground.', h('span', { class: 'jp', lang: 'ja' }, '地震・津波への備え')),
       h('p', { class: 'lede' }, 'Photograph your home once. SafeZone finds the best place to take cover in each room, then talks you out of the tsunami zone, even with no signal.'),
