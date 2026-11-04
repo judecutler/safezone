@@ -21,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from safezone import regions  # noqa: E402
 from safezone.shapes import Household  # noqa: E402
 from safezone.transport import RecordingTransport, ReplayTransport, Transport  # noqa: E402
+from tools.demo import build_plan_jp, write_plan_jp  # noqa: E402
 from tools.record_fixtures import FailureLog  # noqa: E402
 from tools.samples.japan import JP_DEMO_ADDRESS  # noqa: E402
 
@@ -87,6 +88,10 @@ def main() -> None:
     shutil.rmtree(staging, ignore_errors=True)
     assert run(ReplayTransport(FIXTURES), args.address, now) == result, "replay differs from the recording"
     print(f"\ncopied {copied} recorded files into {FIXTURES.relative_to(ROOT)}; replay matches.")
+    if log.failures or result["route"] is None:
+        print("Kept the SAMPLE Kamakura demo (demo/plan_jp.json): the recording is incomplete. Paste this output to Claude.")
+        return
+    write_plan_jp(build_plan_jp(ReplayTransport(FIXTURES), now))
 
 
 if __name__ == "__main__":

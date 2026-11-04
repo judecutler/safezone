@@ -8,6 +8,7 @@ answer with SAMPLE shelters (the live layer is empty on quiet days), and records
 SAMPLE answers only for requests the recording lacks, such as the outside address.
 `python tools/demo.py gobag-sample` writes demo/gobag.json from the SAMPLE go-bag answer.
 `python tools/demo.py jp` writes demo/plan_jp.json, the Kamakura household built from the Japan SAMPLE answers.
+`python tools/demo.py jp-replay` rebuilds it from the recorded Japan answers in fixtures/demo.
 It has no room scan: there is no Kamakura room photo, and borrowing the Bay Area room would mislabel it.
 Overpass is never filled: a sample storeys count on the real building would be invented.
 """
@@ -91,7 +92,7 @@ def build_plan(transport: Transport, shelter_replay: bool, now: datetime) -> dic
 
 
 def build_plan_jp(transport: Transport, now: datetime) -> dict:
-    """The Kamakura demo household. Every answer comes from tools/samples/japan.py and is labelled sample."""
+    """The Kamakura demo household, from whatever answers `transport` gives: samples, or a replayed recording."""
     region, profile = regions.profile_for_address(japan.JP_DEMO_ADDRESS, transport)
     assert region.id == "jp"
     evac = regions.evacuate(profile, JP_DEMO_HOUSEHOLD, transport, transport, now, True)
@@ -99,6 +100,13 @@ def build_plan_jp(transport: Transport, now: datetime) -> dict:
                 generated_at=now)
     return {"plan": plan.model_dump(mode="json"), "images": {}, "note": JP_NO_ROOM_NOTE,
             "shelters_error": evac.shelters_error}
+
+
+def write_plan_jp(payload: dict) -> None:
+    PLAN_JP.write_text(json.dumps(payload, indent=1, ensure_ascii=False))
+    plan = payload["plan"]
+    print(f"wrote {PLAN_JP.relative_to(ROOT)}: route {plan['route']['kind'] if plan['route'] else None}, "
+          f"{len(plan['shelters']['matches']) if plan['shelters'] else 0} sites, {plan['building']['provenance']}")
 
 
 def exercise_outside_address(transport: Transport, now: datetime) -> None:
@@ -145,11 +153,10 @@ def main(mode: str) -> None:
         build_plan(transport, True, now)
         exercise_outside_address(transport, now)
     elif mode == "jp":
-        payload = build_plan_jp(japan.SampleTransport(), now)
-        PLAN_JP.write_text(json.dumps(payload, indent=1, ensure_ascii=False))
-        plan = payload["plan"]
-        print(f"wrote {PLAN_JP.relative_to(ROOT)}: route {plan['route']['kind']}, "
-              f"{len(plan['shelters']['matches'])} sites, provenance {plan['building']['provenance']}")
+        write_plan_jp(build_plan_jp(japan.SampleTransport(), now))
+        return
+    elif mode == "jp-replay":
+        write_plan_jp(build_plan_jp(ReplayTransport(FIXTURES), now))
         return
     elif mode == "gobag-sample":
         write_gobag(SampleResponder(), prepare_image(PHOTO.read_bytes()))
