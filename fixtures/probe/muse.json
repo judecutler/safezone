@@ -1,0 +1,57 @@
+{
+  "top_logprobs": 0,
+  "temperature": 1.0,
+  "top_p": 1.0,
+  "service_tier": "auto",
+  "model": "muse-spark-1.3",
+  "reasoning": {
+    "effort": "low"
+  },
+  "background": false,
+  "tools": [],
+  "tool_choice": "auto",
+  "truncation": "disabled",
+  "id": "resp_6aeab968e9c2a187e159422c",
+  "object": "response",
+  "status": "completed",
+  "created_at": 1793767784.0,
+  "completed_at": 1793767784.0,
+  "error": null,
+  "incomplete_details": null,
+  "output": [
+    {
+      "type": "reasoning",
+      "id": "rs_6aeab968e9c2a187e159422c:rs_64de9988-7d84-4852-8886-80f61e881712",
+      "summary": [],
+      "status": "completed"
+    },
+    {
+      "type": "message",
+      "id": "msg_828d8ce4-e56d-4ab6-aa72-94c9d3be95fa",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "output_text",
+          "text": "[{\"object\": \"glass soda bottle on top of left wardrobe\", \"hazard\": \"shatters\", \"near_bed_or_seat\": true}, {\"object\": \"plastic basket on top of left wardrobe\", \"hazard\": \"falls\", \"near_bed_or_seat\": true}, {\"object\": \"black bag on top of left wardrobe\", \"hazard\": \"slides\", \"near_bed_or_seat\": true}, {\"object\": \"spray bottles and cans on top of middle cabinet\", \"hazard\": \"falls\", \"near_bed_or_seat\": false}, {\"object\": \"large cardboard boxes on top of white shelf\", \"hazard\": \"falls\", \"near_bed_or_seat\": true}, {\"object\": \"hat on bed headboard\", \"hazard\": \"falls\", \"near_bed_or_seat\": true}, {\"object\": \"tote bag hanging on wardrobe door\", \"hazard\": \"falls\", \"near_bed_or_seat\": false}]",
+          "annotations": [],
+          "logprobs": []
+        }
+      ],
+      "status": "completed"
+    }
+  ],
+  "instructions": null,
+  "usage": {
+    "input_tokens": 4146,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 763,
+    "output_tokens_details": {
+      "reasoning_tokens": 547
+    },
+    "total_tokens": 4909
+  },
+  "parallel_tool_calls": true,
+  "store": true
+}
