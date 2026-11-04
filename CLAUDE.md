@@ -28,7 +28,7 @@ Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last upd
 - On the demo photo, real SAM found the wardrobes, both beds, the boxes on the shelf, and "door" hits that are wardrobe doors (named "cabinet door" in the UI).
 - Models the key can call: muse-image-1.0, muse-spark-1.1, 1.2, 1.2-contributor, 1.3, 1.3-contributor, muse-voice-transcribe-1.0, muse-wonder-1.0, sam-3.1.
 - Muse Spark is called on `POST /chat/completions` with `response_format: json_schema` (strict, nullable fields as `anyOf` with null) and `reasoning_effort: low`.
-- Overpass often answers 502 or times out; `building/osm.py` waits 60 s and tries two mirrors.
+- Overpass often answers 502 or times out; `building/osm.py` tries three instances within one 10 s budget (180 s in the recorders).
 - CGS: 1000 Great Highway (the demo address) is inside the hazard area. FEMA listed 0 open shelters on Nov 3, so the demo shows labelled SAMPLE shelters.
 - Japan: Tokyo's own inundation study maps only its islands, so the 23 wards have no mapped tsunami inundation. The Japan demo place is Kamakura City Hall. Tile URL, zoom and legend colours are verified; GSI site field names are not (the recording will show them).
 
