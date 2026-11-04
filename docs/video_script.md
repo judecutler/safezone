@@ -1,40 +1,55 @@
 # SafeZone demo video script (target 2:45, limit 3:00)
 
-The demo household is already built from real responses recorded on Nov 3: SAM 3.1, Muse Spark, the CGS tsunami map, DataSF and the walking route. Only the shelters are SAMPLE data, because FEMA listed no open shelters that night. Film on a phone with SafeZone added to the home screen, using "Load the demo household". Every claim below is something the app shows today; do not add any that it does not.
+Every line below matches what the redesigned app shows or says. Facts in the voice-over come from `docs/story.md`, where each has its source. Do not add claims the app does not make.
 
-## Act 1. Prepare (0:00 to 1:25). Bright, calm UI.
+## Before filming
 
-| Time | Screen | Voice-over |
-|---|---|---|
-| 0:00 | Start screen, the cross-section drawing | "On the coast, an earthquake gives you two jobs. Survive the shaking. Then get out of the water's way. Almost nobody has worked out either one in advance." |
-| 0:12 | Type the address, the building card appears | "SafeZone starts with your address. It checks California's official tsunami hazard map and San Francisco's soft-story list, and links every flag to its source. This address is inside the hazard area." |
-| 0:28 | Tap young children, wheelchair, pets | "Four taps for who lives here. They change the plan later, so nobody answers questions in an emergency." |
-| 0:36 | Photograph the room; the scanning screen | "Now one photo of each room. SAM 3.1 outlines the furniture and objects that could fall. Muse Spark reads the room against a fixed safety rule set." |
-| 0:50 | Overlay with red outlines and numbered hazards | "It found two tall wardrobes that can tip, wardrobe doors that can swing open, and a box stored up high." |
-| 0:58 | "What Muse Spark noticed" | "And it reasons about the room. The left bed is in the wardrobes' tipping zone. The box sits right above the other bed. And if the wardrobe tips, it could block the way to the door." |
-| 1:08 | Safe-spot card with the set-aside line | "Muse Spark suggested a spot on the floor. SafeZone's own checks set it aside, because it's in a doorway, and doorways aren't safer than the rest of the room. The model proposes; code decides. There's no sturdy table here, so the plan gives the official guidance: get next to an interior wall, cover your head and neck, and if you're in bed, stay there." |
-| 1:20 | Tick "Move heavy or breakable items down low"; flash the fridge sheet | "Five fixes: strap the wardrobes to the wall, latch the doors, move the box down. Every fix comes from a fixed table, never from the model. Tick them off. Print the plan for the fridge." |
+- Use the live link on a phone, added to the home screen. Sound on, volume up: the app's own voice is half of Act 2.
+- If a previous take left demo places, tap "Exit demo" first. The landing page should be the first screen.
+- Use a second phone, or screen recording plus a short shot of a hand holding the phone.
+- Check the labels on the shelter cards. SAMPLE DATA is expected, because FEMA listed no open shelters on the night we recorded. Never call those cards live or real.
+- If you recorded Kamakura and the go bag this morning, their cards show recorded data. If not, they show SAMPLE DATA. Say only what the card says.
+- Don't say: "safe route", "safest spot", "guarantees", "would have saved", or "that night" about Dec 5, 2024 (it was 10:44 a.m.).
 
-## Act 2. Emergency (1:25 to 2:25). Cut to the dark UI; a phone buzz marks the cut.
+## Hook (0:00 to 0:20). Landing page, the neighborhood loop playing.
 
 | Time | Screen | Voice-over |
 |---|---|---|
-| 1:25 | Tap the home-screen icon; DROP. COVER. HOLD ON. | "Now it's not a drill. During shaking, the app tells you one thing: Drop, Cover, Hold On, with your room's safe spot. Nothing on this screen tells you to move." |
-| 1:38 | Tap "Shaking has stopped"; the red go-now text | "When the shaking stops: you're in a tsunami hazard area. Strong or long shaking means go now, on foot. Don't wait for an alert." |
-| 1:48 | Switch on airplane mode; the route map with the live dot | "Networks fail. The plan doesn't. The route out of the hazard area is stored on the phone and drawn without map tiles, with your live GPS position." |
-| 2:00 | Turn list and "10 min, 600 m" | "Ten minutes on foot to leave the hazard area. SafeZone checks every route in code: it must end outside the official hazard area and must never lead deeper into it. The walking time uses a slow pace, for kids and older adults." |
-| 2:10 | Shelter cards, with the SAMPLE DATA tag in frame | "Then shelters that fit this household. Tonight FEMA lists no open shelters, so these are sample cards, and the app says so. The rules are real: wheelchair accessible only, none inside the hazard area, ranked by walking time, with nearly full shelters pushed down." |
+| 0:00 | The landing map: calm, then it shakes, the wave floods the low blocks, then it recedes | "December 5th, 2024, 10:44 in the morning. A magnitude 7 quake off Cape Mendocino puts about five million people under a tsunami warning, San Francisco included." |
+| 0:10 | The wave reaches the dashed hazard line and stops short of the high ground | "In Berkeley's survey afterward, people said the alert didn't tell them whether they were in the zone, or where to go. SafeZone answers that before the day comes." |
 
-## Close (2:25 to 2:45)
+## Act 1. Prepare once (0:20 to 1:25). Bright UI.
 
 | Time | Screen | Voice-over |
 |---|---|---|
-| 2:25 | A diagram of the four pipelines | "How it works: SAM 3.1 segments the room, Muse Spark reasons about it, and official public data sets the building flags, the route and the shelters." |
-| 2:35 | The limits screen, then the URL | "SafeZone is a planning aid, not a structural assessment, and official instructions always come first. Next: Japan's evacuation sites, floor plans and Meta's glasses. SafeZone. Prepare once, then follow the plan." |
+| 0:20 | Tap "Run the demo"; the permissions screen | "Setup asks for the camera and your location, and gets to work right away." |
+| 0:26 | Capture screen: the chip "Checking the tsunami map for this spot..." changes to red "In the tsunami hazard area" | "While you take photos, it checks your location against California's official tsunami hazard map. This home is inside it." |
+| 0:36 | The quality ring fills; "Stand in the doorway and fit the whole room in"; tap the shutter | "One wide photo per room. The meter coaches the shot: light, focus, steady, level." |
+| 0:44 | "Bedroom saved", then Next; skip through The way out, Go bag, Gas shutoff (or show the go-bag card if recorded) | "Then the things people forget: the way out, the go bag, the gas shutoff. Muse Spark ticks off which basic-kit items it can see in the go-bag photo, and never tells you the kit is enough. Skip anything, come back to anything." |
+| 0:58 | Review: the room result with red outlines and numbered hazards | "SAM 3.1 outlines everything that could fall. Two tall wardrobes that can tip, wardrobe doors that can swing open, a box stored up high." |
+| 1:06 | "What Muse Spark noticed" and the spot card with the set-aside line | "Muse Spark reasons about the room. The left bed is in the wardrobes' tipping zone; the box sits above the other bed. It suggested a spot on the floor, and SafeZone's own checks set it aside: it's in a doorway. The model proposes; code decides." |
+| 1:18 | The fixes list; tap "Save this place" | "The fixes come from a fixed table, never from the model. Save it, and this is a mapped place." |
 
-## Notes for the edit
+## Act 2. When it happens (1:25 to 2:30). The app speaks; keep the voice-over short.
 
-- If you have to cut, shorten Act 1 first.
-- The shelter cards carry REPLAY DATA and SAMPLE DATA tags. Keep both visible and never call them live or real.
-- The building card has no storeys flag (OpenStreetMap timed out during recording). Don't mention storeys.
-- Do not say "safe route", "guarantees" or "structural".
+| Time | Screen | Voice-over |
+|---|---|---|
+| 1:25 | My places: "Standing by", Demo: Ocean Beach and Demo: Kamakura | "SafeZone stands by on your saved places. It works for the Bay Area and Japan, with each country's own maps and guidance." |
+| 1:33 | Tap "Simulate an earthquake"; the screen shakes and goes dark | (Let the app speak: "This is a demo." "Drop, cover and hold on. No table nearby: get next to an interior wall, away from windows, and cover your head and neck.") |
+| 1:45 | The shaking screen, hands off the phone | "In an emergency you can't be tapping a phone. During shaking it says one thing, and nothing on this screen tells you to move." |
+| 1:53 | Tap "Shaking has stopped" | (Let the app speak the go-now line: "You are in a tsunami hazard area. Strong shaking, or shaking that lasts 20 seconds or more, means a tsunami may be coming. Go now, on foot...") |
+| 2:05 | "Walk to the nearby path", the route map with the walker; tap "Walker speed 8x" | (Let it speak one or two turns.) "Then it talks you out, turn by turn, along a route that's stored on the phone and works offline." |
+| 2:15 | "10 min, 600 m to outside the hazard area" | "Every route is checked in code: it has to end outside the official hazard area, on mapped land, and never lead you deeper into it." |
+| 2:23 | Arrival line; the shelters screen with the SAMPLE DATA tag in frame | "When you're out, it lists shelters that fit your household. These are sample cards, because no shelters were open the night we recorded, and the app says so." |
+
+## Close (2:30 to 2:45).
+
+| Time | Screen | Voice-over |
+|---|---|---|
+| 2:30 | Back to the landing map, the calm frame | "In Kamaishi in 2011, schoolchildren who had drilled for years ran to high ground on their own. Preparation is what works. SafeZone is that preparation for one household: prepare once, then follow the plan." |
+| 2:42 | Title card: SafeZone, the live link, "Built with SAM 3.1 and Muse Spark" | (No voice-over.) |
+
+## If you have time for one more shot
+
+- Kamakura (0:10, between 2:23 and 2:30): open Demo: Kamakura and show "the designated evacuation site". Line: "In Japan it guides you to the nearest officially designated tsunami evacuation site."
+- Airplane mode: switch it on before tapping "Simulate an earthquake" to show the emergency works offline.
