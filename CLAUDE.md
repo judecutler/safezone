@@ -51,7 +51,7 @@ Natural-disaster safety software for coastal (California/Japan) tsunami-prone zo
 
 - `safezone/config.py` (env loading, never prints the key), `safezone/meta_client.py` (cached, budgeted client), `tests/test_meta_client.py` (7 tests, pass), `scripts/probe.py` (phase 1 probe), `.env.example`, `.gitignore`, `README.md`.
 - Run tests: `python -m pytest -q`.
-- The probe was run on the user's machine and both calls succeeded. The responses are saved on their machine in `fixtures/probe/sam.json` and `muse.json`. **As of this file's writing they were not yet pushed.** First action: `git pull` and check that `fixtures/probe/` exists. If not, ask the user to run `git add fixtures; git commit -m "Add probe fixtures"; git push` (confirm with `git status` that `.env` is not staged).
+- The probe was run on the user's machine and both calls succeeded. The responses are saved on their machine in `fixtures/probe/sam.json` and `muse.json`. The fixtures are now pushed (`git pull` to get them). Findings: **Muse** returned a valid JSON array of objects (e.g. wardrobe-top items with hazard and near_bed_or_seat), so its parser can be written now. **SAM** returned status completed with EMPTY text for the prompt "bookshelf", because the test photo probably has no bookshelf. So the SAM request works but the positive-match output format (`<0f>0<|box...|><|mask...|>`) is still UNVERIFIED against a real response. Before building the SAM parser, spend one cached call with a noun that is clearly in the photo (look at the photo or at Muse's object list, e.g. "wardrobe" or "cardboard box") and save it to fixtures. Muse can also return long descriptive names, so the SAM prompts should come from a fixed short class list, not from Muse's free text.
 
 ## Environment limits (cloud sandbox)
 
@@ -61,7 +61,7 @@ Natural-disaster safety software for coastal (California/Japan) tsunami-prone zo
 
 ## Next steps, in order
 
-1. Pull the fixtures. Write a SAM output parser and a Muse JSON parser against the real responses, with tests that use those fixtures.
+1. Pull the fixtures. Write the Muse JSON parser now. Get one real SAM positive-match response (see above), then write the SAM parser against it. Tests use the saved fixtures.
 2. Room pipeline: `room/` package with Segment, Classified, SafeSpot, Fix, RoomScan types; SAM per class, Muse classification, deterministic scoring and fix list. Cache everything.
 3. Building profile (`building/`): geocode, tsunami zone check, soft-story lookup. Cache the public responses as fixtures too.
 4. Household needs and the offline plan page (PWA). Get Act 1 demo-able end to end before touching Step 2.
