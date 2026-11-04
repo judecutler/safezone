@@ -1,0 +1,8 @@
+starlette>=0.40
+uvicorn>=0.30
+pydantic>=2.7
+requests>=2.31
+pillow>=10.0
+numpy>=1.26
+# Optional: decodes SAM 3.1 masks into outlines. Without it, scans draw bounding boxes.
+meta-sam-parser>=0.0.6

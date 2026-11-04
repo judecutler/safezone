@@ -1,0 +1,6 @@
+ts	phase	decision	why	evidence	result
+2026-11-04T05:11:42Z	frame	build SafeZone end to end on saved responses since no outside API is reachable here	this workspace cannot reach api.meta.ai, ArcGIS, Nominatim, DataSF, OSRM, FEMA, PyPI or npm	curl probes all returned 000	plan: record real fixtures on the user's machine
+2026-11-04T05:11:42Z	foundation	Starlette instead of FastAPI	FastAPI is not installed and PyPI is unreachable; Modal hosts any ASGI app	python -c import fastapi fails	done
+2026-11-04T05:11:42Z	foundation	one Transport boundary with live, recording and replay implementations	the same pipeline code runs live, records fixtures, and replays the demo offline	safezone/transport.py, tests/test_foundation.py	7 tests green
+2026-11-04T05:11:42Z	foundation	every value carries provenance live/recorded/sample and the UI labels sample data	hand-authored stand-ins must never pass as real official data in a safety app	safezone/shapes.py Provenance	done
+2026-11-04T05:11:42Z	foundation	decoded the iPhone HEIC with a small HEIF parser plus ffmpeg's HEVC decoder	ImageMagick's libheif here rejects the codec and pillow-heif cannot be installed	tools/heic_to_jpg.py, demo/living_room.jpg	1600x900 jpg
