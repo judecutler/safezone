@@ -2,7 +2,7 @@ from safezone import rules
 from safezone.room.classify import FloorProposal
 from safezone.room.score import fixes_for, floor_rejection, rank_spots
 from safezone.rules import DURING_SPECIAL
-from safezone.shapes import Classified, Relation, Segment
+from safezone.shapes import Classified, Segment
 
 SIZE = (1000, 1000)
 
@@ -23,7 +23,7 @@ def test_cover_near_a_window_ranks_below_cover_in_the_open():
         item("table-1", "table", (700, 600, 800, 700), "cover"),
         item("window-0", "window", (210, 300, 300, 500), "hazard", "glass"),
     ]
-    spots, _ = rank_spots(classified, [], None, SIZE)
+    spots, _ = rank_spots(classified, None, SIZE)
     assert [s.anchor_id for s in spots] == ["table-1", "table-0"]
     assert spots[0].score > spots[1].score
     assert "Glass can shatter. Stay clear of the window." in spots[1].cautions
@@ -33,8 +33,8 @@ def test_tall_furniture_tipping_zone_costs_score():
     wardrobe = item("wardrobe-0", "wardrobe", (0, 100, 100, 600), "hazard", "tall_furniture")
     near = [wardrobe, item("desk-0", "desk", (550, 700, 650, 800), "cover")]
     far = [wardrobe, item("desk-0", "desk", (650, 700, 750, 800), "cover")]
-    (near_spot,), _ = rank_spots(near, [], None, SIZE)
-    (far_spot,), _ = rank_spots(far, [], None, SIZE)
+    (near_spot,), _ = rank_spots(near, None, SIZE)
+    (far_spot,), _ = rank_spots(far, None, SIZE)
     assert near_spot.score < far_spot.score * 0.75
     assert near_spot.cautions[0] == "Tall furniture can tip. Stay clear of the wardrobe."
 
@@ -42,11 +42,10 @@ def test_tall_furniture_tipping_zone_costs_score():
 def test_no_cover_gives_one_guidance_spot_with_bed_and_doorway_lines():
     classified = [item("bed-0", "bed", (0, 600, 400, 1000)),
                   item("wardrobe-0", "wardrobe", (500, 100, 600, 600), "hazard", "tall_furniture")]
-    relation = Relation(kind="in_tip_zone", subject_id="bed-0", hazard_id="wardrobe-0", note="Bed is close.")
-    (spot,), notes = rank_spots(classified, [relation], None, SIZE)
+    (spot,), notes = rank_spots(classified, None, SIZE)
     assert (spot.kind, spot.score, spot.anchor_id, spot.instruction) == (
         "no_cover", 0, None, DURING_SPECIAL["no_cover"])
-    assert spot.cautions == ["Tall furniture can tip. Stay clear of the wardrobe.", "Muse Spark: Bed is close.",
+    assert spot.cautions == ["Tall furniture can tip. Stay clear of the wardrobe.",
                              DURING_SPECIAL["in_bed"], DURING_SPECIAL["doorway"]]
     assert notes == []
 
@@ -71,21 +70,22 @@ def test_floor_guards_reject_each_unsafe_kind_of_spot():
 
 
 def test_a_safe_floor_spot_replaces_no_cover_and_ranks_after_cover():
-    spots, _ = rank_spots(ROOM, [], floor(450, 800), SIZE)
+    spots, _ = rank_spots(ROOM, floor(450, 800), SIZE)
     assert [s.kind for s in spots] == ["open_floor"]
     assert spots[0].point == (450, 800) and spots[0].score <= 0.6
     assert spots[0].instruction == "Drop on the open floor here: by the wall. Cover your head and neck with your arms."
     assert spots[0].cautions[0] == "Nothing above it."
 
     with_cover = [*ROOM, item("table-0", "table", (300, 800, 400, 900), "cover")]
-    spots, _ = rank_spots(with_cover, [], floor(450, 800), SIZE)
+    spots, _ = rank_spots(with_cover, floor(450, 800), SIZE)
     assert [s.kind for s in spots] == ["cover", "open_floor"]
 
 
-def test_rejected_floor_spot_is_noted_and_never_shown():
-    spots, notes = rank_spots(ROOM, [], floor(150, 300), SIZE)
+def test_rejected_floor_spot_is_explained_and_never_shown():
+    spots, notes = rank_spots(ROOM, floor(150, 300), SIZE)
     assert [s.kind for s in spots] == ["no_cover"]
-    assert notes == ["Muse Spark's suggested floor spot was not used: it is on or inside the wardrobe."]
+    assert spots[0].cautions[0] == "Muse Spark suggested a spot on the floor. SafeZone set it aside: it is on or inside the wardrobe."
+    assert notes == []
 
 
 def test_fixes_come_from_the_table_ordered_by_effort():

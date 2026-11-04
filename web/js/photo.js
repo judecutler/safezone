@@ -23,6 +23,12 @@ export async function toUploadJpeg(file) {
   const sw = src.naturalWidth ?? src.width, sh = src.naturalHeight ?? src.height;
   const k = Math.min(1, MAX_SIDE / Math.max(sw, sh));
   const width = Math.round(sw * k), height = Math.round(sh * k);
+  if (k === 1 && file.type === 'image/jpeg') {
+    // Already small enough: send the original bytes so it is not compressed twice. The server
+    // applies EXIF orientation the same way the browser displays it.
+    src.close?.();
+    return { blob: file, width, height };
+  }
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;

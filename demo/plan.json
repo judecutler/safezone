@@ -403,14 +403,11 @@
       "score": 0.0,
       "instruction": "No table nearby: get next to an interior wall, away from windows, and cover your head and neck.",
       "cautions": [
+       "Muse Spark suggested a spot on the floor. SafeZone set it aside: it is where the wardrobe could land if it tips.",
        "Tall furniture can tip. Stay clear of the bookshelf.",
        "Heavy items up high can fall. Stay clear of the cabinet.",
        "Tall furniture can tip. Stay clear of the wardrobe.",
        "Heavy items up high can fall. Stay clear of the box.",
-       "Muse Spark: The left bed is right in front of the open wardrobe; if it tips it lands on the bed.",
-       "Muse Spark: The wire shelf stands at the head of the right bed and could fall onto it.",
-       "Muse Spark: The cartons on top of the wire shelf are above the head of the right bed.",
-       "Muse Spark: The wardrobe beside the door could fall across the way out.",
        "In bed: stay there. Lie face down and cover your head and neck with a pillow.",
        "Doorways are not safer than the rest of the room."
       ]
@@ -514,9 +511,7 @@
      "classifier": "muse-spark-1.3",
      "classifier_ok": true
     },
-    "notes": [
-     "Muse Spark's suggested floor spot was not used: it is where the wardrobe could land if it tips."
-    ],
+    "notes": [],
     "provenance": "sample",
     "relations": [
      {

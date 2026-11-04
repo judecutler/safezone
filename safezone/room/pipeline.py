@@ -41,7 +41,7 @@ def scan_room(jpeg: bytes, name: str, client: MetaClient) -> RoomScan:
     try:
         seg = segment_image(jpeg, size, client)
     except MetaUnavailable:
-        spots, notes = rank_spots([], [], None, size)
+        spots, notes = rank_spots([], None, size)
         return RoomScan(
             id=_scan_id(jpeg), name=name, image_size=size, classified=[], spots=spots, fixes=[],
             models=ModelUse(segmenter=settings.segment_model, classifier=None, classifier_ok=False),
@@ -49,7 +49,7 @@ def scan_room(jpeg: bytes, name: str, client: MetaClient) -> RoomScan:
         )
 
     cls = classify(jpeg, seg.segments, size, client)
-    spots, spot_notes = rank_spots(cls.classified, cls.relations, cls.floor, size)
+    spots, spot_notes = rank_spots(cls.classified, cls.floor, size)
     provenances = [seg.provenance] + ([cls.provenance] if cls.provenance else [])
     return RoomScan(
         id=_scan_id(jpeg), name=name, image_size=size, classified=cls.classified, spots=spots,

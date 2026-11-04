@@ -39,7 +39,8 @@ def test_demo_room_has_no_cover_and_says_so(demo_scans):
     assert [s.kind for s in scan.spots] == ["no_cover"]
     assert not any(c.role == "cover" for c in scan.classified)
     assert all(c.reason != "Not classified." for c in scan.classified)
-    assert "Muse Spark's suggested floor spot was not used: it is where the wardrobe could land if it tips." in scan.notes
+    assert scan.spots[0].cautions[0] == (
+        "Muse Spark suggested a spot on the floor. SafeZone set it aside: it is where the wardrobe could land if it tips.")
 
 
 def test_demo_room_reasoning_reaches_the_plan(demo_scans):
@@ -48,8 +49,6 @@ def test_demo_room_reasoning_reaches_the_plan(demo_scans):
         ("in_tip_zone", "bed-0", "wardrobe-0"), ("in_tip_zone", "bed-1", "bookshelf-0"),
         ("under_stored_items", "bed-1", "box-0"), ("blocks_exit", "door-0", "wardrobe-1")}
     assert scan.exit_note
-    cautions = scan.spots[0].cautions
-    assert sum(c.startswith("Muse Spark: ") for c in cautions) == 4
     assert {f.target_id for f in scan.fixes} == {c.segment.id for c in scan.classified if c.role == "hazard"}
     assert "Fixes:" in render(scan)
 

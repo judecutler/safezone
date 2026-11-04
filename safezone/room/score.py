@@ -4,7 +4,7 @@ from __future__ import annotations
 import math
 
 from ..rules import DURING_SPECIAL, FIX_TABLE, HAZARD_LABELS
-from ..shapes import BBox, Classified, Fix, ImagePoint, Relation, SafeSpot
+from ..shapes import BBox, Classified, Fix, ImagePoint, SafeSpot
 from .classify import FloorProposal
 
 EFFORT_ORDER = {"minutes": 0, "hour": 1, "pro": 2}
@@ -115,17 +115,18 @@ def _floor_spot(floor: FloorProposal, hazards: list[Classified], image_size: tup
                                                        if g < reach)]))
 
 
-def rank_spots(classified: list[Classified], relations: list[Relation], floor: FloorProposal | None,
+def rank_spots(classified: list[Classified], floor: FloorProposal | None,
                image_size: tuple[int, int]) -> tuple[list[SafeSpot], list[str]]:
     """Cover first (best score first), then a guarded open-floor spot, else one no_cover spot."""
     hazards = [c for c in classified if c.role == "hazard"]
     notes: list[str] = []
+    set_aside: list[str] = []
     spots = sorted((_cover_spot(c, hazards, image_size) for c in classified if c.role == "cover"),
                    key=lambda s: -s.score)
     if floor is not None:
         why = floor_rejection(floor, classified, image_size)
         if why:
-            notes.append(f"Muse Spark's suggested floor spot was not used: {why}.")
+            set_aside.append(f"Muse Spark suggested a spot on the floor. SafeZone set it aside: {why}.")
         else:
             spots.append(_floor_spot(floor, hazards, image_size))
     if not spots:
@@ -135,11 +136,11 @@ def rank_spots(classified: list[Classified], relations: list[Relation], floor: F
 
     first = spots[0]
     has_bed = any(c.segment.label.lower() == "bed" for c in classified)
-    extra = [f"Muse Spark: {r.note}" for r in relations]
+    extra: list[str] = []
     if has_bed:
         extra.append(DURING_SPECIAL["in_bed"])
     extra.append(DURING_SPECIAL["doorway"])
-    spots[0] = first.model_copy(update={"cautions": _unique([*first.cautions, *extra])})
+    spots[0] = first.model_copy(update={"cautions": _unique([*set_aside, *first.cautions, *extra])})
     return spots, notes
 
 

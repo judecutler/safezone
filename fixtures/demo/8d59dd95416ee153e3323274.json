@@ -1,0 +1,13 @@
+{
+ "request": {
+  "method": "GET",
+  "url": "https://data.sfgov.org/resource/beah-shgi.json",
+  "params": {
+   "$limit": "50",
+   "$where": "upper(property_address) like '%1 DR CARLTON B GOODLETT%'"
+  }
+ },
+ "status": 200,
+ "provenance": "sample",
+ "text": "[]"
+}

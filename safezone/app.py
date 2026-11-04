@@ -21,10 +21,13 @@ from urllib.parse import urlsplit
 from pydantic import BaseModel, ValidationError
 from starlette.applications import Starlette
 from starlette.concurrency import run_in_threadpool
+from starlette.datastructures import MutableHeaders
+from starlette.middleware import Middleware
 from starlette.requests import Request as HttpRequest
 from starlette.responses import JSONResponse, Response as HttpResponse
 from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
+from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from . import rules
 from .building.cgs import in_hazard_area
@@ -167,13 +170,24 @@ def create_app(services: Services | None = None) -> Starlette:
         Mount("/demo", StaticFiles(directory=ROOT / "demo"), name="demo"),
         Mount("/", StaticFiles(directory=ROOT / "web", html=True), name="web"),
     ]
-    app = Starlette(routes=routes)
+    return Starlette(routes=routes, middleware=[Middleware(NoCache)])
 
-    @app.middleware("http")
-    async def no_cache_for_worker(request: HttpRequest, call_next):
-        response = await call_next(request)
-        if request.url.path in ("/sw.js", "/", "/index.html") or request.url.path.startswith("/api/"):
-            response.headers["Cache-Control"] = "no-cache"
-        return response
 
-    return app
+class NoCache:
+    """Forces revalidation of the service worker, the page shell and the API, so phones pick up new versions."""
+
+    def __init__(self, app: ASGIApp):
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        path = scope.get("path", "")
+        if scope["type"] != "http" or not (path in ("/", "/index.html", "/sw.js") or path.startswith("/api/")):
+            await self.app(scope, receive, send)
+            return
+
+        async def send_no_cache(message: Message) -> None:
+            if message["type"] == "http.response.start":
+                MutableHeaders(scope=message)["Cache-Control"] = "no-cache"
+            await send(message)
+
+        await self.app(scope, receive, send_no_cache)

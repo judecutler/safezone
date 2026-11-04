@@ -26,7 +26,7 @@ from safezone.shapes import DirectionOnly, Household, Plan, WalkingRoute  # noqa
 from safezone.shelter.pipeline import find_shelters  # noqa: E402
 from safezone.transport import RecordingTransport, ReplayTransport, Request, Response, Transport  # noqa: E402
 from tools.samples import building, room, route, shelter  # noqa: E402
-from tools.samples.geo import DEMO_ADDRESS  # noqa: E402
+from tools.samples.geo import DEMO_ADDRESS, OUTSIDE_ADDRESS  # noqa: E402
 
 FIXTURES = ROOT / "fixtures" / "demo"
 PHOTO = ROOT / "demo" / "living_room.jpg"
@@ -58,6 +58,15 @@ def build_plan(transport: Transport, shelter_replay: bool, now: datetime) -> dic
     return {"plan": plan.model_dump(mode="json"), "images": {scan.id: "/demo/living_room.jpg"}}
 
 
+def exercise_outside_address(transport: Transport, now: datetime) -> None:
+    """Records the out-of-zone address too, so the offline demo can show the stay-put branch."""
+    profile = build_profile(OUTSIDE_ADDRESS, transport)
+    evac_route = plan_route(profile, transport, now)
+    find_shelters((profile.lon, profile.lat), profile, Household(), transport,
+                  lambda p: in_hazard_area(transport, p), now, True)
+    assert evac_route is not None and evac_route.kind == "not_in_zone"
+
+
 def write_plan(payload: dict) -> None:
     PLAN.write_text(json.dumps(payload, indent=1))
     plan = payload["plan"]
@@ -70,7 +79,9 @@ def main(mode: str) -> None:
     if mode == "samples":
         if FIXTURES.exists():
             shutil.rmtree(FIXTURES)
-        build_plan(RecordingTransport(SampleResponder(), FIXTURES, provenance="sample"), True, now)
+        recorder = RecordingTransport(SampleResponder(), FIXTURES, provenance="sample")
+        build_plan(recorder, True, now)
+        exercise_outside_address(recorder, now)
     elif mode != "replay":
         raise SystemExit("usage: python tools/demo.py samples|replay")
     write_plan(build_plan(ReplayTransport(FIXTURES), True, now))
