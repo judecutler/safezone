@@ -4,7 +4,7 @@ Every line below matches what the redesigned app shows or says. Facts in the voi
 
 ## Before filming
 
-- Film on a phone (the landing and the emergency look best there), with the live link added to the home screen. Sound on, volume up: the app's own voice is half of Act 2.
+- Film the hook and Act 1 as a laptop screen recording (a browser window at least 1366 px wide): the map on the left reveals what SafeZone finds while the form fills on the right. Film Act 2 on a phone held in hand, with the live link added to the home screen, sound on and volume up: the app's own voice is half of Act 2.
 - If a previous take left demo places, tap "Exit demo" first. The landing page should be the first screen.
 - Use a second phone, or screen recording plus a short shot of a hand holding the phone.
 - Check the labels on the shelter cards. SAMPLE DATA is expected, because FEMA listed no open shelters on the night we recorded. Never call those cards live or real.
@@ -15,15 +15,15 @@ Every line below matches what the redesigned app shows or says. Facts in the voi
 
 | Time | Screen | Voice-over |
 |---|---|---|
-| 0:00 | The landing map: calm, then it shakes, the wave floods the low blocks, then it recedes | "December 5th, 2024, 10:44 in the morning. A magnitude 7 quake off Cape Mendocino puts about five million people under a tsunami warning, San Francisco included." |
-| 0:10 | The wave reaches the dashed hazard line and stops short of the high ground | "In Berkeley's survey afterward, people said the alert didn't tell them whether they were in the zone, or where to go. SafeZone answers that before the day comes." |
+| 0:00 | The landing map: a small tremor, a bigger one, then the strong quake with debris falling | "December 5th, 2024, 10:44 in the morning. A magnitude 7 quake off Cape Mendocino puts about five million people under a tsunami warning, San Francisco included." |
+| 0:10 | The eerie calm: the sea pulls back ("Water pulling back: go to high ground"), then the wave floods the low blocks and stops at the hazard line | "In Berkeley's survey afterward, people said the alert didn't tell them whether they were in the zone, or where to go. SafeZone answers that before the day comes." |
 
 ## Act 1. Prepare once (0:20 to 1:25). Bright UI.
 
 | Time | Screen | Voice-over |
 |---|---|---|
-| 0:20 | Tap "Run the demo"; the permissions screen | "Setup asks for the camera and your location, and gets to work right away." |
-| 0:26 | Capture screen: the location chip reads red "In the tsunami hazard area" (in the demo it turns red within two seconds) | "While you take photos, it checks your location against California's official tsunami hazard map. This home is inside it." |
+| 0:20 | Tap "Run the demo"; "Finding your location…", then "Found: 1000 Great Highway"; the map on the left flies to the home | "Setup finds where you are and gets to work right away." |
+| 0:26 | The map shades the official hazard area, then draws the checked route to high ground and the shelters; the findings list grows on the left | "While you take photos, it checks the official tsunami hazard map. This home is inside it. It works out a walking route to high ground and checks it in code, and finds shelters that fit the household." |
 | 0:36 | The quality ring fills; "Stand in the doorway and fit the whole room in"; tap the shutter | "One wide photo per room. The meter coaches the shot: light, focus, steady, level." |
 | 0:44 | "Bedroom saved", then Next; skip through The way out, Go bag, Gas shutoff (or show the go-bag card if recorded) | "Then the things people forget: the way out, the go bag, the gas shutoff. Muse Spark ticks off which basic-kit items it can see in the go-bag photo, and never tells you the kit is enough. Skip anything, come back to anything." |
 | 0:58 | Review: the room result with outlined, numbered hazards | "SAM 3.1 outlines everything that could fall. Two tall wardrobes that can tip, wardrobe doors that can swing open, a box stored up high." |
