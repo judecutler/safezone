@@ -29,7 +29,8 @@ function startLive(state) {
   const video = h('video', { class: 'cap-video', muted: true, playsInline: true, autoplay: true, 'aria-hidden': 'true' });
   const still = h('img', { class: 'cap-still', alt: '', hidden: true });
   const fallback = h('div', { class: 'cap-fallback', hidden: true });
-  const flash = h('div', { class: 'cap-flash', 'aria-hidden': 'true' });
+  // The class comes off when the flash ends, or moving the stage into the next render replays it.
+  const flash = h('div', { class: 'cap-flash', 'aria-hidden': 'true', onanimationend: (e) => e.currentTarget.classList.remove('is-on') });
   const guide = h('div', { class: 'cap-guide', 'aria-hidden': 'true' }, ['tl', 'tr', 'bl', 'br'].map((c) => h('span', { class: `cap-corner cap-${c}` })));
   const stage = h('div', { class: 'cap-stage' }, video, still, guide, fallback, flash);
   const canvas = document.createElement('canvas');
