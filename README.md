@@ -4,7 +4,6 @@ TODO after tomorrow's recording:
 - Go-bag check: if `python tools/record_fixtures.py --gobag <photo>` succeeds, change "The demo's go-bag result is SAMPLE data" in "How it works" and "Honest limits" to say it is a recorded Muse Spark answer.
 - Kamakura: if `python tools/record_japan.py` succeeds and demo/plan_jp.json is rebuilt from it, change "Kamakura is SAMPLE data" in "Regions" and "Honest limits" to "recorded real data".
 - Live URL: confirm https://safezone-alpha-one.vercel.app/ serves the redesigned app (landing with "Run the demo") after the merge to main.
-- Test counts: rerun both suites and update the numbers in "Tests".
 -->
 
 # SafeZone
@@ -42,7 +41,7 @@ Turn your sound on. The emergency part is spoken. A phone works best, and a desk
 
 1. Open https://safezone-alpha-one.vercel.app/ and tap **Run the demo**. The demo asks for no permissions and uses recorded data. Every demo screen carries a DEMO banner.
 2. Tap **Continue**. On each photo step, tap the shutter (it uses the recorded demo photo) or **Skip**, then **Finish**.
-3. On the review screen, look at the room result. "What Muse Spark noticed" shows the model's reasoning. The safe-spot card shows that SafeZone's own checks set aside the model's proposed floor spot because it was in a doorway. Tap **Save this place**.
+3. On the review screen, look at the room result. "What Muse Spark noticed" shows the model's reasoning. The "Drop here" card shows that SafeZone's own checks set aside the model's proposed floor spot because it was in a doorway. Tap **Save this place**.
 4. On **My places** you see two demo places: Ocean Beach, San Francisco, and Kamakura, Japan. Tap **Simulate an earthquake**.
 5. Listen. The phone says "This is a demo", then "Drop, cover and hold on" with the room's spot, and repeats it every 15 seconds. Tap **Shaking has stopped**.
 6. Listen to the go-now line, then watch the demo walker move along the 10-minute route with spoken turns. **Walker speed 8x** speeds it up.
@@ -176,8 +175,9 @@ To record fresh responses on your own machine, run `python tools/record_fixtures
 
 ## Tests
 
-- `python -m pytest -q` runs 224 Python tests, including adversarial safety tests, record-then-replay tests and a test of the whole demo plan.
-- `node --test web/tests/*.test.mjs` runs 31 tests of the photo-quality meter, the turn-by-turn guide and the app logic.
+- `python -m pytest -q` runs 234 Python tests, including adversarial safety tests, record-then-replay tests and a test of the whole demo plan.
+- `node --test web/tests/*.test.mjs` runs 36 tests of the photo-quality meter, the turn-by-turn guide (including GPS noise and walking the route backward) and the app logic.
+- `node tools/verify_e2e.cjs <outdir> <base-url>` makes 132 checks in a phone-sized Chromium: the demo end to end with the spoken voice log, the real flow, offline, a phone with no saved places, and plans saved by the old app.
 - `node tools/verify_e2e.cjs <screenshot-dir> http://127.0.0.1:8000` drives the flows in a phone-sized Chromium against a running server. It needs Playwright.
 
 ## Honest limits
