@@ -75,7 +75,7 @@ test('the service worker precaches every shell file, so the app opens offline', 
   const sw = readFileSync(join(WEB, 'sw.js'), 'utf8');
   const list = sw.slice(sw.indexOf('const SHELL = ['), sw.indexOf('];'));
   const shell = new Set([...list.matchAll(/'(\/[^']*)'/g)].map((m) => m[1]));
-  const needed = files(WEB).map((p) => '/' + relative(WEB, p)).filter((p) => !p.startsWith('/tests/') && p !== '/sw.js');
+  const needed = files(WEB).map((p) => '/' + relative(WEB, p)).filter((p) => !p.startsWith('/tests/') && p !== '/sw.js' && p !== '/og.png'); // og.png is only the link preview
   for (const p of needed) assert.ok(shell.has(p), `${p} missing from SHELL in sw.js`);
   for (const p of shell) if (p !== '/') assert.ok(needed.includes(p), `${p} in SHELL but not on disk`);
 });
