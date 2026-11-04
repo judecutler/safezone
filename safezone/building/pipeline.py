@@ -1,4 +1,4 @@
-"""Address to BuildingProfile: geocode, then the tsunami, soft-story and OpenStreetMap lookups in parallel."""
+"""Address or point to BuildingProfile: geocode (or reverse geocode), then the tsunami, soft-story and OpenStreetMap lookups in parallel."""
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 from ..shapes import BuildingFlag, BuildingProfile, Geocode, HazardArea, Provenance, Ring, weakest
 from ..transport import HttpError, Transport
 from . import cgs, osm, softstory
-from .geocode import geocode
+from .geocode import geocode, reverse_geocode
 
 SOURCE_FAILURES = (HttpError, ValueError)
 """A source that did not answer, or answered in a shape we cannot parse. Each degrades to its own unknown flag."""
@@ -48,7 +48,14 @@ def _osm(transport: Transport, place: Geocode) -> tuple[list[BuildingFlag], Ring
 
 
 def build_profile(address: str, transport: Transport) -> BuildingProfile:
-    place = geocode(transport, address)
+    return profile_for(geocode(transport, address), transport)
+
+
+def build_profile_at(lon: float, lat: float, transport: Transport) -> BuildingProfile:
+    return profile_for(reverse_geocode(transport, lon, lat), transport)
+
+
+def profile_for(place: Geocode, transport: Transport) -> BuildingProfile:
     with ThreadPoolExecutor(max_workers=3) as pool:
         tsunami = pool.submit(_tsunami, transport, place)
         soft = pool.submit(_soft_story, transport, place)
@@ -58,6 +65,6 @@ def build_profile(address: str, transport: Transport) -> BuildingProfile:
         osm_flags, footprint = mapped.result()
     flags = [zone_flag, soft_flag, *osm_flags]
     provenance: Provenance = weakest(*(f.provenance for f in flags), place.provenance)
-    return BuildingProfile(address=address, display_name=place.display_name, lon=place.lon, lat=place.lat,
+    return BuildingProfile(address=place.query, display_name=place.display_name, lon=place.lon, lat=place.lat,
                            city=place.city, footprint=footprint, flags=flags, hazard_area=hazard_area,
                            provenance=provenance)

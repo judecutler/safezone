@@ -1,0 +1,176 @@
+/* Landing: the map fills the top, a card floats over its lower edge. */
+
+.landing { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; background: var(--paper); }
+
+.landing-map {
+  position: relative; height: 66vh; height: 66dvh; min-height: 380px; overflow: hidden;
+  border-bottom: 1px solid var(--hair);
+}
+.landing-map > .nb { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+.landing-top {
+  position: absolute; left: 0; right: 0; top: 0;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: max(14px, env(safe-area-inset-top)) 16px 0;
+  pointer-events: none;
+}
+.landing-mark {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 12px 6px 8px; border-radius: 999px;
+  background: var(--card); border: 1px solid var(--hair); box-shadow: var(--shadow);
+  font: 800 1.0625rem/1 var(--f-cond); font-stretch: condensed; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.landing-mark-icon { width: 20px; height: 20px; fill: none; stroke: var(--ink); stroke-width: 4; }
+
+.landing-phase {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 12px 5px 6px; border-radius: 999px;
+  background: var(--card); border: 1px solid var(--hair); box-shadow: var(--shadow);
+  font: 700 0.75rem/1 var(--f-cond); font-stretch: condensed; text-transform: uppercase; letter-spacing: 0.08em;
+}
+.landing-phase-sign { width: 22px; height: 22px; }
+.landing-phase-words { display: grid; }
+.landing-phase-words > span { grid-area: 1 / 1; opacity: 0; }
+.landing-phase-0 { opacity: 1 !important; }
+
+.landing-card {
+  position: relative; z-index: 2;
+  margin: -64px 12px 0; padding: 22px 20px 20px;
+  border-radius: 20px; gap: 14px;
+  width: auto; max-width: 560px; align-self: center;
+}
+.landing-card .display { font-size: clamp(2.125rem, 10.5vw, 3.25rem); }
+.landing-actions { display: grid; gap: 10px; }
+.landing-actions .btn-text { justify-self: center; }
+.landing { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+
+@media (min-width: 720px) {
+  .landing-map { height: 72vh; }
+  .landing-card { margin-top: -120px; padding: 28px; }
+  .landing-actions { grid-template-columns: 1fr 1fr; }
+  .landing-actions .btn-text { grid-column: 1 / -1; }
+}
+
+/* The art --------------------------------------------------------------------------------------- */
+
+.nb { background: var(--paper); }
+.nb-paper { fill: var(--paper); }
+.nb-pat-bg { fill: #FFFDF8; }
+.nb-pat-tree { fill: #F4F1E8; }
+.nb-dot { fill: #4A463E; }
+.nb-sand { fill: #B6AD9C; }
+.nb-sea { stroke: none; }
+.nb-scale { fill: #E6ECEC; stroke: #9DB0B5; stroke-width: 0.6; }
+.nb-scale-ring { fill: none; }
+.nb-fscale { fill: #CFDCE0; stroke: #6F8C95; stroke-width: 0.6; }
+.nb-fscale-ring { fill: none; }
+.nb-shore { fill: none; stroke: #6F6A60; stroke-width: 0.9; }
+.nb-surf { fill: none; stroke: #9DB0B5; stroke-width: 0.6; stroke-dasharray: 3 3; }
+.nb-contour { fill: none; stroke: #C9C0AE; stroke-width: 0.7; }
+.nb-contour-major { stroke: #ADA28D; stroke-width: 0.9; }
+.nb-park { stroke: #8E877A; stroke-width: 0.7; }
+.nb-trail { fill: none; stroke: #8E877A; stroke-width: 0.7; stroke-dasharray: 1.5 2; }
+.nb-casing, .nb-road { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.nb-casing { stroke: #5A554B; }
+.nb-road { stroke: var(--paper); }
+.nb-casing-end { fill: #5A554B; }
+.nb-road-end { fill: var(--paper); }
+.nb-side { fill: #6B655A; }
+.nb-roof { stroke: #2F2C25; stroke-width: 0.6; stroke-linejoin: round; }
+.nb-tree { stroke: #3D3A33; stroke-width: 0.55; }
+.nb-marker { fill: var(--paper); stroke: #3D3A33; stroke-width: 0.9; }
+.nb-ripple { fill: none; stroke: #3D3A33; stroke-width: 0.8; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.nb-label {
+  font: 700 7px var(--f-cond); font-stretch: condensed; letter-spacing: 0.32em; fill: #7E786C;
+  paint-order: stroke; stroke: var(--paper); stroke-width: 2.4px; stroke-linejoin: round;
+}
+.nb-label-small { font-size: 5.5px; letter-spacing: 0.24em; fill: var(--sev-3-text); }
+.nb-label-strong { font-size: 7.5px; fill: var(--ink); letter-spacing: 0.18em; }
+.nb-hazard { fill: none; stroke: var(--sev-3); stroke-width: 1.1; stroke-dasharray: 4 2.5; }
+.nb-route-case { fill: none; stroke: var(--ink); stroke-width: 4.4; stroke-linecap: round; stroke-linejoin: round; }
+.nb-route { fill: none; stroke: var(--accent); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 5 3.5; }
+.nb-home-ring { fill: rgba(255, 198, 41, 0.28); stroke: var(--ink); stroke-width: 1; }
+.nb-home { fill: var(--accent); stroke: var(--ink); stroke-width: 1.2; stroke-linejoin: round; }
+
+.nb-flood { opacity: 0; transform: translateX(-215px); }
+.nb-flood-water { stroke: none; }
+.nb-edge { fill: none; stroke-width: 1.4; stroke-linecap: round; }
+.nb-edge-1 { stroke: var(--sev-1); }
+.nb-edge-3 { stroke: var(--sev-3); }
+.nb-crest { fill: none; stroke: #3C5862; stroke-width: 1.1; stroke-linecap: round; }
+
+/* The loop: 14 s. Calm 0-5 s, shaking 5-8 s, the wave floods 8-11 s, recedes 11-13 s, calm to 14 s. */
+
+.nb-animate .nb-quake { animation: nb-quake 14s linear infinite; }
+.nb-animate .nb-houses-0 { animation: nb-house-a 14s linear infinite; }
+.nb-animate .nb-houses-1 { animation: nb-house-b 14s linear infinite; }
+.nb-animate .nb-ripple { animation: nb-ripple 14s ease-out infinite; }
+.nb-animate .nb-flood { animation: nb-flood 14s infinite; }
+.nb-animate .nb-route { animation: nb-march 1.6s linear infinite; }
+.nb-animate .nb-home-ring { animation: nb-breathe 3.5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.landing-map:has(.nb-animate) .landing-phase-words > span { animation: 14s step-end infinite; }
+.landing-map:has(.nb-animate) .landing-phase-0 { animation-name: nb-phase-0; opacity: 1; }
+.landing-map:has(.nb-animate) .landing-phase-1 { animation-name: nb-phase-1; }
+.landing-map:has(.nb-animate) .landing-phase-2 { animation-name: nb-phase-2; }
+.landing-map:has(.nb-animate) .landing-phase-3 { animation-name: nb-phase-3; }
+.landing-map:has(.nb-animate) .landing-phase-sign { animation: nb-sign 14s step-end infinite; }
+
+@keyframes nb-quake {
+  0%, 35.7% { transform: translate(0, 0); }
+  37% { transform: translate(-1.6px, 0.8px); }
+  38.4% { transform: translate(1.8px, -0.6px); }
+  39.8% { transform: translate(-1.2px, -1px); }
+  41.2% { transform: translate(2px, 0.9px); }
+  42.6% { transform: translate(-2px, 0.4px); }
+  44% { transform: translate(1.4px, -1.2px); }
+  45.4% { transform: translate(-1.8px, 1px); }
+  46.8% { transform: translate(1.6px, 0.5px); }
+  48.2% { transform: translate(-1.2px, -0.8px); }
+  49.6% { transform: translate(1.2px, 0.8px); }
+  51% { transform: translate(-0.9px, -0.4px); }
+  52.4% { transform: translate(0.8px, 0.5px); }
+  53.8% { transform: translate(-0.5px, 0.2px); }
+  55.2% { transform: translate(0.3px, -0.2px); }
+  57.1%, 100% { transform: translate(0, 0); }
+}
+@keyframes nb-house-a {
+  0%, 35.7%, 57.1%, 100% { transform: translate(0, 0); }
+  38.4%, 44%, 49.6% { transform: translate(1.2px, -0.8px); }
+  41.2%, 46.8%, 52.4% { transform: translate(-1px, 0.9px); }
+}
+@keyframes nb-house-b {
+  0%, 35.7%, 57.1%, 100% { transform: translate(0, 0); }
+  39.8%, 45.4%, 51% { transform: translate(-1.2px, -0.6px); }
+  42.6%, 48.2%, 53.8% { transform: translate(1px, 1px); }
+}
+@keyframes nb-ripple {
+  0%, 35.7% { opacity: 0; transform: scale(1); }
+  36% { opacity: 0.9; transform: scale(1); }
+  42% { opacity: 0; transform: scale(3.2); }
+  42.1% { opacity: 0.9; transform: scale(1); }
+  48% { opacity: 0; transform: scale(3.2); }
+  48.1% { opacity: 0.7; transform: scale(1); }
+  55% { opacity: 0; transform: scale(3); }
+  100% { opacity: 0; transform: scale(1); }
+}
+@keyframes nb-flood {
+  0%, 57.1% { opacity: 0; transform: translateX(-215px); animation-timing-function: ease-out; }
+  59% { opacity: 1; transform: translateX(-190px); animation-timing-function: cubic-bezier(0.3, 0.1, 0.25, 1); }
+  75% { opacity: 1; transform: translateX(0); }
+  78.6% { opacity: 1; transform: translateX(-3px); animation-timing-function: ease-in-out; }
+  91% { opacity: 1; transform: translateX(-205px); }
+  92.9%, 100% { opacity: 0; transform: translateX(-215px); }
+}
+@keyframes nb-march { to { stroke-dashoffset: -17; } }
+@keyframes nb-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+@keyframes nb-phase-0 { 0% { opacity: 1; } 35.7% { opacity: 0; } 92.9% { opacity: 1; } }
+@keyframes nb-phase-1 { 0% { opacity: 0; } 35.7% { opacity: 1; } 57.1% { opacity: 0; } }
+@keyframes nb-phase-2 { 0% { opacity: 0; } 57.1% { opacity: 1; } 78.6% { opacity: 0; } }
+@keyframes nb-phase-3 { 0% { opacity: 0; } 78.6% { opacity: 1; } 92.9% { opacity: 0; } }
+@keyframes nb-sign { 0% { opacity: 0.35; } 35.7% { opacity: 1; } 92.9% { opacity: 0.35; } }
+.landing-phase-sign { opacity: 0.35; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nb-flood { opacity: 0 !important; }
+  .landing-phase { display: none; }
+}

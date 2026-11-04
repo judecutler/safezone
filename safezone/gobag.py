@@ -15,7 +15,7 @@ from pydantic import BaseModel, ValidationError
 from . import rules
 from .meta import MetaClient, MetaUnavailable
 from .room.classify import one_line
-from .shapes import GoBagCheck, GoBagItem
+from .shapes import GoBagCheck, GoBagItem, Provenance
 from .transport import HttpError
 
 ITEM_IDS = [item_id for item_id, _ in rules.GO_BAG]
@@ -61,7 +61,7 @@ def user_prompt() -> str:
     return json.dumps({"checklist": [{"id": i, "item": label} for i, label in rules.GO_BAG]})
 
 
-def parse_gobag(data: Any, model: str, provenance) -> GoBagCheck:
+def parse_gobag(data: Any, model: str, provenance: Provenance) -> GoBagCheck:
     """Guard the model's answer against the checklist. Raises ValueError on a malformed answer."""
     answer = _WireAnswer.model_validate(data)
     by_id: dict[str, _WireItem] = {}

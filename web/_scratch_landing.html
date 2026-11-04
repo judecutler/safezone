@@ -1,0 +1,14 @@
+<!doctype html><html lang="en" data-mode="prepare"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/css/tokens.css"><link rel="stylesheet" href="/css/base.css"><link rel="stylesheet" href="/css/landing.css">
+</head><body><div id="app"></div>
+<script type="module">
+import { renderLanding } from '/js/screens/landing.js';
+import { placeSeal } from '/js/art/seal.js';
+import { evacSign, tsunamiSign } from '/js/art/signs.js';
+const q = new URLSearchParams(location.search);
+document.getElementById('app').append(renderLanding({ places: [{}] }, { go(){}, startDemo(){} }));
+if (q.has('signs')) document.body.prepend(Object.assign(document.createElement('div'), {style:'display:flex;gap:12px;padding:12px'}),);
+if (q.has('signs')) document.body.firstChild.append(tsunamiSign(), evacSign(), placeSeal('備'), placeSeal('済'), placeSeal('安全'));
+window.freeze = (t) => document.getAnimations().forEach(a => { a.pause(); a.currentTime = a.effect.getTiming().duration === 14000 ? t : (t % a.effect.getTiming().duration); });
+window.ready = true;
+</script></body></html>

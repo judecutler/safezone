@@ -6,6 +6,7 @@ from whatever fixtures/demo holds (after tools/record_fixtures.py, real ones).
 `python tools/demo.py fill-samples` keeps every real recording, replaces FEMA's
 answer with SAMPLE shelters (the live layer is empty on quiet days), and records
 SAMPLE answers only for requests the recording lacks, such as the outside address.
+`python tools/demo.py gobag-sample` writes demo/gobag.json from the SAMPLE go-bag answer.
 Overpass is never filled: a sample storeys count on the real building would be invented.
 """
 from __future__ import annotations
@@ -25,6 +26,7 @@ from safezone.building.cgs import in_hazard_area  # noqa: E402
 from safezone.building.osm import OVERPASS_URL  # noqa: E402
 from safezone.building.pipeline import build_profile  # noqa: E402
 from safezone.config import load_settings  # noqa: E402
+from safezone.gobag import check_gobag  # noqa: E402
 from safezone.meta import MetaClient  # noqa: E402
 from safezone.room.pipeline import prepare_image, scan_room  # noqa: E402
 from safezone.room.segment import MASKS_NOT_DECODED  # noqa: E402
@@ -34,12 +36,14 @@ from safezone.shelter.pipeline import find_shelters  # noqa: E402
 from safezone.app import FEMA_HOST, HostSplit  # noqa: E402
 from safezone.transport import (NETWORK_FAILURE, RecordingTransport, ReplayTransport, Request,  # noqa: E402
                                 Response, Transport)
-from tools.samples import building, room, route, shelter  # noqa: E402
+from tools.samples import building, gobag, room, route, shelter  # noqa: E402
 from tools.samples.geo import DEMO_ADDRESS, OUTSIDE_ADDRESS  # noqa: E402
 
 FIXTURES = ROOT / "fixtures" / "demo"
 PHOTO = ROOT / "demo" / "living_room.jpg"
 PLAN = ROOT / "demo" / "plan.json"
+GOBAG = ROOT / "demo" / "gobag.json"
+GOBAG_PHOTO = ROOT / "demo" / "gobag.jpg"
 DEMO_HOUSEHOLD = Household(children=True, wheelchair=True, medical=False, pets=True)
 DEMO_ROOM_NAME = "Bedroom"
 
@@ -47,7 +51,7 @@ DEMO_ROOM_NAME = "Bedroom"
 @dataclass(frozen=True)
 class SampleResponder:
     def send(self, request: Request) -> Response:
-        for area in (room, building, route, shelter):
+        for area in (gobag, room, building, route, shelter):
             answer = area.respond(request)
             if answer is not None:
                 return answer
@@ -88,6 +92,14 @@ def exercise_outside_address(transport: Transport, now: datetime) -> None:
 
 
 
+def write_gobag(transport: Transport, jpeg: bytes) -> None:
+    check = check_gobag(jpeg, MetaClient(transport, load_settings()))
+    GOBAG.write_text(json.dumps(check.model_dump(mode="json"), indent=1))
+    print(f"wrote {GOBAG.relative_to(ROOT)}: {check.seen_count} of {check.total} items seen, {check.provenance}")
+    for item in check.items:
+        print(f"  {item.status:<17} {item.label}" + (f"  ({item.note})" if item.note else ""))
+
+
 def write_plan(payload: dict) -> None:
     if any(note == MASKS_NOT_DECODED for room in payload["plan"]["rooms"] for note in room["notes"]):
         raise SystemExit("Not writing demo/plan.json: masks did not decode here (pip install meta-sam-parser), "
@@ -113,8 +125,11 @@ def main(mode: str) -> None:
         transport = HostSplit(FEMA_HOST, sample, filled)
         build_plan(transport, True, now)
         exercise_outside_address(transport, now)
+    elif mode == "gobag-sample":
+        write_gobag(SampleResponder(), prepare_image(PHOTO.read_bytes()))
+        return
     elif mode != "replay":
-        raise SystemExit("usage: python tools/demo.py samples|replay|fill-samples")
+        raise SystemExit("usage: python tools/demo.py samples|replay|fill-samples|gobag-sample")
     write_plan(build_plan(ReplayTransport(FIXTURES), True, now))
 
 

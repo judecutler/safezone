@@ -1,0 +1,109 @@
+{
+ "items": [
+  {
+   "id": "water",
+   "label": "Water",
+   "seen": true,
+   "status": "Seen in the photo",
+   "note": "two 1-litre water bottles"
+  },
+  {
+   "id": "food",
+   "label": "Non-perishable food",
+   "seen": false,
+   "status": "Not seen",
+   "note": null
+  },
+  {
+   "id": "radio",
+   "label": "Battery-powered or hand crank radio",
+   "seen": false,
+   "status": "Not seen",
+   "note": null
+  },
+  {
+   "id": "flashlight",
+   "label": "Flashlight",
+   "seen": true,
+   "status": "Seen in the photo",
+   "note": "a small flashlight"
+  },
+  {
+   "id": "first_aid",
+   "label": "First aid kit",
+   "seen": true,
+   "status": "Seen in the photo",
+   "note": "a red first aid pouch"
+  },
+  {
+   "id": "batteries",
+   "label": "Extra batteries",
+   "seen": true,
+   "status": "Seen in the photo",
+   "note": "a pack of AA batteries"
+  },
+  {
+   "id": "whistle",
+   "label": "Whistle",
+   "seen": true,
+   "status": "Seen in the photo",
+   "note": "a whistle on a cord"
+  },
+  {
+   "id": "dust_mask",
+   "label": "Dust mask",
+   "seen": false,
+   "status": "Not seen",
+   "note": null
+  },
+  {
+   "id": "sheeting_tape",
+   "label": "Plastic sheeting, scissors and duct tape",
+   "seen": false,
+   "status": "Not seen",
+   "note": null
+  },
+  {
+   "id": "sanitation",
+   "label": "Moist towelettes, garbage bags and plastic ties",
+   "seen": false,
+   "status": "Not seen",
+   "note": null
+  },
+  {
+   "id": "wrench",
+   "label": "Wrench or pliers",
+   "seen": false,
+   "status": "Not seen",
+   "note": null
+  },
+  {
+   "id": "can_opener",
+   "label": "Manual can opener",
+   "seen": false,
+   "status": "Not seen",
+   "note": null
+  },
+  {
+   "id": "maps",
+   "label": "Local maps",
+   "seen": false,
+   "status": "Not seen",
+   "note": null
+  },
+  {
+   "id": "phone_power",
+   "label": "Phone charger and backup battery",
+   "seen": true,
+   "status": "Seen in the photo",
+   "note": "a charging cable and a power bank"
+  }
+ ],
+ "seen_count": 6,
+ "total": 14,
+ "model": "muse-spark-1.3",
+ "caveat": "This lists what the photo shows. It cannot tell whether your kit is enough for your household: items can be hidden, packed or out of frame. Check the full list at Ready.gov.",
+ "source_name": "Ready.gov: Build a Kit",
+ "source_url": "https://www.ready.gov/kit",
+ "provenance": "sample"
+}

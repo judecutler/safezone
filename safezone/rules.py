@@ -95,21 +95,22 @@ HAZARD_LABELS: dict[HazardKind, str] = {
 }
 
 # Ready.gov's Basic Disaster Supplies Kit, in its order. The model only says which ids it can see.
+# Labels name the item only: "seen" must never read as "enough" (Ready.gov's amounts are on its page).
 GO_BAG: list[tuple[str, str]] = [
-    ("water", "Water, one gallon per person per day for several days"),
-    ("food", "Non-perishable food, at least a several-day supply"),
+    ("water", "Water"),
+    ("food", "Non-perishable food"),
     ("radio", "Battery-powered or hand crank radio"),
     ("flashlight", "Flashlight"),
     ("first_aid", "First aid kit"),
     ("batteries", "Extra batteries"),
-    ("whistle", "Whistle to signal for help"),
+    ("whistle", "Whistle"),
     ("dust_mask", "Dust mask"),
     ("sheeting_tape", "Plastic sheeting, scissors and duct tape"),
     ("sanitation", "Moist towelettes, garbage bags and plastic ties"),
-    ("wrench", "Wrench or pliers to turn off utilities"),
+    ("wrench", "Wrench or pliers"),
     ("can_opener", "Manual can opener"),
     ("maps", "Local maps"),
-    ("phone_power", "Phone chargers and a backup battery"),
+    ("phone_power", "Phone charger and backup battery"),
 ]
 GO_BAG_SOURCE = "ready_gov_kit"
 GO_BAG_SEEN = "Seen in the photo"

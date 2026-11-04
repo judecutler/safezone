@@ -6,6 +6,10 @@ It lists the Meta models your key can call, runs every pipeline live while
 saving each exchange to fixtures/demo, then rebuilds demo/plan.json from them.
 FEMA's open-shelter layer is empty on quiet days; pass --keep-sample-shelters
 to keep the sample shelter data (it stays labelled SAMPLE in the app).
+
+    python tools/record_fixtures.py --gobag <photo>
+records only a real go-bag check of that photo: it adds the exchange to
+fixtures/demo and writes demo/gobag.jpg and demo/gobag.json for the demo.
 """
 from __future__ import annotations
 
@@ -25,9 +29,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from safezone.app import FEMA_HOST, HostSplit  # noqa: E402
 from safezone.config import load_settings  # noqa: E402
 from safezone.meta import MetaClient  # noqa: E402
+from safezone.room.pipeline import prepare_image  # noqa: E402
 from safezone.transport import (LiveTransport, RecordingTransport, ReplayTransport, Request,  # noqa: E402
                                 Response, Transport)
-from tools.demo import FIXTURES, ROOT, SampleResponder, build_plan, write_plan  # noqa: E402
+from tools.demo import FIXTURES, GOBAG_PHOTO, ROOT, SampleResponder, build_plan, write_gobag, write_plan  # noqa: E402
 
 
 @dataclass
@@ -72,14 +77,38 @@ def replace_files(target: Path, source: Path) -> None:
         shutil.copy2(new, target / new.name)
 
 
+def record_gobag(photo: Path, log: FailureLog) -> None:
+    jpeg = prepare_image(photo.read_bytes())
+    staging = ROOT / "fixtures" / f"demo.recording-{datetime.now():%Y%m%d-%H%M%S}"
+    try:
+        write_gobag(RecordingTransport(log, staging, provenance="recorded"), jpeg)
+    finally:
+        print(f"\n{len(log.failures)} failed calls" + (":" if log.failures else "."))
+        for line in log.failures:
+            print("  " + line)
+    FIXTURES.mkdir(parents=True, exist_ok=True)
+    for new in staging.glob("*.json"):
+        shutil.copy2(new, FIXTURES / new.name)
+    shutil.rmtree(staging, ignore_errors=True)
+    GOBAG_PHOTO.write_bytes(jpeg)
+    print(f"wrote {GOBAG_PHOTO.relative_to(ROOT)} (location data stripped)")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--keep-sample-shelters", action="store_true")
+    parser.add_argument("--gobag", type=Path, metavar="PHOTO", help="record only a go-bag check of this photo")
     args = parser.parse_args()
     settings = load_settings()
     if not settings.meta_api_key:
         raise SystemExit("MODEL_API_KEY is not set (put it in .env)")
     log = FailureLog(LiveTransport())
+    if args.gobag:
+        if not args.gobag.is_file():
+            raise SystemExit(f"no photo at {args.gobag}")
+        print("Checking the go bag with Muse Spark. This can take a minute.")
+        record_gobag(args.gobag, log)
+        return
     live = log
     models = MetaClient(live, settings).list_models()
     (ROOT / "fixtures").mkdir(exist_ok=True)

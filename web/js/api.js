@@ -25,6 +25,12 @@ export const getDemo = () => call('/api/demo');
 
 export const getProfile = (address) => call(`/api/profile?address=${encodeURIComponent(address)}`);
 
+export const getProfileAt = (lon, lat) =>
+  call(`/api/profile?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`);
+
+export const checkGoBag = (jpeg) =>
+  call('/api/gobag', { method: 'POST', headers: { 'Content-Type': 'image/jpeg' }, body: jpeg });
+
 export const scanRoom = (name, jpeg) =>
   call(`/api/scan?name=${encodeURIComponent(name)}`, {
     method: 'POST', headers: { 'Content-Type': 'image/jpeg' }, body: jpeg,

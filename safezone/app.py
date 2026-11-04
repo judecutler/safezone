@@ -11,6 +11,7 @@ Configuration comes from the environment:
 from __future__ import annotations
 
 import json
+import math
 import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -32,8 +33,9 @@ from starlette.types import ASGIApp, Message, Receive, Scope, Send
 from . import rules
 from .building.cgs import in_hazard_area
 from .building.geocode import GeocodeNotFound
-from .building.pipeline import build_profile
+from .building.pipeline import build_profile, build_profile_at
 from .config import ROOT, Settings, load_settings
+from .gobag import check_gobag
 from .meta import MetaClient, MetaUnavailable
 from .room.pipeline import prepare_image, scan_room
 from .route.pipeline import plan_route
@@ -43,6 +45,8 @@ from .transport import HttpError, LiveTransport, ReplayTransport, Request, Respo
 
 MAX_PHOTO_BYTES = 20 * 1024 * 1024
 FEMA_HOST = "gis.fema.gov"
+DEMO_EXTRAS = ("exit", "gas", "gobag")
+"""Optional extra demo photos, served from demo/<kind>.jpg when present."""
 
 
 @dataclass(frozen=True)
@@ -64,6 +68,10 @@ class Services:
     shelter_transport: Transport
     shelter_replay: bool
     demo_plan: Path
+
+    @property
+    def demo_dir(self) -> Path:
+        return self.demo_plan.parent
 
     @classmethod
     def from_env(cls) -> Services:
@@ -108,31 +116,53 @@ def create_app(services: Services | None = None) -> Starlette:
         })
 
     async def profile(request: HttpRequest) -> JSONResponse:
-        address = request.query_params.get("address", "").strip()
-        if not address or len(address) > 300:
-            return error(400, "bad_address")
+        if "lat" in request.query_params or "lon" in request.query_params:
+            point = parse_point(request.query_params.get("lon", ""), request.query_params.get("lat", ""))
+            if point is None:
+                return error(400, "bad_location")
+            lookup, args, not_found = build_profile_at, point, "location_not_found"
+        else:
+            address = request.query_params.get("address", "").strip()
+            if not address or len(address) > 300:
+                return error(400, "bad_address")
+            lookup, args, not_found = build_profile, (address,), "address_not_found"
         try:
-            result = await run_in_threadpool(build_profile, address, svc.transport)
+            result = await run_in_threadpool(lookup, *args, svc.transport)
         except GeocodeNotFound:
-            return error(404, "address_not_found")
+            return error(404, not_found)
         except HttpError as exc:
             return error(502, "geocoder_unavailable", str(exc))
         return JSONResponse(dump(result))
 
-    async def scan(request: HttpRequest) -> JSONResponse:
+    async def photo(request: HttpRequest) -> bytes | JSONResponse:
         raw = await request.body()
         if not raw:
             return error(400, "empty_photo")
         if len(raw) > MAX_PHOTO_BYTES:
             return error(413, "photo_too_large")
-        name = request.query_params.get("name", "Room").strip()[:60] or "Room"
         try:
-            jpeg = await run_in_threadpool(prepare_image, raw)
+            return await run_in_threadpool(prepare_image, raw)
         except ValueError:
             return error(400, "unreadable_photo")
+
+    async def scan(request: HttpRequest) -> JSONResponse:
+        jpeg = await photo(request)
+        if isinstance(jpeg, JSONResponse):
+            return jpeg
+        name = request.query_params.get("name", "Room").strip()[:60] or "Room"
         client = MetaClient(svc.transport, svc.settings)
         try:
             result = await run_in_threadpool(scan_room, jpeg, name, client)
+        except MetaUnavailable as exc:
+            return error(502, "meta_unavailable", str(exc))
+        return JSONResponse(dump(result))
+
+    async def gobag(request: HttpRequest) -> JSONResponse:
+        jpeg = await photo(request)
+        if isinstance(jpeg, JSONResponse):
+            return jpeg
+        try:
+            result = await run_in_threadpool(check_gobag, jpeg, MetaClient(svc.transport, svc.settings))
         except MetaUnavailable as exc:
             return error(502, "meta_unavailable", str(exc))
         return JSONResponse(dump(result))
@@ -155,22 +185,38 @@ def create_app(services: Services | None = None) -> Starlette:
             shelters_error = f"Shelter data was unavailable ({type(exc).__name__})."
         return JSONResponse({"route": dump(route), "shelters": dump(shelters), "shelters_error": shelters_error})
 
-    async def demo(_: HttpRequest) -> HttpResponse:
+    async def demo(_: HttpRequest) -> JSONResponse:
         if not svc.demo_plan.exists():
             return error(404, "no_demo")
-        return HttpResponse(svc.demo_plan.read_bytes(), media_type="application/json")
+        payload = json.loads(svc.demo_plan.read_text())
+        gobag_path = svc.demo_dir / "gobag.json"
+        payload["gobag"] = json.loads(gobag_path.read_text()) if gobag_path.exists() else None
+        payload["extras"] = {kind: f"/demo/{kind}.jpg" for kind in DEMO_EXTRAS
+                             if (svc.demo_dir / f"{kind}.jpg").exists()}
+        return JSONResponse(payload)
 
     routes = [
         Route("/api/health", health),
         Route("/api/guidance", guidance),
         Route("/api/profile", profile),
         Route("/api/scan", scan, methods=["POST"]),
+        Route("/api/gobag", gobag, methods=["POST"]),
         Route("/api/evac", evac, methods=["POST"]),
         Route("/api/demo", demo),
         Mount("/demo", StaticFiles(directory=ROOT / "demo"), name="demo"),
         Mount("/", StaticFiles(directory=ROOT / "web", html=True), name="web"),
     ]
     return Starlette(routes=routes, middleware=[Middleware(NoCache)])
+
+
+def parse_point(lon: str, lat: str) -> tuple[float, float] | None:
+    try:
+        x, y = float(lon), float(lat)
+    except ValueError:
+        return None
+    if not (math.isfinite(x) and math.isfinite(y) and -180 <= x <= 180 and -90 <= y <= 90):
+        return None
+    return x, y
 
 
 class NoCache:
