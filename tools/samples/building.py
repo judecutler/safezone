@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import dataclass
 
 from safezone.building import cgs, osm, softstory
 from safezone.building.geocode import NOMINATIM_URL
@@ -82,7 +81,6 @@ def respond(request: Request) -> Response | None:
     return None
 
 
-@dataclass
 class SampleTransport:
     """Answers from the building samples; anything else reads as no response."""
 

@@ -1,6 +1,7 @@
 from safezone import geo
 from safezone.building import cgs, osm
 from safezone.geo import LocalFrame
+from safezone.shapes import HazardArea
 
 OUTER_CW = [(0.0, 0.0), (0.0, 10.0), (10.0, 10.0), (10.0, 0.0), (0.0, 0.0)]
 HOLE_CCW = [(4.0, 4.0), (6.0, 4.0), (6.0, 6.0), (4.0, 6.0), (4.0, 4.0)]
@@ -32,8 +33,8 @@ def test_point_inside_when_any_feature_says_yes():
 
 
 def area(inside):
-    return cgs.HazardArea(contains_home=inside, polygons=[], county=None, map_url=cgs.MAPS_PAGE,
-                          source_url=cgs.LAYER_URL)
+    return HazardArea(contains_home=inside, polygons=[], county=None, map_url=cgs.MAPS_PAGE,
+                      source_url=cgs.LAYER_URL)
 
 
 def test_zone_flag_wording():
