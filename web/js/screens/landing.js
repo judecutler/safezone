@@ -18,7 +18,7 @@ export function renderLanding(state, act) {
           h('span', { class: 'landing-phase-words' }, PHASES.map((p, i) => h('span', { class: `landing-phase-${i}` }, p)))))),
     h('section', { class: 'landing-card card' },
       h('h1', { class: 'display' }, 'Know your way to high ground.', h('span', { class: 'jp', lang: 'ja' }, '地震・津波への備え')),
-      h('p', { class: 'lede' }, 'Photograph your home once. SafeZone finds the safest spot in each room for the shaking, then talks you out of the tsunami zone, even with no signal.'),
+      h('p', { class: 'lede' }, 'Photograph your home once. SafeZone finds the best place to take cover in each room, then talks you out of the tsunami zone, even with no signal.'),
       h('div', { class: 'landing-actions' },
         h('button', { class: 'btn', onclick: () => act.go('begin') }, 'Map my home'),
         h('button', { class: 'btn-ghost', onclick: () => act.startDemo() }, 'Run the demo'),
