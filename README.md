@@ -61,7 +61,11 @@ python profile_address.py "1000 Great Highway, San Francisco, CA 94121" --fixtur
 python -m pytest -q
 ```
 
-Deploy: `modal deploy modal_app.py`.
+### Deploy
+
+The quickest public URL is Vercel's free Hobby plan. Push the repo to GitHub, import it at vercel.com/new, add `META_API_KEY` under Settings, Environment Variables, and deploy. `index.py` is the entry point, and every push redeploys. The scan call takes tens of seconds, and `vercel.json` allows it 120 s. Photos are resized to at most 1600 px in the browser first, so uploads stay well under Vercel's 4.5 MB request limit.
+
+Modal also works: `modal deploy modal_app.py`.
 
 ### What has been checked against real responses
 
