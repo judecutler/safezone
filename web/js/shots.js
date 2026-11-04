@@ -35,8 +35,9 @@ export function stepSummary(shots, kind) {
   return { photos, count: photos.length, status, failed: photos.filter((s) => s.status === 'failed') };
 }
 
-// Where to start: the first step with nothing taken or skipped, else the rooms step to add another.
+// Where to start: the first step with nothing taken or skipped; with every step answered (coming
+// back from review), the last one.
 export function firstOpenStep(shots) {
   const i = SHOTS.findIndex((spec) => !shots.some((s) => s.kind === spec.kind));
-  return i === -1 ? 0 : i;
+  return i === -1 ? SHOTS.length - 1 : i;
 }

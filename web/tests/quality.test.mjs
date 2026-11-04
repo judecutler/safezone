@@ -82,6 +82,8 @@ test('a tilted phone asks for upright and level; unknown tilt costs nothing', ()
   assert.equal(quality(f, { tiltDeg: 35 }).hint, 'Hold the phone upright and level');
   assert.equal(quality(f, { tiltDeg: 35 }).ok, false);
   assert.equal(quality(f, { tiltDeg: null }).ok, true);
+  assert.equal(quality(f, { tiltDeg: null }).checks.level, null);
+  assert.deepEqual(quality(f, { tiltDeg: 35 }).checks, { light: true, still: true, level: false, sharp: true });
 });
 
 test('the score rises as each problem clears', () => {

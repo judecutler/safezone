@@ -58,6 +58,7 @@ export function tiltFromOrientation(beta, gamma) {
 const ROOM_TIP = 'Stand in the doorway and fit the whole room in';
 
 // One hint at a time, the most important first. `tiltDeg` null means unknown and costs nothing.
+// `checks` says which parts pass, for the meter's pips (`level` is null when tilt is unknown).
 export function shotQuality({ luma, contrast, sharpness, motion: moved = 0, tiltDeg = null, kind = null }) {
   const parts = {
     light: ramp(luma, LIGHT.zero, LIGHT.one),
@@ -66,17 +67,23 @@ export function shotQuality({ luma, contrast, sharpness, motion: moved = 0, tilt
     sharp: ramp(sharpness, SHARP.zero, SHARP.one),
     detail: ramp(contrast, CONTRAST.zero, CONTRAST.one),
   };
-  const checks = [
-    [luma < LIGHT.pass, 'Too dark. Turn on a light or open the curtains'],
-    [moved > MOTION.pass, 'Hold still'],
-    [tiltDeg != null && tiltDeg > TILT.pass, 'Hold the phone upright and level'],
+  const checks = {
+    light: luma >= LIGHT.pass,
+    still: moved <= MOTION.pass,
+    level: tiltDeg == null ? null : tiltDeg <= TILT.pass,
+    sharp: sharpness >= SHARP.pass && contrast >= CONTRAST.pass,
+  };
+  const problems = [
+    [!checks.light, 'Too dark. Turn on a light or open the curtains'],
+    [!checks.still, 'Hold still'],
+    [checks.level === false, 'Hold the phone upright and level'],
     [sharpness < SHARP.pass, 'Blurry. Wipe the lens and hold still'],
     [contrast < CONTRAST.pass, 'Point the camera at the scene'],
   ];
-  const failed = checks.find(([bad]) => bad);
+  const failed = problems.find(([bad]) => bad);
   const values = Object.values(parts);
   const score = 0.5 * Math.min(...values) + 0.5 * (values.reduce((a, b) => a + b, 0) / values.length);
   const ok = !failed;
   const hint = failed ? failed[1] : kind === 'room' ? ROOM_TIP : 'Looks good. Take the photo';
-  return { score: ok ? Math.max(score, 0.75) : Math.min(score, 0.7), ok, hint };
+  return { score: ok ? Math.max(score, 0.75) : Math.min(score, 0.7), ok, hint, checks };
 }
