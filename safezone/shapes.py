@@ -165,6 +165,9 @@ class HazardArea(Shape):
     """Official tsunami hazard polygons near the address, for the route and shelter pipelines."""
     contains_home: bool
     polygons: list[Polygon]
+    land_polygons: list[Polygon] = []
+    """The same map's "outside hazard area" polygons. A route may end only on these: outside the hazard
+    polygons alone also includes the ocean when a polygon's seaward edge is the shoreline."""
     county: str | None
     map_url: str | None
     source_url: str
@@ -235,12 +238,19 @@ class DirectionOnly(Shape):
     provenance: Provenance
 
 
+class NoCheckedRoute(Shape):
+    """No destination could be proven to be on mapped land outside the hazard area."""
+    kind: Literal["no_checked_route"] = "no_checked_route"
+    reason: str
+    map_url: str | None
+
+
 class NotInZone(Shape):
     kind: Literal["not_in_zone"] = "not_in_zone"
     reason: str
 
 
-EvacRoute = Annotated[WalkingRoute | DirectionOnly | NotInZone, Field(discriminator="kind")]
+EvacRoute = Annotated[WalkingRoute | DirectionOnly | NoCheckedRoute | NotInZone, Field(discriminator="kind")]
 
 
 # Shelter -------------------------------------------------------------------

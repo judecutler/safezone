@@ -9,7 +9,8 @@ from safezone.building.geocode import NOMINATIM_URL
 from safezone.geo import LocalFrame, haversine_m, point_in_ring
 from safezone.transport import NETWORK_FAILURE, Request, Response
 
-from .geo import DEMO_ADDRESS, DEMO_DISPLAY, DEMO_HOME, OUTSIDE_ADDRESS, OUTSIDE_DISPLAY, OUTSIDE_HOME, SAMPLE_HAZARD_RING
+from .geo import (DEMO_ADDRESS, DEMO_DISPLAY, DEMO_HOME, OUTSIDE_ADDRESS, OUTSIDE_DISPLAY, OUTSIDE_HOME,
+                  SAMPLE_HAZARD_RING, SAMPLE_LAND_RING)
 
 PLACES = {
     DEMO_ADDRESS: (DEMO_DISPLAY, DEMO_HOME, {
@@ -24,6 +25,7 @@ PLACES = {
 
 # Esri outer rings run clockwise; the shared sample ring is drawn counter-clockwise.
 ESRI_RING = [list(p) for p in reversed(SAMPLE_HAZARD_RING)]
+ESRI_LAND_RING = [list(p) for p in reversed(SAMPLE_LAND_RING)]
 HAZARD = {"Evacuate": "Yes, Tsunami Hazard Area", "County": "San Francisco", "Map_Link": None}
 OUTSIDE = {"Evacuate": "No, Outside Hazard Area", "County": "San Francisco", "Map_Link": None}
 FOOTPRINT_HALF_M = (18.0, 12.0)
@@ -49,9 +51,11 @@ def _cgs(params: dict[str, str]) -> Response:
         attrs = HAZARD if point_in_ring((xs[0], xs[1]), SAMPLE_HAZARD_RING) else OUTSIDE
         return _ok({"objectIdFieldName": "OBJECTID", "features": [{"attributes": attrs}]})
     xmin, ymin, xmax, ymax = xs
-    lons, lats = zip(*SAMPLE_HAZARD_RING)
+    is_land = params.get("where", "").startswith("Evacuate LIKE 'No")
+    ring, esri_ring, attrs = (SAMPLE_LAND_RING, ESRI_LAND_RING, OUTSIDE) if is_land else (SAMPLE_HAZARD_RING, ESRI_RING, HAZARD)
+    lons, lats = zip(*ring)
     overlaps = xmin <= max(lons) and min(lons) <= xmax and ymin <= max(lats) and min(lats) <= ymax
-    features = [{"attributes": HAZARD, "geometry": {"rings": [ESRI_RING]}}] if overlaps else []
+    features = [{"attributes": attrs, "geometry": {"rings": [esri_ring]}}] if overlaps else []
     return _ok({"objectIdFieldName": "OBJECTID", "geometryType": "esriGeometryPolygon",
                 "spatialReference": {"wkid": 4326}, "features": features, "exceededTransferLimit": False})
 

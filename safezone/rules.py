@@ -52,8 +52,15 @@ GO_NOW = (
     "means a tsunami may be coming. Go now, on foot, inland or to high ground. Do not wait for an official warning."
 )
 DIRECTION_ONLY = "No walking route passed SafeZone's checks. Head {compass}, inland and uphill, on foot."
+NO_CHECKED_ROUTE = (
+    "SafeZone could not check a route out of the hazard area from here. "
+    "Walk inland and uphill, away from the water, and follow tsunami evacuation signs."
+)
 STAY_AWAY = "Waves can keep arriving for 8 hours or longer. Return only when officials say it is safe."
-NOT_IN_ZONE = "This address is outside the mapped tsunami hazard area. After shaking, stay put unless officials tell you to leave."
+NOT_IN_ZONE = (
+    "Your home address is outside the mapped tsunami hazard area. If you are there, stay unless the building "
+    "is damaged or officials tell you to leave. If you are on a beach or in a harbor, go inland or to high ground now."
+)
 
 DISCLAIMERS = [
     "SafeZone shows hazards it can see in your photos and flags from official public data. "

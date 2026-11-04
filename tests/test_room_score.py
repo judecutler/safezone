@@ -55,7 +55,7 @@ ROOM = [
     item("door-0", "door", (600, 200, 700, 600)),
     item("bed-0", "bed", (800, 600, 1000, 1000)),
     item("box-0", "box", (400, 0, 500, 100), "hazard", "heavy_up_high"),
-    item("window-0", "window", (900, 100, 1000, 300), "hazard", "glass"),
+    item("window-0", "window", (900, 300, 1000, 500), "hazard", "glass"),
 ]
 
 
@@ -63,21 +63,22 @@ def test_floor_guards_reject_each_unsafe_kind_of_spot():
     assert floor_rejection(floor(150, 300), ROOM, SIZE) == "it is on or inside the wardrobe"
     assert floor_rejection(floor(705, 630), ROOM, SIZE) == "it is in a doorway"
     assert floor_rejection(floor(380, 450), ROOM, SIZE) == "it is where the wardrobe could land if it tips"
-    assert floor_rejection(floor(450, 220), ROOM, SIZE) == "it is under the box"
-    assert floor_rejection(floor(800, 380), ROOM, SIZE) == "it is close to glass (window)"
+    assert floor_rejection(floor(450, 800), ROOM, SIZE) == "it is below the box"
+    assert floor_rejection(floor(850, 520), ROOM, SIZE) == "it is close to glass (window)"
     assert floor_rejection(floor(-1, 500), ROOM, SIZE) == "it is outside the photo"
-    assert floor_rejection(floor(450, 800), ROOM, SIZE) is None
+    assert floor_rejection(floor(550, 200), ROOM, SIZE) == "it is not on the floor"
+    assert floor_rejection(floor(550, 800), ROOM, SIZE) is None
 
 
 def test_a_safe_floor_spot_replaces_no_cover_and_ranks_after_cover():
-    spots, _ = rank_spots(ROOM, floor(450, 800), SIZE)
+    spots, _ = rank_spots(ROOM, floor(550, 800), SIZE)
     assert [s.kind for s in spots] == ["open_floor"]
-    assert spots[0].point == (450, 800) and spots[0].score <= 0.6
-    assert spots[0].instruction == "Drop on the open floor here: by the wall. Cover your head and neck with your arms."
-    assert spots[0].cautions[0] == "Nothing above it."
+    assert spots[0].point == (550, 800) and spots[0].score <= 0.6
+    assert spots[0].instruction == "Drop on the open floor at the marked spot. Cover your head and neck with your arms."
+    assert spots[0].cautions[0] == "Muse Spark: by the wall. Nothing above it."
 
     with_cover = [*ROOM, item("table-0", "table", (300, 800, 400, 900), "cover")]
-    spots, _ = rank_spots(with_cover, floor(450, 800), SIZE)
+    spots, _ = rank_spots(with_cover, floor(550, 800), SIZE)
     assert [s.kind for s in spots] == ["cover", "open_floor"]
 
 

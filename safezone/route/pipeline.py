@@ -15,7 +15,8 @@ from typing import Literal
 import numpy as np
 
 from .. import geo, rules
-from ..shapes import BuildingProfile, DirectionOnly, EvacRoute, LonLat, NotInZone, Polygon, Provenance, WalkingRoute, weakest
+from ..shapes import (BuildingProfile, DirectionOnly, EvacRoute, LonLat, NoCheckedRoute, NotInZone, Polygon, Provenance,
+                      WalkingRoute, weakest)
 from ..transport import Transport
 from .osrm import OsrmRoute, fetch_route
 
@@ -37,12 +38,17 @@ AWAY_SLACK_M = 75.0
 Distance to the nearest boundary edge cannot see a seaward leg when the polygon's seaward edge is the shoreline,
 because walking toward the water shrinks that distance. This check does."""
 REENTRY_LIMIT_M = 100.0
+INSIDE_LENGTH_FACTOR = 2.0
+INSIDE_LENGTH_SLACK_M = 250.0
+"""Inside the hazard area the path may be at most 2 x home's distance to the boundary + 250 m long, so a route
+cannot spend a kilometre walking along the shore to reach an exit that is 150 m away."""
 DENSIFY_STEP_M = 10.0
 WALK_SPEED_MPS = 1.0
 """Conservative pace for children and older adults."""
 
 
-RouteFailure = Literal["ends_inside", "goes_deeper", "moves_away_from_exit", "re_enters"]
+RouteFailure = Literal["ends_inside", "ends_off_land", "goes_deeper", "moves_away_from_exit", "re_enters",
+                       "too_long_inside"]
 
 XY = tuple[float, float]
 
@@ -118,11 +124,13 @@ class Boundary:
         return [p for p in out if math.hypot(*p) <= within_m]
 
 
-def candidate_destinations(home: LonLat, polygons: Sequence[Polygon]) -> list[LonLat]:
-    """Up to MAX_CANDIDATES points at least CLEARANCE_M outside every polygon, nearest first, CANDIDATE_SPACING_M apart."""
+def candidate_destinations(home: LonLat, polygons: Sequence[Polygon], land: Sequence[Polygon]) -> list[LonLat]:
+    """Up to MAX_CANDIDATES points on mapped land, at least CLEARANCE_M outside every hazard polygon,
+    nearest first, CANDIDATE_SPACING_M apart."""
     boundary = Boundary(home, polygons)
     pushed = [_push_outward(boundary, p) for p in boundary.ring_points(SAMPLE_EVERY_M, CANDIDATE_RADIUS_M)]
-    pushed = sorted(_dedupe([p for p in pushed if p is not None]), key=lambda p: math.hypot(*p))
+    pushed = [p for p in pushed if p is not None and geo.point_in_any(boundary.frame.to_lonlat(*p), land)]
+    pushed = sorted(_dedupe(pushed), key=lambda p: math.hypot(*p))
     chosen: list[XY] = []
     for p in pushed:
         if len(chosen) == MAX_CANDIDATES:
@@ -148,8 +156,9 @@ def _push_outward(boundary: Boundary, xy: XY) -> XY | None:
     return None
 
 
-def check_route(home: LonLat, path: Sequence[LonLat], polygons: Sequence[Polygon]) -> list[RouteFailure]:
-    """Every invariant the path breaks. Empty means the route may be shown."""
+def check_route(home: LonLat, path: Sequence[LonLat], polygons: Sequence[Polygon],
+                land: Sequence[Polygon] = ()) -> list[RouteFailure]:
+    """Every invariant the path breaks. Empty means the route may be shown. With no land polygons no end is proven."""
     boundary = Boundary(home, polygons)
     dense = [boundary.frame.to_xy(p) for p in geo.densify(path, DENSIFY_STEP_M)]
     inside = [boundary.inside(p) for p in dense]
@@ -158,8 +167,13 @@ def check_route(home: LonLat, path: Sequence[LonLat], polygons: Sequence[Polygon
     end = dense[-1]
     if inside[-1] or boundary.distance(end) < END_CLEARANCE_M:
         failures.append("ends_inside")
+    if not geo.point_in_any(path[-1], land):
+        failures.append("ends_off_land")
 
     home_depth = boundary.distance((0.0, 0.0))
+    inside_length = sum(math.dist(dense[i - 1], dense[i]) for i in range(1, len(dense)) if inside[i] and inside[i - 1])
+    if inside_length > INSIDE_LENGTH_FACTOR * home_depth + INSIDE_LENGTH_SLACK_M:
+        failures.append("too_long_inside")
     if any(flag and boundary.distance(p) > home_depth + DEEPER_SLACK_M for p, flag in zip(dense, inside)):
         failures.append("goes_deeper")
 
@@ -187,9 +201,9 @@ def plan_route(profile: BuildingProfile, transport: Transport, now: datetime) ->
     if not area.polygons:
         return None
     home: LonLat = (profile.lon, profile.lat)
-    polygons = area.polygons
+    polygons, land = area.polygons, area.land_polygons
 
-    candidates = candidate_destinations(home, polygons)
+    candidates = candidate_destinations(home, polygons, land)
     accepted: list[tuple[OsrmRoute, Provenance]] = []
     land_exits: list[LonLat] = []
     provenances: list[Provenance] = []
@@ -199,8 +213,8 @@ def plan_route(profile: BuildingProfile, transport: Transport, now: datetime) ->
             continue
         route, provenance = got
         provenances.append(provenance)
-        failures = check_route(home, route.path, polygons)
-        if "ends_inside" not in failures:
+        failures = check_route(home, route.path, polygons, land)
+        if "ends_inside" not in failures and "ends_off_land" not in failures:
             land_exits.append(route.path[-1])
         if not failures:
             accepted.append((route, provenance))
@@ -211,10 +225,10 @@ def plan_route(profile: BuildingProfile, transport: Transport, now: datetime) ->
                             distance_m=route.distance_m, walk_min=route.distance_m / WALK_SPEED_MPS / 60,
                             computed_at=now, provenance=weakest(*provenances))
 
-    # A road endpoint OSRM reached that cleared the boundary is proof of land outside the zone.
-    # A geometric candidate is not: pushing outward through a shoreline edge lands in the water.
-    target = (_nearest(home, land_exits) or _nearest(home, candidates)
-              or _nearest_boundary_pushed(home, polygons))
+    # Every target here is on the map's own outside-hazard-area land; with none there is no direction to give.
+    target = _nearest(home, land_exits) or _nearest(home, candidates)
+    if target is None:
+        return NoCheckedRoute(reason=rules.NO_CHECKED_ROUTE, map_url=area.map_url)
     bearing = geo.bearing_deg(home, target)
     compass = geo.compass(bearing)
     return DirectionOnly(origin=home, destination=target, bearing_deg=bearing, compass=compass,
@@ -225,11 +239,3 @@ def plan_route(profile: BuildingProfile, transport: Transport, now: datetime) ->
 
 def _nearest(home: LonLat, points: Sequence[LonLat]) -> LonLat | None:
     return min(points, key=lambda p: geo.haversine_m(home, p), default=None)
-
-
-def _nearest_boundary_pushed(home: LonLat, polygons: Sequence[Polygon]) -> LonLat:
-    boundary = Boundary(home, polygons)
-    qx, qy = boundary.nearest((0.0, 0.0))
-    r = math.hypot(qx, qy) or 1.0
-    scale = (r + CLEARANCE_M) / r
-    return boundary.frame.to_lonlat(qx * scale, qy * scale)

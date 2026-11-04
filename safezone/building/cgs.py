@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict
 
 from ..geo import point_in_ring
 from ..shapes import BuildingFlag, FlagTone, HazardArea, LonLat, Polygon, Provenance, Ring, weakest
-from ..transport import Transport, get_json
+from ..transport import HttpError, Transport, get_json
 
 LAYER_URL = "https://gis.conservation.ca.gov/server/rest/services/CGS/IW_Tsunami_Hazard_Area/FeatureServer/0"
 QUERY_URL = f"{LAYER_URL}/query"
@@ -107,16 +107,26 @@ def in_hazard_area(transport: Transport, point: LonLat) -> bool:
 def fetch_hazard_area(transport: Transport, home: LonLat) -> tuple[HazardArea, Provenance]:
     point_data, p1 = _point_query(transport, home)
     inside, county, map_link = parse_point(point_data)
+    hazard, p2 = _polygons_near(transport, home, "Yes")
+    try:
+        land, p3 = _polygons_near(transport, home, "No")
+    except (HttpError, KeyError, TypeError, ValueError):
+        land, p3 = [], p2
+    area = HazardArea(contains_home=inside, polygons=hazard, land_polygons=land, county=county,
+                      map_url=map_link or MAPS_PAGE, source_url=LAYER_URL)
+    return area, weakest(p1, p2, p3)
+
+
+def _polygons_near(transport: Transport, home: LonLat, evacuate: str) -> tuple[list[Polygon], Provenance]:
+    """Polygons whose Evacuate value starts with `evacuate` ("Yes" hazard area, "No" mapped land outside it)."""
     lon, lat = home
     envelope = f"{lon - ENVELOPE_DEG},{lat - ENVELOPE_DEG},{lon + ENVELOPE_DEG},{lat + ENVELOPE_DEG}"
-    poly_data, p2 = get_json(transport, QUERY_URL, {
+    data, provenance = get_json(transport, QUERY_URL, {
         "geometry": envelope, "geometryType": "esriGeometryEnvelope", "inSR": 4326,
-        "spatialRel": "esriSpatialRelIntersects", "where": "Evacuate LIKE 'Yes%'", "returnGeometry": "true",
+        "spatialRel": "esriSpatialRelIntersects", "where": f"Evacuate LIKE '{evacuate}%'", "returnGeometry": "true",
         "outSR": 4326, "maxAllowableOffset": 0.00005, "outFields": OUT_FIELDS, "f": "json",
     })
-    area = HazardArea(contains_home=inside, polygons=parse_polygons(poly_data), county=county,
-                      map_url=map_link or MAPS_PAGE, source_url=LAYER_URL)
-    return area, weakest(p1, p2)
+    return parse_polygons(data), provenance
 
 
 def _flag(tone: FlagTone, value: str, detail: str, url: str, provenance: Provenance) -> BuildingFlag:

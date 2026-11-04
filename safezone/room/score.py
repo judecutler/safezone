@@ -12,6 +12,10 @@ KIND_ORDER = {kind: i for i, kind in enumerate(FIX_TABLE)}
 UNDER_KINDS = {"heavy_up_high", "overhead_fixture", "hanging_object"}
 OPEN_FLOOR_FACTOR = 0.6
 """Open floor is never as good as sturdy cover."""
+TALL_LABELS = {"wardrobe", "bookshelf", "cabinet"}
+GLASS_LABELS = {"window", "glass door", "mirror"}
+FLOOR_TOP = 0.45
+"""A floor spot higher than this fraction of the image is on a wall or the ceiling, not the floor."""
 
 
 def box_gap(a: BBox, b: BBox) -> float:
@@ -62,18 +66,42 @@ def floor_rejection(floor: FloorProposal, classified: list[Classified], image_si
     for c in classified:
         if c.segment.label.lower() != "door" and _inside(p, c.segment.bbox):
             return f"it is on or inside the {c.segment.label}"
-    hazards = [c for c in classified if c.role == "hazard"]
-    for c in hazards:
-        if c.hazard_kind == "tall_furniture" and _inside(p, tip_zone(c.segment.bbox)):
+    if p[1] < FLOOR_TOP * h:
+        return "it is not on the floor"
+    # These guards go by what the object is, not by the model's role for it, so a hazard the model
+    # called neutral still blocks the spot.
+    for c in classified:
+        if _is_tall(c) and _inside(p, tip_zone(c.segment.bbox)):
             return f"it is where the {c.segment.label} could land if it tips"
-    for c in hazards:
-        l, t, r, b = c.segment.bbox
-        if c.hazard_kind in UNDER_KINDS and l <= p[0] < r and b <= p[1] <= b + 1.5 * (b - t):
-            return f"it is under the {c.segment.label}"
-    for c in hazards:
-        if c.hazard_kind == "glass" and point_gap(p, c.segment.bbox) < 0.1 * _diag(image_size):
+    for c in classified:
+        l, _, r, b = c.segment.bbox
+        if _is_up_high(c) and l <= p[0] < r and p[1] >= b:
+            return f"it is below the {c.segment.label}"
+    for c in classified:
+        if _is_glass(c) and point_gap(p, c.segment.bbox) < 0.1 * _diag(image_size):
             return f"it is close to glass ({c.segment.label})"
     return None
+
+
+def _is_tall(c: Classified) -> bool:
+    return c.hazard_kind == "tall_furniture" or c.segment.label.lower() in TALL_LABELS
+
+
+def _is_glass(c: Classified) -> bool:
+    return c.hazard_kind == "glass" or c.segment.label.lower() in GLASS_LABELS
+
+
+def _is_up_high(c: Classified) -> bool:
+    if c.hazard_kind in UNDER_KINDS:
+        return True
+    label = c.segment.label.lower()
+    return not c.segment.touches_floor and label not in GLASS_LABELS | {"door", "ceiling light"}
+
+
+def _touches_glass(cover: Classified, classified: list[Classified], image_size: tuple[int, int]) -> bool:
+    """The rule set says cover is away from windows; a table within 5% of the diagonal of glass is not cover."""
+    limit = 0.05 * _diag(image_size)
+    return any(_is_glass(c) and box_gap(cover.segment.bbox, c.segment.bbox) < limit for c in classified)
 
 
 def _cover_spot(cover: Classified, hazards: list[Classified], image_size: tuple[int, int]) -> SafeSpot:
@@ -107,12 +135,12 @@ def _floor_spot(floor: FloorProposal, hazards: list[Classified], image_size: tup
     nearest = min((g for g, _ in gaps), default=None)
     proximity = 1.0 if nearest is None else min(1.0, nearest / reach)
     point = (round(floor.point[0], 1), round(floor.point[1], 1))
-    description = floor.description.rstrip(". ")
+    # The instruction read during shaking is fixed text; the model's words appear only as attributed context.
     return SafeSpot(kind="open_floor", anchor_id=None, point=point, nearest_hazard_px=nearest,
                     score=round(proximity * OPEN_FLOOR_FACTOR, 2),
-                    instruction=f"Drop on the open floor here: {description}. Cover your head and neck with your arms.",
-                    cautions=_unique([floor.reason, *(hazard_caution(h) for g, h in sorted(gaps, key=lambda x: x[0])
-                                                       if g < reach)]))
+                    instruction="Drop on the open floor at the marked spot. Cover your head and neck with your arms.",
+                    cautions=_unique([f"Muse Spark: {floor.description.rstrip('. ')}. {floor.reason.rstrip('. ')}.",
+                                      *(hazard_caution(h) for g, h in sorted(gaps, key=lambda x: x[0]) if g < reach)]))
 
 
 def rank_spots(classified: list[Classified], floor: FloorProposal | None,
@@ -121,7 +149,11 @@ def rank_spots(classified: list[Classified], floor: FloorProposal | None,
     hazards = [c for c in classified if c.role == "hazard"]
     notes: list[str] = []
     set_aside: list[str] = []
-    spots = sorted((_cover_spot(c, hazards, image_size) for c in classified if c.role == "cover"),
+    covers = [c for c in classified if c.role == "cover"]
+    against_glass = [c for c in covers if _touches_glass(c, classified, image_size)]
+    set_aside.extend(f"The {c.segment.label} is next to glass, so SafeZone does not use it as cover."
+                     for c in against_glass)
+    spots = sorted((_cover_spot(c, hazards, image_size) for c in covers if c not in against_glass),
                    key=lambda s: -s.score)
     if floor is not None:
         why = floor_rejection(floor, classified, image_size)

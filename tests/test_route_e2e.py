@@ -7,10 +7,11 @@ from safezone.route.pipeline import plan_route
 from safezone.shapes import BuildingProfile, DirectionOnly, HazardArea, WalkingRoute
 from safezone.transport import RecordingTransport, ReplayTransport
 from tools.samples import route as sample_route
-from tools.samples.geo import DEMO_ADDRESS, DEMO_DISPLAY, DEMO_HOME, SAMPLE_HAZARD_RING
+from tools.samples.geo import DEMO_ADDRESS, DEMO_DISPLAY, DEMO_HOME, SAMPLE_HAZARD_RING, SAMPLE_LAND_RING
 
 NOW = datetime(2026, 11, 3, 12, 0, tzinfo=timezone.utc)
 POLYGONS = [[SAMPLE_HAZARD_RING]]
+LAND = [[SAMPLE_LAND_RING]]
 
 
 class Samples:
@@ -21,7 +22,7 @@ class Samples:
 def demo_profile():
     return BuildingProfile(address=DEMO_ADDRESS, display_name=DEMO_DISPLAY, lon=DEMO_HOME[0], lat=DEMO_HOME[1],
                            city="San Francisco", footprint=None, flags=[],
-                           hazard_area=HazardArea(contains_home=True, polygons=POLYGONS, county="San Francisco",
+                           hazard_area=HazardArea(contains_home=True, polygons=POLYGONS, land_polygons=LAND, county="San Francisco",
                                                   map_url=None, source_url="https://cgs.test/hazard"),
                            provenance="sample")
 
@@ -33,7 +34,7 @@ def test_demo_route_records_then_replays(tmp_path):
     assert recorded.path[0] == DEMO_HOME
     assert not geo.point_in_any(recorded.destination, POLYGONS)
     assert geo.distance_to_boundary_m(recorded.destination, POLYGONS) >= pipeline.END_CLEARANCE_M
-    assert pipeline.check_route(DEMO_HOME, recorded.path, POLYGONS) == []
+    assert pipeline.check_route(DEMO_HOME, recorded.path, POLYGONS, LAND) == []
     assert recorded.steps[0].instruction.startswith("Head north on")
     assert recorded.steps[-1].instruction == "Arrive"
     assert 0 < recorded.distance_m < 1500

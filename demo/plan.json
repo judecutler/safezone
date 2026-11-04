@@ -108,6 +108,7 @@
       ]
      ]
     ],
+    "land_polygons": [],
     "county": "San Francisco",
     "map_url": "https://www.conservation.ca.gov/cgs/tsunami/maps",
     "source_url": "https://gis.conservation.ca.gov/server/rest/services/CGS/IW_Tsunami_Hazard_Area/FeatureServer/0"
@@ -543,61 +544,14 @@
    }
   ],
   "route": {
-   "kind": "walking_route",
-   "origin": [
-    -122.51005,
-    37.76966
-   ],
-   "destination": [
-    -122.507101,
-    37.771587
-   ],
-   "destination_kind": "outside_hazard_area",
-   "path": [
-    [
-     -122.51005,
-     37.76966
-    ],
-    [
-     -122.51005,
-     37.7716
-    ],
-    [
-     -122.507101,
-     37.7716
-    ],
-    [
-     -122.507101,
-     37.771587
-    ]
-   ],
-   "steps": [
-    {
-     "instruction": "Head north on 48th Avenue",
-     "distance_m": 215.7
-    },
-    {
-     "instruction": "Turn right onto Fulton Street",
-     "distance_m": 259.2
-    },
-    {
-     "instruction": "Turn right onto 46th Avenue",
-     "distance_m": 1.4
-    },
-    {
-     "instruction": "Arrive",
-     "distance_m": 0.0
-    }
-   ],
-   "distance_m": 476.4,
-   "walk_min": 7.9399999999999995,
-   "computed_at": "2026-11-04T17:00:00Z",
-   "provenance": "sample"
+   "kind": "no_checked_route",
+   "reason": "SafeZone could not check a route out of the hazard area from here. Walk inland and uphill, away from the water, and follow tsunami evacuation signs.",
+   "map_url": "https://www.conservation.ca.gov/cgs/tsunami/maps"
   },
   "shelters": {
    "origin": [
-    -122.507101,
-    37.771587
+    -122.51005,
+    37.76966
    ],
    "matches": [
     {
@@ -615,7 +569,7 @@
       "pets_code": "PETS ACCEPTED",
       "source_url": "https://gis.fema.gov/arcgis/rest/services/NSS/OpenShelters/FeatureServer/0/query"
      },
-     "walk_min": 20.38,
+     "walk_min": 26.438333333333333,
      "walk_method": "route",
      "fill_ratio": 0.3,
      "notes": [
@@ -638,7 +592,7 @@
       "pets_code": null,
       "source_url": "https://gis.fema.gov/arcgis/rest/services/NSS/OpenShelters/FeatureServer/0/query"
      },
-     "walk_min": 81.09333333333333,
+     "walk_min": 86.97,
      "walk_method": "route",
      "fill_ratio": null,
      "notes": [
@@ -662,7 +616,7 @@
       "pets_code": null,
       "source_url": "https://gis.fema.gov/arcgis/rest/services/NSS/OpenShelters/FeatureServer/0/query"
      },
-     "walk_min": 49.24333333333333,
+     "walk_min": 54.28333333333333,
      "walk_method": "route",
      "fill_ratio": 0.85,
      "notes": [

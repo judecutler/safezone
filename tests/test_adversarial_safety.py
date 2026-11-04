@@ -39,8 +39,12 @@ def path(*pts):
     return [ll(x, y) for x, y in pts]
 
 
-def profile(polygons):
-    area = HazardArea(contains_home=True, polygons=polygons, county=None, map_url=None, source_url="u")
+EAST_LAND = [rect(150, 6000, -2000, 2000)]
+
+
+def profile(polygons, land=EAST_LAND):
+    area = HazardArea(contains_home=True, polygons=polygons, land_polygons=land, county=None, map_url=None,
+                      source_url="u")
     return BuildingProfile(address="a", display_name="a", lon=HOME[0], lat=HOME[1], city=None, footprint=None,
                            flags=[], hazard_area=area, provenance="live")
 
@@ -80,13 +84,18 @@ def test_a_route_onto_a_pier_is_never_shown():
 
 
 def test_check_route_rejects_a_seaward_end():
-    assert check_route(HOME, path((0, 0), (-130, 0)), SHORE_30M) != []
+    assert "ends_off_land" in check_route(HOME, path((0, 0), (-130, 0)), SHORE_30M, EAST_LAND)
+
+
+def test_osrm_down_with_no_mapped_land_gives_no_direction_at_all():
+    result = plan_route(profile(SHORE_30M, land=[]), ScriptedOsrm(lambda o, d: Response(599, "down", "live")), NOW)
+    assert result.kind == "no_checked_route"
 
 
 def test_long_leg_along_the_shore_is_rejected():
     # 1500 m north inside the zone, parallel to the water, when the land exit is 150 m east.
-    failures = check_route(HOME, path((0, 0), (0, 1500), (300, 1500)), [rect(-100, 150, -2000, 2000)])
-    assert failures != []
+    failures = check_route(HOME, path((0, 0), (0, 1500), (300, 1500)), [rect(-100, 150, -2000, 2000)], EAST_LAND)
+    assert failures == ["too_long_inside"]
 
 
 def test_empty_osrm_geometry_does_not_crash_the_evac_endpoint():

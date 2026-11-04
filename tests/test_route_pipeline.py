@@ -29,10 +29,12 @@ def rect(x0, x1, y0, y1):
 
 OCEAN_COVERED = [rect(-3000, 150, -2000, 2000)]
 SHORELINE_EDGED = [rect(-60, 400, -2000, 2000)]
+LAND = {id(OCEAN_COVERED): [rect(150, 6000, -2000, 2000)], id(SHORELINE_EDGED): [rect(400, 6000, -2000, 2000)]}
 
 
 def profile(polygons=OCEAN_COVERED, contains_home=True, hazard_known=True):
-    area = HazardArea(contains_home=contains_home, polygons=polygons, county="San Francisco",
+    area = HazardArea(contains_home=contains_home, polygons=polygons, land_polygons=LAND.get(id(polygons), []),
+                      county="San Francisco",
                       map_url=None, source_url="https://cgs.test/hazard") if hazard_known else None
     return BuildingProfile(address="a", display_name="a", lon=HOME[0], lat=HOME[1], city="San Francisco",
                            footprint=None, flags=[], hazard_area=area, provenance="live")
@@ -122,9 +124,9 @@ def test_seaward_route_is_rejected_in_favour_of_an_inland_one():
     assert all(xy(p)[0] >= 0 for p in route.path)
 
 
-def test_fallback_direction_prefers_a_road_endpoint_proven_outside_over_a_nearer_water_candidate():
-    # Shoreline-edged polygon: the nearest geometric candidate is 160 m out to sea. OSRM snaps it back
-    # to the beach road (inside). Inland routes exist but double back, so none is accepted.
+def test_fallback_direction_points_at_mapped_land_never_the_water():
+    # Shoreline-edged polygon: the geometrically nearest "outside" point is out to sea. Only the map's
+    # land counts, so the water side is never even asked for. Inland routes double back, so none is accepted.
     def answer(origin, dest):
         x, y = xy(dest)
         if x < 0:
@@ -133,7 +135,7 @@ def test_fallback_direction_prefers_a_road_endpoint_proven_outside_over_a_nearer
     transport = ScriptedOsrm(answer)
     result = plan_route(profile(polygons=SHORELINE_EDGED), transport, NOW)
     assert isinstance(result, DirectionOnly)
-    assert min(xy(d)[0] for d in transport.asked) < 0, "the water-side candidate was tried"
+    assert min(xy(d)[0] for d in transport.asked) > 400, "only land-side candidates are tried"
     assert result.compass == "east"
     assert xy(result.destination)[0] > 400
 
