@@ -105,3 +105,29 @@ def test_real_sam_record_maps_its_downscaled_mask_onto_the_box(monkeypatch):
     (x0, y0), (x1, y1) = seen["corners"]
     assert decoded
     assert (x0, y0, x1, y1) == pytest.approx(seg.bbox, abs=0.01)
+
+
+def test_mask_decoding_reads_the_parser_byte_raster_and_never_crashes(monkeypatch):
+    import sys
+    import types
+
+    from safezone.room import segment
+
+    fake = types.ModuleType("meta_sam_parser")
+
+    class SegmentationMask:
+        def __init__(self, encoding, payload, width, height):
+            self.width, self.height = width, height
+
+    fake.SegmentationMask = SegmentationMask
+    # 2 x 4 mask, row-major bytes: the right half of each row is set.
+    fake.decode_mask_to_raster = lambda m: bytes([0, 0, 1, 1, 0, 0, 1, 1])
+    fake.decode_mask_to_svg_path = lambda m: "M2 0L4 0L4 2L2 2Z"
+    monkeypatch.setitem(sys.modules, "meta_sam_parser", fake)
+    mask = segment.SamMask("lossless", "~abc", 4, 2, 0, 0)
+    path, area, centroid = segment._decode_mask(mask, 10, 20, 1.0, 1.0)
+    assert area == 4 and centroid == (13.0, 21.0)
+    assert path.startswith("M 12 20")
+
+    fake.decode_mask_to_raster = lambda m: (_ for _ in ()).throw(RuntimeError("bad payload"))
+    assert segment._decode_mask(mask, 10, 20, 1.0, 1.0) is None

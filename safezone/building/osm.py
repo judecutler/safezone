@@ -9,9 +9,11 @@ from pydantic import BaseModel, ConfigDict
 
 from ..geo import LocalFrame, distance_to_boundary_m, point_in_ring
 from ..shapes import BuildingFlag, FlagKind, LonLat, Provenance, Ring
-from ..transport import Transport, get_json
+from ..transport import HttpError, Transport, get_json
 
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
+OVERPASS_MIRROR = "https://overpass.private.coffee/api/interpreter"
+"""The main instance is often at capacity (502); this public worldwide mirror is the fallback."""
 RADIUS_M = 25.0
 OSM_CAVEAT = "From OpenStreetMap; volunteers map this and it can be wrong."
 LEVELS = re.compile(r"^\d+(\.\d+)?$")
@@ -89,5 +91,9 @@ def building_flags(building: Building, point: LonLat, provenance: Provenance) ->
 
 
 def fetch_building(transport: Transport, point: LonLat) -> tuple[Building | None, Provenance]:
-    data, provenance = get_json(transport, OVERPASS_URL, {"data": overpass_query(point)})
+    params = {"data": overpass_query(point)}
+    try:
+        data, provenance = get_json(transport, OVERPASS_URL, params)
+    except HttpError:
+        data, provenance = get_json(transport, OVERPASS_MIRROR, params)
     return choose_building(parse_buildings(data), point), provenance

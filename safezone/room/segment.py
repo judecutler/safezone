@@ -209,6 +209,7 @@ def _segment(seg_id: str, label: str, rec: SamRecord, image_size: tuple[int, int
 
 def _decode_mask(mask: SamMask, ox: float, oy: float, sx: float, sy: float
                  ) -> tuple[str, float, ImagePoint] | None:
+    """Outline, area and centroid in image pixels, or None so the scan falls back to the box."""
     try:
         import numpy as np
         from meta_sam_parser import SegmentationMask, decode_mask_to_raster, decode_mask_to_svg_path
@@ -217,16 +218,25 @@ def _decode_mask(mask: SamMask, ox: float, oy: float, sx: float, sy: float
     for payload in (mask.payload, mask.payload[1:]):
         try:
             m = SegmentationMask(encoding=mask.encoding, payload=payload, width=mask.width, height=mask.height)
-            raster = np.asarray(decode_mask_to_raster(m), dtype=bool)
+            raster = _raster_array(decode_mask_to_raster(m), mask.width, mask.height)
             path = decode_mask_to_svg_path(m)
+            ys, xs = np.nonzero(raster)
         except Exception:
             continue
-        ys, xs = np.nonzero(raster)
-        if len(xs) == 0:
+        if len(xs) == 0 or not path:
             return None
         centroid = ((ox + float(xs.mean()) + 0.5) * sx, (oy + float(ys.mean()) + 0.5) * sy)
-        return offset_path(path, ox, oy, sx, sy), float(raster.sum()) * sx * sy, centroid
+        return offset_path(path, ox, oy, sx, sy), float(len(xs)) * sx * sy, centroid
     return None
+
+
+def _raster_array(raw, width: int, height: int):
+    """meta-sam-parser returns the raster as row-major bytes of 0 and 1 (height x width)."""
+    import numpy as np
+
+    flat = np.frombuffer(bytes(raw), dtype=np.uint8) if isinstance(raw, (bytes, bytearray, memoryview)) \
+        else np.asarray(raw, dtype=np.uint8).ravel()
+    return flat.reshape(height, width).astype(bool)
 
 
 _PATH_TOKEN = re.compile(r"[MmLlHhVvCcSsQqTtAaZz]|-?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?")
