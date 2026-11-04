@@ -44,6 +44,8 @@ def parse_route(data: Any) -> OsrmRoute | None:
         return None
     route = data["routes"][0]
     path = [(float(lon), float(lat)) for lon, lat in route["geometry"]["coordinates"]]
+    if len(path) < 2:
+        return None
     steps = [parse_step(s) for leg in route.get("legs", []) for s in leg.get("steps", [])]
     # A zero-length turn is noise in a list read under stress; the final "Arrive" step is always 0 m.
     steps = [step for i, step in enumerate(steps) if step.distance_m >= 1 or i == len(steps) - 1]
