@@ -1,5 +1,6 @@
 import * as api from '../api.js';
 import { h, s } from '../dom.js';
+import { roomOverlay } from '../overlay.js';
 
 // "How it works": what each Meta model does, what code decides, and the real recorded output of the demo room.
 // Judges who only open the link see the pipeline here; the numbers come from /api/demo, so they stay true when
@@ -37,6 +38,39 @@ function pipeline() {
   }));
 }
 
+function demoFigure(root) {
+  const room = demo?.plan?.rooms?.[0];
+  if (!room) return root.replaceChildren();
+  const hazards = room.classified.filter((c) => c.role === 'hazard').length;
+  root.replaceChildren(h('figure', { class: 'about-fig' },
+    roomOverlay(room, demo.images?.[room.id]),
+    h('figcaption', { class: 'fine' },
+      `The demo room, recorded. ${room.models.segmenter} outlined ${room.classified.length} objects. ${room.models.classifier} flagged ${hazards} that can tip, fall or swing (numbered) and ${room.relations.length} risks between objects (dashed lines).`)));
+}
+
+// The relation quoted as Muse Spark's own words: one about stored items if the room has one.
+function relationQuote(root) {
+  const rels = demo?.plan?.rooms?.[0]?.relations ?? [];
+  const rel = rels.find((r) => r.kind === 'under_stored_items') ?? rels[0];
+  root.replaceChildren(rel ? `For example: “${rel.note}”.` : '');
+}
+
+function whyBoth() {
+  const quote = h('span', { class: 'about-why-quote' });
+  const col = (name, does, alone) => h('div', { class: 'about-why-col' },
+    h('h3', null, name), h('p', null, does), h('p', { class: 'about-why-alone' }, alone));
+  const panel = h('section', { class: 'card stack about-why', 'aria-labelledby': 'about-why-h' },
+    h('h2', { id: 'about-why-h' }, 'Why both models'),
+    h('div', { class: 'about-why-grid' },
+      col('SAM 3.1', 'Returns each object\'s box and pixel outline. The outlines draw the overlay above.',
+        'Alone: exact shapes, no judgment about what is dangerous.'),
+      col('Muse Spark', h('span', null, 'Names each object\'s role and the risks between objects, and proposes a floor spot. ', quote),
+        'Alone: judgment, with no reliable geometry.'),
+      col('Together', 'Code tests Muse Spark\'s spot against SAM\'s object boxes: in a doorway, on or inside furniture, in a tall object\'s tip zone, below stored items, or near glass. Fixes come from a fixed table.',
+        'So code can check every claim before it reaches the plan.')));
+  return { panel, quote };
+}
+
 function demoFacts(root) {
   const room = demo?.plan?.rooms?.[0];
   if (!room) return;
@@ -59,15 +93,19 @@ function section(title, ...body) {
 
 export function renderAbout(state, act) {
   const facts = h('div', { class: 'stack', 'aria-live': 'polite' }, h('p', { class: 'fine' }, 'Loading the demo room...'));
-  if (demo) demoFacts(facts);
-  else api.getDemo().then((d) => { demo = d; demoFacts(facts); }, () => facts.replaceChildren());
+  const figure = h('div', { class: 'about-fig-slot' });
+  const why = whyBoth();
+  const fill = () => { demoFigure(figure); demoFacts(facts); relationQuote(why.quote); };
+  if (demo) fill();
+  else api.getDemo().then((d) => { demo = d; fill(); }, () => { facts.replaceChildren(); figure.replaceChildren(); });
   return h('div', { class: 'screen about' },
     h('header', { class: 'review-head' },
       h('button', { class: 'btn-text', onclick: () => act.go('back') }, '‹ Back'),
       h('h1', null, 'How SafeZone works'),
       h('p', null, 'Two Meta models read your home. One rule holds everywhere: the model proposes, code decides.')),
     h('main', { class: 'stack' },
-      section('A photo becomes a plan', pipeline(), facts),
+      section('A photo becomes a plan', figure, pipeline(), facts),
+      why.panel,
       section('The go bag',
         h('p', null, 'Muse Spark checks one photo of the open bag against Ready.gov\'s 14-item basic kit and marks each item "Seen in the photo" or "Not seen". Code drops anything off the list and removes any note that judges the kit. It never says a kit is complete.')),
       section('Official maps, checked routes',

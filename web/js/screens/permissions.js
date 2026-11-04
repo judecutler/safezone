@@ -128,7 +128,6 @@ export function renderPermissions(state, act) {
     state.demo ? h('div', { class: 'demo-banner', role: 'status' }, 'DEMO: recorded real data for 1000 Great Highway') : null,
     h('header', { class: 'perm-head' },
       h('button', { class: 'btn-text', onclick: () => act.go('back') }, '‹ Back'),
-      h('p', { class: 'label' }, 'Step 1 of 3'),
       h('h1', { class: 'title' }, 'Map this place in a few photos'),
       h('p', { class: 'lede' }, 'SafeZone checks the tsunami map for this address while you take the photos.')),
     h('ul', { class: 'perm-list' }, rows.map(row)),

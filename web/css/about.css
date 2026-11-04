@@ -13,3 +13,11 @@
 .about-quotes { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
 .about-foot { text-align: center; padding-bottom: 24px; }
 .about .review-head p { margin: 4px 0 0; }
+.about-fig { margin: 0; display: grid; gap: 8px; }
+.about-fig .overlay { border: var(--stroke) solid var(--line); border-radius: var(--radius-sm); }
+.about-fig-slot:empty { display: none; }
+.about-why-grid { display: grid; gap: 14px; }
+.about-why-col { display: grid; gap: 6px; align-content: start; padding: 12px 14px; border: 1px solid var(--hair); border-radius: var(--radius-sm); }
+.about-why-col h3 { font: 800 1rem/1.2 var(--f-cond); font-stretch: condensed; letter-spacing: 0.02em; }
+.about-why-col:last-child { border: var(--stroke) solid var(--ink); }
+.about-why-alone { font-weight: 700; }

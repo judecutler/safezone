@@ -82,7 +82,8 @@
 .cap-step.is-skipped .cap-step-title { text-decoration: line-through; text-decoration-thickness: 1px; }
 .cap-step .icon-inline { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 5; }
 .cap-step.is-done .icon-inline { stroke: var(--accent); }
-.cap-step-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Titles wrap to two lines rather than clip ("Gas shutoff" at 390 px). */
+.cap-step-title { min-width: 0; white-space: normal; overflow-wrap: normal; hyphens: none; }
 .cap-step-count {
   display: inline-grid; place-items: center; min-width: 16px; height: 16px; margin-left: 4px; padding: 0 4px;
   border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-size: 0.6875rem;
@@ -141,6 +142,8 @@
 .cap-fallback-icon { width: 48px; height: 48px; fill: none; stroke: var(--cap-fg); stroke-width: 2.2; stroke-linejoin: round; }
 .cap-fallback .btn-ghost { color: var(--cap-fg); border-color: var(--cap-fg); }
 .cap-fallback .btn-ghost:hover { background: color-mix(in srgb, var(--cap-fg) 12%, transparent); }
+.cap-fallback.is-demo-none { background: #22201A; }
+.cap-fallback.is-demo-none p { font-size: 1rem; line-height: 1.4; }
 
 .cap-flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
 .cap-flash.is-on { animation: cap-flash 260ms ease-out; }
@@ -161,6 +164,7 @@
   transition: background-color 200ms ease, color 200ms ease;
 }
 .cap-hint-dot { width: 10px; height: 10px; flex: none; border-radius: 50%; background: var(--sev-2); transition: background-color 200ms ease; }
+.cap-hint[hidden] { display: none; }
 .cap-hint.is-idle .cap-hint-dot { background: var(--cap-muted); }
 .cap-hint.is-good { background: var(--accent); color: var(--accent-ink); }
 .cap-hint.is-good .cap-hint-dot { background: var(--accent-ink); }
@@ -187,6 +191,8 @@
   background: none; cursor: pointer; color: var(--cap-fg);
 }
 .cap-shutter:disabled { opacity: 0.5; cursor: progress; }
+.cap-shutter.is-no-meter .cap-ring { display: none; }
+.cap-shutter.is-no-meter .cap-shutter-core { inset: 8px; }
 .cap-ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
 .cap-ring-track { fill: none; stroke: color-mix(in srgb, var(--cap-fg) 25%, transparent); stroke-width: 7; }
 .cap-ring-fill {
@@ -219,6 +225,16 @@
 .cap-took-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
 .cap-took-actions .btn { flex: 1 1 160px; }
 .cap-took-actions .btn-ghost { flex: 1 1 140px; min-height: 48px; font-size: 1rem; }
+
+/* A checked room: the stage gives way to SAM's outlines and Muse Spark's count. The stage stays
+   in the document so the live loop keeps running for the next shot. */
+.capture.shows-result .cap-stage, .capture.shows-result .cap-why { display: none; }
+.cap-took.has-result { flex: 1 1 auto; min-height: 0; overflow-y: auto; margin-top: 0; }
+.cap-took.has-result .cap-thumb { display: none; }
+.cap-took.has-result .cap-took-head { grid-template-columns: 1fr; }
+.cap-result { display: grid; gap: 10px; margin: 0; }
+.cap-result .overlay { border: 0; border-radius: var(--radius-sm); }
+.cap-result-line { font-weight: 700; font-size: 1rem; line-height: 1.35; }
 
 @media (min-height: 760px) {
   .cap-title { font-size: 1.5rem; }

@@ -15,10 +15,11 @@ import { TSUNAMI_MAP_MISSING, duringSpecials, routeView, shelterSection } from '
 const REPEAT_MS = 15000;
 const WALK_MPS = 1.4;
 const SETTLE_MS = 3000;
-const DEMO_SPEEDS = [1, 8];
+const DEMO_SPEEDS = [8, 1];
+const nextSpeed = () => DEMO_SPEEDS[(DEMO_SPEEDS.indexOf(run.demoSpeed) + 1) % DEMO_SPEEDS.length];
 
 // `ui` holds the live elements of the current render; a re-render swaps them without restarting the phase.
-const run = { phase: null, stops: [], openedAt: 0, demoSpeed: 1, ui: null };
+const run = { phase: null, stops: [], openedAt: 0, demoSpeed: DEMO_SPEEDS[0], ui: null };
 
 // A re-render inside the same phase swaps the live elements and leaves speech and position sources alone.
 function enterPhase(phase, ui, start) {
@@ -192,10 +193,11 @@ function after(state, act) {
   else {
     const demo = state.demo;
     const view = routeView(route, plan.building, { onMap: (m) => { run.ui.map = m; } });
+    // The button names the speed a tap switches to; the position line shows the current one.
     const speedBtn = demo ? h('button', { class: 'em-speed', onclick: () => {
-      run.demoSpeed = DEMO_SPEEDS[(DEMO_SPEEDS.indexOf(run.demoSpeed) + 1) % DEMO_SPEEDS.length];
-      speedBtn.textContent = `Walker speed ${run.demoSpeed}x`;
-    } }, `Walker speed ${run.demoSpeed}x`) : null;
+      run.demoSpeed = nextSpeed();
+      speedBtn.textContent = `Walker speed ${nextSpeed()}x`;
+    } }, `Walker speed ${nextSpeed()}x`) : null;
     body = [
       guided ? h('div', { class: 'em-turn' },
         h('p', { class: 'em-label' }, 'Next'), nextLine,

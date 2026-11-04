@@ -82,6 +82,9 @@ function nameCard(session, act) {
       onchange: (e) => act.setPlaceName(e.target.value, session.kind ?? 'other') }));
 }
 
+const shotsOf = (session, kind) => session.shots.filter((s) => s.kind === kind);
+
+// The room result leads: it is the part of the plan only the photos could give.
 export function renderReview(state, act) {
   const session = state.session;
   const ready = session.location.status === 'found';
@@ -93,9 +96,11 @@ export function renderReview(state, act) {
       h('button', { class: 'btn-text', onclick: () => act.go('back') }, '‹ Back to photos'),
       h('h1', null, 'Your plan for this place')),
     h('main', { class: 'stack' },
+      shotsOf(session, 'room').map((shot) => shotCard(shot, state, act)),
       locationCard(session, act),
       household(session, act),
-      session.shots.map((shot) => shotCard(shot, state, act)),
+      shotsOf(session, 'gobag').map((shot) => shotCard(shot, state, act)),
+      session.shots.filter((s) => s.kind !== 'room' && s.kind !== 'gobag').map((shot) => shotCard(shot, state, act)),
       nameCard(session, act)),
     h('div', { class: 'dock' },
       state.ui.error ? h('p', { class: 'error', role: 'alert' }, state.ui.error) : null,

@@ -198,6 +198,7 @@ input[type="text"]:focus { outline: 3px solid var(--accent); outline-offset: 0; 
 .spot-instruction { font-size: 1.125rem; font-weight: 600; line-height: 1.35; }
 .cautions { display: grid; gap: 4px; }
 .cautions li { padding-left: 18px; position: relative; color: var(--muted); font-size: 0.9375rem; }
+.caution-source { display: block; font-size: 0.8125rem; }
 .cautions li::before { content: ""; position: absolute; left: 2px; top: 0.55em; width: 8px; height: 8px; border: 2px solid var(--sev-3); transform: rotate(45deg); }
 
 .block { display: grid; gap: 10px; border-top: 1px solid var(--hair); padding-top: 12px; }

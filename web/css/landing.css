@@ -275,3 +275,41 @@
   .landing-actions .btn-text { grid-column: 1 / -1; }
   .landing-actions .btn, .landing-actions .btn-ghost { min-height: 52px; padding-inline: 8px; font-size: 1.0625rem; white-space: nowrap; }
 }
+
+.landing-built { font-size: 0.75rem; line-height: 1.4; color: var(--muted); text-align: center; text-wrap: balance; }
+.landing-built strong { color: var(--ink); font-weight: 700; }
+
+/* Laptops and desktops: the animated map fills the left side at full height, the card sits centred on the right.
+   base.css lets the landing out of the phone column and hides the static backdrop on this screen. */
+@media (min-width: 1024px) {
+  .landing {
+    display: grid; grid-template-columns: minmax(0, 1fr) clamp(440px, 38vw, 560px);
+    height: 100vh; height: 100dvh; min-height: 600px; padding: 0;
+  }
+  .landing-map { height: auto; min-height: 0; border-bottom: 0; border-right: 1px solid var(--hair); }
+  .landing-top { padding: 20px 24px 0; }
+  .landing-card {
+    align-self: center; margin: 0; width: auto; max-width: none;
+    padding: 0 clamp(28px, 3.4vw, 48px); gap: 16px;
+    background: none; border: 0; box-shadow: none; border-radius: 0;
+  }
+  .landing-card .display { font-size: clamp(2.5rem, 3.4vw, 3.25rem); }
+  .landing-card .lede { font-size: 1.0625rem; line-height: 1.5; }
+  .landing-fact { font-size: 0.875rem; }
+  .landing-actions { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .landing-actions .btn-text { grid-column: 1 / -1; }
+  .landing-actions .btn, .landing-actions .btn-ghost { min-height: 52px; padding-inline: 12px; white-space: nowrap; }
+  .landing-built { text-align: left; text-wrap: pretty; }
+}
+@media (min-width: 1024px) and (max-height: 800px) {
+  .landing-card { gap: 12px; }
+  .landing-card .display { font-size: clamp(2.125rem, 3vw, 2.75rem); }
+  .landing-card .lede { font-size: 1rem; line-height: 1.45; }
+  .landing-fact { font-size: 0.8125rem; }
+  .landing-actions .btn, .landing-actions .btn-ghost { min-height: 48px; }
+}
+
+/* Small phones (375x667): a shorter map so "How it works" stays on the first screen too. */
+@media (max-width: 520px) and (max-height: 760px) {
+  .landing-map { height: 38vh; height: 38dvh; min-height: 240px; }
+}

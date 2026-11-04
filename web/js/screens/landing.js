@@ -24,7 +24,7 @@ export function renderLanding(state, act) {
       h('h1', { class: 'display' }, 'Know your way to high ground.', h('span', { class: 'jp', lang: 'ja' }, '地震・津波への備え')),
       h('p', { class: 'lede' }, 'Photograph your home once. SafeZone finds the best place to take cover in each room, then talks you out of the tsunami zone, even with no signal.'),
       h('p', { class: 'landing-fact' },
-        'Dec 5, 2024: about 5 million people got a tsunami warning. A city survey found people didn\'t know if they were in the zone. ',
+        'Dec 5, 2024: about 5 million people in Northern California and Oregon got a tsunami warning. A city survey found people didn\'t know if they were in the zone. ',
         h('a', { href: SOURCE, target: '_blank', rel: 'noopener' }, 'Source')),
       h('div', { class: 'landing-actions' },
         h('button', { class: 'btn', onclick: () => act.go('begin') }, 'Map my home'),
@@ -32,5 +32,7 @@ export function renderLanding(state, act) {
         places ? h('button', { class: 'btn-text', onclick: () => act.go('open_places') },
           places === 1 ? 'My places (1)' : `My places (${places})`) : null,
         h('button', { class: 'btn-text', onclick: () => act.go('about') }, 'How it works')),
+      h('p', { class: 'landing-built' }, 'Built with ', h('strong', {}, 'Meta SAM 3.1'), ' and ', h('strong', {}, 'Muse Spark'),
+        '. The demo takes 2 minutes and asks for no permissions.'),
       h('p', { class: 'fine' }, 'Photos and plans stay on this phone. A planning aid, not an official warning system.')));
 }

@@ -9,9 +9,11 @@ TODO after tomorrow's recording:
 
 Prepare once for a coastal earthquake. When it comes, the phone talks you through it.
 
+![SafeZone: a coastal neighborhood map with a walking route from home to high ground](web/og.png)
+
 **Live app:** https://safezone-alpha-one.vercel.app/ · **Repo:** https://github.com/judecutler/safezone
 
-Built for the Meta Global AI Developer Hackathon (indie track, Build for Your World). Everything here was written during the building period (Oct 27 to Nov 4, 2026), and the git history shows each step.
+Built for the Meta Global AI Developer Hackathon (indie track, Build for Your World). Everything here was written during the hackathon, and the git history shows each step.
 
 ## The problem
 
@@ -179,8 +181,7 @@ To record fresh responses on your own machine, run `python tools/record_fixtures
 
 - `python -m pytest -q` runs 234 Python tests, including adversarial safety tests, record-then-replay tests and a test of the whole demo plan.
 - `node --test web/tests/*.test.mjs` runs 36 tests of the photo-quality meter, the turn-by-turn guide (including GPS noise and walking the route backward) and the app logic.
-- `node tools/verify_e2e.cjs <outdir> <base-url>` makes 132 checks in a phone-sized Chromium: the demo end to end with the spoken voice log, the real flow, offline, a phone with no saved places, and plans saved by the old app.
-- `node tools/verify_e2e.cjs <screenshot-dir> http://127.0.0.1:8000` drives the flows in a phone-sized Chromium against a running server. It needs Playwright.
+- `node tools/verify_e2e.cjs <outdir> <base-url>` (needs Playwright and a running server) makes 132 checks in a phone-sized Chromium: the demo end to end with the spoken voice log, the real flow, offline, a phone with no saved places, and plans saved by the old app.
 
 ## Honest limits
 
