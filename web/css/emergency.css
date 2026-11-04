@@ -86,8 +86,17 @@ html[data-quake] .standby-pulse { background: var(--sev-4); animation-duration: 
 /* Emergency additions ------------------------------------------------------------------- */
 
 .em-root { min-height: 100vh; min-height: 100dvh; background: var(--paper); }
-.em-shaking { cursor: pointer; padding-top: 12px; -webkit-tap-highlight-color: transparent; }
+.em-shaking { cursor: pointer; padding-top: 12px; padding-bottom: 232px; gap: 14px; position: relative; -webkit-tap-highlight-color: transparent; }
 .em-shaking:active { background: var(--paper-2); }
+/* Nothing on the shaking screen may sit behind the fixed bar: the mute button rides beside "DROP." and the type
+   is condensed so one room and the three steps fit above the bar at 390 x 844; more content scrolls clear of it. */
+.em-shaking .em-top { position: absolute; top: 12px; right: 16px; z-index: 1; }
+.em-shaking .demo-banner + .em-top { top: 44px; }
+.em-shaking .em-steps { font-size: 1.0625rem; gap: 8px; }
+.em-shaking .em-steps li::before { font-size: 1.0625rem; }
+.em-shaking .em-special { font-size: 1.0625rem; padding: 10px 12px; }
+.em-shaking .em-spots { gap: 8px; }
+.em-shaking .em-big { min-height: 92px; }
 .em .demo-banner { margin: -20px -16px 0; position: static; }
 .em-top { display: flex; justify-content: flex-end; }
 .em-mute {
@@ -98,8 +107,8 @@ html[data-quake] .standby-pulse { background: var(--sev-4); animation-duration: 
 }
 .em-mute[aria-pressed="true"] { background: var(--ink); color: var(--paper); text-decoration: line-through; }
 .em-tap-hint { text-align: center; margin-bottom: 6px; }
-.em-shaking .em-dch { font-size: clamp(3rem, 16vw, 5rem); }
-.em-shaking .em-spot p { font-size: 1.1875rem; font-weight: 600; }
+.em-shaking .em-dch { font-size: clamp(2.75rem, 13vw, 4rem); margin-top: 6px; }
+.em-shaking .em-spot p { font-size: 1.0625rem; font-weight: 600; }
 
 .em-turn {
   display: grid; gap: 6px; padding: 14px 16px;

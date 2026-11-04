@@ -134,13 +134,14 @@ function after(state, act) {
   const guidance = em?.guidance;
   const route = plan?.route ?? null;
   const moving = route && route.kind !== 'not_in_zone';
+  const guided = route?.kind === 'walking_route' || route?.kind === 'site_route';
   const afterSteps = guidance ? h('ol', { class: 'em-steps em-steps-small' }, guidance.after.map((t) => h('li', null, t))) : null;
   const noPlanLine = 'No saved place on this device. Follow official instructions. If the shaking was strong or lasted a long time and you are near the coast, move inland and uphill now.';
 
   const firstTurn = route?.steps?.[0] ? `${route.steps[0].instruction}, then ${route.steps.length - 1} more turns` : '';
   const nextLine = h('p', { class: 'em-next', 'aria-live': 'assertive' }, run.ui?.nextLine?.textContent || firstTurn);
   const positionLine = h('p', { class: 'em-pos mono', 'aria-live': 'polite' },
-    run.ui?.positionLine?.textContent ?? (moving && route.kind === 'walking_route' ? 'Finding your position' : ''));
+    run.ui?.positionLine?.textContent ?? (guided ? 'Finding your position' : ''));
   enterPhase('after', { nextLine, positionLine, map: null }, () => {
     onStop(keepAwake());
     const prefix = demoPrefix(state);
@@ -148,23 +149,29 @@ function after(state, act) {
     if (!route) { say(prefix + TSUNAMI_MAP_MISSING, { interrupt: true }); return; }
     if (route.kind === 'not_in_zone') { say(prefix + (guidance?.not_in_zone ?? route.reason), { interrupt: true }); return; }
     say(prefix + (guidance?.go_now ?? 'Go now, on foot, inland or to high ground.'), { interrupt: true });
-    if (route.kind !== 'walking_route') { say(route.reason); return; }
+    if (!guided) { say(route.reason); return; }
 
-    const hazard = plan.building?.hazard_area?.polygons ?? null;
+    // A fix is "outside" only when the map's own land polygons hold it. Inside the hazard polygons is "inside";
+    // anywhere else (beyond the polygons SafeZone fetched, or Japan, which has none) is unknown, so no cue
+    // ever tells someone on an unmapped beach that they are outside the hazard area.
+    const hazard = plan.building?.hazard_area?.polygons ?? [];
+    const land = plan.building?.hazard_area?.land_polygons ?? [];
+    const outside = (lonlat) => (insideHazard(hazard, lonlat) ? false : insideHazard(land, lonlat) ? true : null);
+    const siteInstruction = route.kind === 'site_route' ? route.site?.instruction ?? null : null;
     let prev = null, last = null;
     const onFix = (lonlat, status, accuracyM = 0) => {
-      const prog = progress(route, lonlat, prev);
+      const prog = progress(route, lonlat, prev, accuracyM);
       prev = prog;
       const shown = run.ui.map?.showPosition(lonlat);
       run.ui.positionLine.textContent = shown === false ? `${status}. You are outside this map.` : status;
-      const c = cue(route, prog, last, { outsideHazard: hazard ? !insideHazard(hazard, lonlat) : null, accuracyM });
+      const c = cue(route, prog, last, { outsideHazard: outside(lonlat), accuracyM, siteInstruction });
       if (c) {
         last = c;
         say(c.text, { replace: true });
         vibrate(c.key === 'arrive' ? [200, 100, 200, 100, 600] : [120]);
         if (c.key === 'arrive' && guidance?.stay_away) say(guidance.stay_away);
       }
-      run.ui.nextLine.textContent = prog.arrived ? 'End of the route' : prog.offRouteM > OFF_ROUTE_M + accuracyM
+      run.ui.nextLine.textContent = prog.arrived ? 'End of the route' : c?.key === 'back' ? 'Turn around' : prog.offRouteM > OFF_ROUTE_M + accuracyM
         ? `Off the route, ${formatDistance(prog.offRouteM)} to your ${prog.bearingToRoute}`
         : prog.metersToNext < 5 ? route.steps[prog.stepIndex]?.instruction ?? ''
           : `${route.steps[prog.stepIndex]?.instruction ?? ''} in ${formatDistance(prog.metersToNext)}`;
@@ -187,10 +194,10 @@ function after(state, act) {
       speedBtn.textContent = `Walker speed ${run.demoSpeed}x`;
     } }, `Walker speed ${run.demoSpeed}x`) : null;
     body = [
-      route.kind === 'walking_route' ? h('div', { class: 'em-turn' },
+      guided ? h('div', { class: 'em-turn' },
         h('p', { class: 'em-label' }, 'Next'), nextLine,
         h('div', { class: 'em-pos-row' }, demo ? demoTag('Demo walker') : null, positionLine, speedBtn)) : null,
-      h('p', { class: route.kind === 'walking_route' ? 'em-go em-go-small' : 'em-go' }, guidance?.go_now ?? 'Go now, on foot, inland or to high ground.'),
+      h('p', { class: guided ? 'em-go em-go-small' : 'em-go' }, guidance?.go_now ?? 'Go now, on foot, inland or to high ground.'),
       view,
       guidance ? h('p', { class: 'em-muted' }, guidance.stay_away) : null,
       h('h2', { class: 'em-label' }, 'Also'),
