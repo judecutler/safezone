@@ -158,34 +158,45 @@ def _push_outward(boundary: Boundary, xy: XY) -> XY | None:
 
 def check_route(home: LonLat, path: Sequence[LonLat], polygons: Sequence[Polygon],
                 land: Sequence[Polygon] = ()) -> list[RouteFailure]:
-    """Every invariant the path breaks. Empty means the route may be shown. With no land polygons no end is proven."""
-    boundary = Boundary(home, polygons)
-    dense = [boundary.frame.to_xy(p) for p in geo.densify(path, DENSIFY_STEP_M)]
-    inside = [boundary.inside(p) for p in dense]
+    """Every invariant the path breaks. Empty means the route may be shown. With no land polygons no end is proven.
+
+    A point is unsafe inside a hazard polygon and anywhere off the map's own outside-hazard land, so the beach
+    beyond a shoreline-edged polygon counts as inside. Depth is the distance to that land, not to the nearest
+    hazard edge, because a shoreline edge is not an exit.
+    """
+    hazard = Boundary(home, polygons)
+    dense = [hazard.frame.to_xy(p) for p in geo.densify(path, DENSIFY_STEP_M)]
+    if land:
+        mapped = Boundary(home, land)
+        unsafe = [hazard.inside(p) or not mapped.inside(p) for p in dense]
+        depth = mapped.distance
+    else:
+        unsafe = [hazard.inside(p) for p in dense]
+        depth = hazard.distance
     failures: list[RouteFailure] = []
 
     end = dense[-1]
-    if inside[-1] or boundary.distance(end) < END_CLEARANCE_M:
+    if unsafe[-1] or hazard.distance(end) < END_CLEARANCE_M:
         failures.append("ends_inside")
     if not geo.point_in_any(path[-1], land):
         failures.append("ends_off_land")
 
-    home_depth = boundary.distance((0.0, 0.0))
-    inside_length = sum(math.dist(dense[i - 1], dense[i]) for i in range(1, len(dense)) if inside[i] and inside[i - 1])
+    home_depth = depth((0.0, 0.0))
+    inside_length = sum(math.dist(dense[i - 1], dense[i]) for i in range(1, len(dense)) if unsafe[i] and unsafe[i - 1])
     if inside_length > INSIDE_LENGTH_FACTOR * home_depth + INSIDE_LENGTH_SLACK_M:
         failures.append("too_long_inside")
-    if any(flag and boundary.distance(p) > home_depth + DEEPER_SLACK_M for p, flag in zip(dense, inside)):
+    if any(flag and depth(p) > home_depth + DEEPER_SLACK_M for p, flag in zip(dense, unsafe)):
         failures.append("goes_deeper")
 
     norm = math.hypot(*end)
     if norm > 0:
         ux, uy = end[0] / norm, end[1] / norm
-        if any(flag and x * ux + y * uy < -AWAY_SLACK_M for (x, y), flag in zip(dense, inside)):
+        if any(flag and x * ux + y * uy < -AWAY_SLACK_M for (x, y), flag in zip(dense, unsafe)):
             failures.append("moves_away_from_exit")
 
-    first_out = next((i for i, flag in enumerate(inside) if not flag), None)
-    if first_out is not None:
-        re_entered = sum(math.dist(dense[i - 1], dense[i]) for i in range(first_out + 1, len(dense)) if inside[i])
+    first_safe = next((i for i, flag in enumerate(unsafe) if not flag), None)
+    if first_safe is not None:
+        re_entered = sum(math.dist(dense[i - 1], dense[i]) for i in range(first_safe + 1, len(dense)) if unsafe[i])
         if re_entered > REENTRY_LIMIT_M:
             failures.append("re_enters")
     return failures

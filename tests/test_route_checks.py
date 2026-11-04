@@ -48,10 +48,32 @@ def test_seaward_leg_is_rejected_when_the_polygon_covers_the_water():
 
 
 def test_seaward_leg_is_rejected_when_the_shoreline_is_the_boundary():
-    # Walking toward the water here brings the path closer to the polygon edge, so a depth
-    # check alone would accept it. Only the exit-axis check sees the seaward leg.
+    # Walking toward the water brings the path closer to the polygon edge but farther from mapped land.
     failures = check_route(HOME, path((0, 0), (-90, 0), (-90, 100), (300, 100)), SHORELINE_EDGED, LAND)
-    assert failures == ["moves_away_from_exit"]
+    assert "moves_away_from_exit" in failures
+    assert "goes_deeper" in failures
+
+
+def test_diagonal_walk_to_the_waters_edge_is_deeper():
+    # Toward the exit along the shore and toward the water at once: the exit-axis projection stays
+    # positive, so only depth measured from mapped land can see it.
+    failures = check_route(HOME, path((0, 0), (-100, 100), (300, 100)), SHORELINE_EDGED, LAND)
+    assert "goes_deeper" in failures
+
+
+# Shoreline 30 m west of home; the 180 m hazard band narrows to 100 m between 700 m and 900 m north.
+NOTCHED = [[[ll(-30, -2000), ll(150, -2000), ll(150, 700), ll(50, 700), ll(50, 900), ll(150, 900), ll(150, 2000),
+             ll(-30, 2000)]]]
+NOTCHED_LAND = [[[ll(150, -2000), ll(6000, -2000), ll(6000, 2000), ll(150, 2000), ll(150, 900), ll(50, 900),
+                  ll(50, 700), ll(150, 700)]]]
+
+
+def test_a_long_walk_on_the_beach_counts_as_time_inside():
+    # The beach past a shoreline-edged polygon is outside the polygon but it is not mapped land.
+    beach = path((0, 0), (-40, 0), (-40, 800), (300, 800))
+    sidewalk = path((0, 0), (-20, 0), (-20, 800), (300, 800))
+    assert "too_long_inside" in check_route(HOME, sidewalk, NOTCHED, NOTCHED_LAND)
+    assert "too_long_inside" in check_route(HOME, beach, NOTCHED, NOTCHED_LAND)
 
 
 def test_small_detours_inside_are_tolerated():
