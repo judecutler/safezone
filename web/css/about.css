@@ -21,6 +21,3 @@
 .about-why-col h3 { font: 800 1rem/1.2 var(--f-cond); font-stretch: condensed; letter-spacing: 0.02em; }
 .about-why-col:last-child { border: var(--stroke) solid var(--ink); }
 .about-why-alone { font-weight: 700; }
-@media (min-width: 720px) {
-  .about-why-grid { grid-template-columns: repeat(3, 1fr); }
-}

@@ -110,7 +110,7 @@ function showSource() {
     fallback.replaceChildren(
       icon(none ? 'info' : 'camera', 'cap-fallback-icon'),
       h('p', null, text),
-      none ? null : h('button', { class: 'btn-ghost cap-pick', onclick: () => ui?.pick?.() }, 'Choose a photo'));
+      ...(none ? [] : [h('button', { class: 'btn-ghost cap-pick', onclick: () => ui?.pick?.() }, 'Choose a photo')]));
   }
   guide.hidden = Boolean(text);
 }
