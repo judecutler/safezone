@@ -1,12 +1,18 @@
 // The one place that talks, buzzes and keeps the screen on. Screens never touch speechSynthesis directly.
-// Every line goes through `say`, which also records it in `spoken` so a test or the console can read the
-// sequence when speech is unavailable (headless browsers, muted phones).
+// Every line goes through `say`, which also records it in `spoken` and the console, so a test or a headless
+// browser can read the sequence when speech is unavailable.
+//
+// Queue rules: lines play in order. A line marked `replace` is a guidance cue; a newer cue replaces any cue
+// still waiting, so a walker never hears a stale turn after a long official line. `interrupt` cuts whatever
+// is playing. Muting records lines without playing them.
 
 const RATE = 0.95;
 const synth = () => (typeof speechSynthesis === 'undefined' ? null : speechSynthesis);
 
 export const spoken = [];
 let muted = false;
+let playing = false;
+const queue = [];
 const repeats = new Set();
 const listeners = new Set();
 
@@ -19,21 +25,35 @@ export const isMuted = () => muted;
 
 export function setMuted(value) {
   muted = Boolean(value);
-  if (muted) synth()?.cancel();
+  if (muted) { queue.length = 0; playing = false; synth()?.cancel(); }
   for (const fn of listeners) fn(muted);
 }
 
-export function say(text, { interrupt = false } = {}) {
+function playNext() {
+  const s = synth();
+  if (playing || !s || !queue.length) return;
+  const item = queue.shift();
+  playing = true;
+  const u = new SpeechSynthesisUtterance(item.text);
+  u.rate = RATE;
+  u.lang = 'en-US';
+  const done = () => { playing = false; playNext(); };
+  u.onend = done;
+  u.onerror = done;
+  s.speak(u);
+  // Some engines never fire onend after cancel(); a timer bounded by reading speed keeps the queue moving.
+  setTimeout(() => { if (playing && !s.speaking) done(); }, 1000 + item.text.length * 90);
+}
+
+export function say(text, { interrupt = false, replace = false } = {}) {
   if (!text) return;
   spoken.push({ at: Date.now(), text, muted });
   console.info(`[voice${muted ? ', muted' : ''}] ${text}`);
-  const s = synth();
-  if (muted || !s) return;
-  if (interrupt) s.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.rate = RATE;
-  u.lang = 'en-US';
-  s.speak(u);
+  if (muted || !synth()) return;
+  if (interrupt) { queue.length = 0; playing = false; synth().cancel(); }
+  if (replace) for (let i = queue.length - 1; i >= 0; i--) if (queue[i].replace) queue.splice(i, 1);
+  queue.push({ text, replace });
+  playNext();
 }
 
 // Says `text` now and again every `everyMs` until the returned function runs.
@@ -47,6 +67,8 @@ export function repeat(text, everyMs) {
 export function stopAll() {
   for (const id of repeats) clearInterval(id);
   repeats.clear();
+  queue.length = 0;
+  playing = false;
   synth()?.cancel();
 }
 

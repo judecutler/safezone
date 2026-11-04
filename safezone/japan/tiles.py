@@ -2,12 +2,13 @@
 
 Tiles: https://disaportaldata.gsi.go.jp/raster/04_tsunami_newlegend_data/{z}/{x}/{y}.png, zoom 2 to 17, the
 integrated layer of every prefecture's 津波浸水想定 (opendata page in rules.SOURCES["portal_tiles"]). A transparent
-pixel, or a tile the server does not have (404), is no mapped inundation. Any coloured pixel is inside the
+pixel, or a tile the server does not have, is no mapped inundation. Any coloured pixel is inside the
 inundation area; its colour gives the depth class from MLIT's standard depth colours. A colour that matches no
 class still counts as inside, at the deepest class, so a legend mismatch can only make SafeZone more cautious.
 
-The transport stores text, so tile bodies travel base64-encoded: `live_transport` encodes them on the way in,
-and recorded fixtures keep that text.
+The transport stores text and records only answers below 400, so `live_transport` carries tile images
+base64-encoded and turns "no tile here" (404) into a 200 with an empty body, for the raster and the GSI site
+tiles alike. Recorded fixtures then replay both.
 """
 from __future__ import annotations
 
@@ -128,7 +129,7 @@ class InundationMap:
             url = TILE_TEMPLATE.format(z=self.zoom, x=x, y=y)
             resp = self.transport.send(Request("GET", url, timeout_s=30.0))
             self.provenances.append(resp.provenance)
-            if resp.status == NOT_FOUND:
+            if resp.status == NOT_FOUND or (resp.status < 400 and not resp.text):
                 self._tiles[(x, y)] = None
             elif resp.status >= 400:
                 raise TileUnavailable(f"{url} -> {resp.status}: {resp.text[:200]}")
@@ -159,9 +160,12 @@ class InundationMap:
 
 # Live transport ----------------------------------------------------------------
 
+SITES_HOST = "cyberjapandata.gsi.go.jp"
+
+
 @dataclass
-class Base64Tiles:
-    """Fetches tile images and returns their bytes base64-encoded, so text-only transports can carry them."""
+class GsiTiles:
+    """Fetches GSI tiles. Images come back base64-encoded; a missing tile comes back as 200 with an empty body."""
     _session: requests.Session = field(default_factory=requests.Session)
 
     def send(self, request: Request) -> Response:
@@ -170,9 +174,13 @@ class Base64Tiles:
                                   timeout=request.timeout_s)
         except requests.RequestException as exc:
             return Response(NETWORK_FAILURE, str(exc), "live")
+        if r.status_code == NOT_FOUND:
+            return Response(200, "", "live")
         if r.status_code >= 400:
             return Response(r.status_code, r.text[:300], "live")
-        return Response(r.status_code, base64.b64encode(r.content).decode("ascii"), "live")
+        if urlsplit(request.url).hostname == TILE_HOST:
+            return Response(r.status_code, base64.b64encode(r.content).decode("ascii"), "live")
+        return Response(r.status_code, r.content.decode("utf-8"), "live")
 
 
 @dataclass(frozen=True)
@@ -181,9 +189,9 @@ class TileSplit:
     default: Transport
 
     def send(self, request: Request) -> Response:
-        target = self.tiles if urlsplit(request.url).hostname == TILE_HOST else self.default
-        return target.send(request)
+        host = urlsplit(request.url).hostname
+        return (self.tiles if host in (TILE_HOST, SITES_HOST) else self.default).send(request)
 
 
 def live_transport(default: Transport | None = None) -> Transport:
-    return TileSplit(Base64Tiles(), default or LiveTransport())
+    return TileSplit(GsiTiles(), default or LiveTransport())
