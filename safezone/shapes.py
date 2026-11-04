@@ -291,6 +291,33 @@ class ShelterResult(Shape):
     provenance: Provenance
 
 
+# Go bag --------------------------------------------------------------------
+
+GoBagStatus = Literal["Seen in the photo", "Not seen"]
+
+
+class GoBagItem(Shape):
+    id: str
+    label: str
+    seen: bool
+    status: GoBagStatus
+    note: str | None
+    """The model's short line on what it saw, attributed to Muse Spark. None when the item was not seen."""
+
+
+class GoBagCheck(Shape):
+    """What one photo shows of a go bag, item by item. It never says whether the kit is complete."""
+    items: list[GoBagItem]
+    """Every checklist item, in the checklist's order."""
+    seen_count: int
+    total: int
+    model: str
+    caveat: str
+    source_name: str
+    source_url: str
+    provenance: Provenance
+
+
 # Plan ----------------------------------------------------------------------
 
 class Plan(Shape):
