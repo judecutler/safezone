@@ -30,7 +30,7 @@ const ERRORS = {
   address_not_found: 'No match for that address. Check the street number and city, then try again.',
   decode: 'This photo could not be read. Take it again.',
 };
-const errorText = (e, fallback) => ERRORS[e?.code] ?? fallback;
+const errorText = (e, fallback) => e?.reason ?? ERRORS[e?.code] ?? fallback;
 const uid = () => crypto.randomUUID?.() ?? `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 

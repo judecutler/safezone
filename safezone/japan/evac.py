@@ -15,12 +15,11 @@ from typing import Literal
 
 from .. import geo
 from ..route.osrm import OsrmRoute, fetch_route, fetch_table
-from ..shapes import (BuildingProfile, Household, LonLat, NoCheckedRoute, NotInZone, Provenance, Shelter, ShelterMatch,
-                      ShelterResult, weakest)
+from ..shapes import (BuildingProfile, EvacSite, Household, LonLat, NoCheckedRoute, NotInZone, Provenance, Shelter,
+                      ShelterMatch, ShelterResult, SiteKind, SiteRoute, weakest)
 from ..transport import Transport
 from . import rules
 from .profile import EDGE_RADIUS_M
-from .shapes import EvacSite, SiteKind, SiteRoute
 from .sites import Site, fetch_sites
 from .tiles import Depth, InundationMap, TileUnavailable, depth_label
 

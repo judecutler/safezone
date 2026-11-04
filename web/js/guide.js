@@ -21,6 +21,7 @@ const WORDS = {
   far: 'You are far from this route. Walk inland and uphill, away from the water, and follow tsunami evacuation signs.',
   arrivedOutside: 'You have reached the end of the route, outside the mapped tsunami hazard area. If you can, keep moving inland and uphill.',
   arrivedUnchecked: 'You have reached the end of the route. If you can, keep moving inland and uphill.',
+  outside: 'You are outside the mapped tsunami hazard area. Stay there until officials say it is safe. If you can, keep moving inland and uphill.',
 };
 
 const lower = (t) => t.charAt(0).toLowerCase() + t.slice(1);
@@ -136,8 +137,9 @@ export function insideHazard(polygons, [lon, lat]) {
 export function cue(route, prog, lastCue, { outsideHazard = null } = {}) {
   const points = stepPoints(route);
   let next;
-  if (prog.arrived) {
-    next = { key: 'arrive', text: outsideHazard === false ? WORDS.arrivedUnchecked : WORDS.arrivedOutside };
+  // Once the walker is outside the hazard polygons, no cue points back toward the route (which may lie seaward).
+  if (prog.arrived || (outsideHazard === true && prog.offRouteM > OFF_ROUTE_M)) {
+    next = { key: 'arrive', text: outsideHazard === false ? WORDS.arrivedUnchecked : prog.arrived ? WORDS.arrivedOutside : WORDS.outside };
   } else if (prog.offRouteM > FAR_M) {
     next = { key: 'far', text: WORDS.far };
   } else if (prog.offRouteM > OFF_ROUTE_M) {

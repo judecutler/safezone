@@ -18,15 +18,26 @@ async function call(path, init) {
   return body;
 }
 
-const ROUTE_KINDS = new Set(['walking_route', 'direction_only', 'no_checked_route', 'not_in_zone']);
+const ROUTE_KINDS = new Set(['walking_route', 'site_route', 'direction_only', 'no_checked_route', 'not_in_zone']);
 
-export const getGuidance = () => call('/api/guidance');
-export const getDemo = () => call('/api/demo');
+export const getGuidance = (region) => call(region ? `/api/guidance?region=${encodeURIComponent(region)}` : '/api/guidance');
+export const getDemo = (region) => call(region ? `/api/demo?region=${encodeURIComponent(region)}` : '/api/demo');
 
-export const getProfile = (address) => call(`/api/profile?address=${encodeURIComponent(address)}`);
+// A place outside every mapped region is an answer, not an error; the caller shows its reason.
+async function profile(path) {
+  const body = await call(path);
+  if (body.kind === 'no_coverage') {
+    const e = new ApiError(200, 'no_coverage');
+    e.reason = body.reason;
+    throw e;
+  }
+  return body;
+}
+
+export const getProfile = (address) => profile(`/api/profile?address=${encodeURIComponent(address)}`);
 
 export const getProfileAt = (lon, lat) =>
-  call(`/api/profile?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`);
+  profile(`/api/profile?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`);
 
 export const checkGoBag = (jpeg) =>
   call('/api/gobag', { method: 'POST', headers: { 'Content-Type': 'image/jpeg' }, body: jpeg });

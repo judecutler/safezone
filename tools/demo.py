@@ -7,6 +7,8 @@ from whatever fixtures/demo holds (after tools/record_fixtures.py, real ones).
 answer with SAMPLE shelters (the live layer is empty on quiet days), and records
 SAMPLE answers only for requests the recording lacks, such as the outside address.
 `python tools/demo.py gobag-sample` writes demo/gobag.json from the SAMPLE go-bag answer.
+`python tools/demo.py jp` writes demo/plan_jp.json, the Kamakura household built from the Japan SAMPLE answers.
+It has no room scan: there is no Kamakura room photo, and borrowing the Bay Area room would mislabel it.
 Overpass is never filled: a sample storeys count on the real building would be invented.
 """
 from __future__ import annotations
@@ -34,9 +36,10 @@ from safezone.route.pipeline import plan_route  # noqa: E402
 from safezone.shapes import DirectionOnly, Household, Plan, WalkingRoute  # noqa: E402
 from safezone.shelter.pipeline import find_shelters  # noqa: E402
 from safezone.app import FEMA_HOST, HostSplit  # noqa: E402
+from safezone import regions  # noqa: E402
 from safezone.transport import (NETWORK_FAILURE, RecordingTransport, ReplayTransport, Request,  # noqa: E402
                                 Response, Transport)
-from tools.samples import building, gobag, room, route, shelter  # noqa: E402
+from tools.samples import building, gobag, japan, room, route, shelter  # noqa: E402
 from tools.samples.geo import DEMO_ADDRESS, OUTSIDE_ADDRESS  # noqa: E402
 
 FIXTURES = ROOT / "fixtures" / "demo"
@@ -44,6 +47,11 @@ PHOTO = ROOT / "demo" / "living_room.jpg"
 PLAN = ROOT / "demo" / "plan.json"
 GOBAG = ROOT / "demo" / "gobag.json"
 GOBAG_PHOTO = ROOT / "demo" / "gobag.jpg"
+PLAN_JP = ROOT / "demo" / "plan_jp.json"
+JP_DEMO_HOUSEHOLD = Household(children=True, wheelchair=False, medical=False, pets=True)
+"""No wheelchair: GSI lists no access data, so a wheelchair household would correctly get no sites at all."""
+JP_NO_ROOM_NOTE = ("Sample household: no room was scanned for this address, so the room section is empty. "
+                   "The room scan demo is the Bay Area household.")
 DEMO_HOUSEHOLD = Household(children=True, wheelchair=True, medical=False, pets=True)
 DEMO_ROOM_NAME = "Bedroom"
 
@@ -80,6 +88,17 @@ def build_plan(transport: Transport, shelter_replay: bool, now: datetime) -> dic
     plan = Plan(building=profile, household=DEMO_HOUSEHOLD, rooms=[scan], route=evac_route,
                 shelters=shelters, generated_at=now)
     return {"plan": plan.model_dump(mode="json"), "images": {scan.id: "/demo/living_room.jpg"}}
+
+
+def build_plan_jp(transport: Transport, now: datetime) -> dict:
+    """The Kamakura demo household. Every answer comes from tools/samples/japan.py and is labelled sample."""
+    region, profile = regions.profile_for_address(japan.JP_DEMO_ADDRESS, transport)
+    assert region.id == "jp"
+    evac = regions.evacuate(profile, JP_DEMO_HOUSEHOLD, transport, transport, now, True)
+    plan = Plan(building=profile, household=JP_DEMO_HOUSEHOLD, rooms=[], route=evac.route, shelters=evac.shelters,
+                generated_at=now)
+    return {"plan": plan.model_dump(mode="json"), "images": {}, "note": JP_NO_ROOM_NOTE,
+            "shelters_error": evac.shelters_error}
 
 
 def exercise_outside_address(transport: Transport, now: datetime) -> None:
@@ -125,11 +144,18 @@ def main(mode: str) -> None:
         transport = HostSplit(FEMA_HOST, sample, filled)
         build_plan(transport, True, now)
         exercise_outside_address(transport, now)
+    elif mode == "jp":
+        payload = build_plan_jp(japan.SampleTransport(), now)
+        PLAN_JP.write_text(json.dumps(payload, indent=1, ensure_ascii=False))
+        plan = payload["plan"]
+        print(f"wrote {PLAN_JP.relative_to(ROOT)}: route {plan['route']['kind']}, "
+              f"{len(plan['shelters']['matches'])} sites, provenance {plan['building']['provenance']}")
+        return
     elif mode == "gobag-sample":
         write_gobag(SampleResponder(), prepare_image(PHOTO.read_bytes()))
         return
     elif mode != "replay":
-        raise SystemExit("usage: python tools/demo.py samples|replay|fill-samples|gobag-sample")
+        raise SystemExit("usage: python tools/demo.py samples|replay|fill-samples|gobag-sample|jp")
     write_plan(build_plan(ReplayTransport(FIXTURES), True, now))
 
 

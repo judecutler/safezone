@@ -25,7 +25,7 @@ function askFix(onFix) {
     { enableHighAccuracy: false, maximumAge: 300000, timeout: 15000 });
 }
 
-function standbyHeader(state, act, root) {
+function standbyHeader(state, act) {
   const near = fix ? nearestPlace(state.places, fix.lonlat) : null;
   const first = near?.place ?? state.places[0];
   const line = near
@@ -63,9 +63,9 @@ function placeRow(place, act) {
 
 export function renderPlaces(state, act) {
   const root = h('div', { class: 'screen places' });
-  const render = () => root.replaceChildren(
+  const render = () => root.replaceChildren(...[
     state.demo ? h('div', { class: 'demo-banner', role: 'status' }, 'DEMO', h('button', { onclick: () => act.exitDemo() }, 'Exit demo')) : null,
-    standbyHeader(state, act, root),
+    standbyHeader(state, act),
     h('main', { class: 'stack' },
       h('h1', { class: 'title places-title' }, 'My places'),
       state.places.length
@@ -76,7 +76,8 @@ export function renderPlaces(state, act) {
         state.demo && state.places.length
           ? h('button', { class: 'btn-ghost btn-demo', onclick: () => act.simulateQuake() }, h('span', { class: 'tag-demo' }, 'Demo'), 'Simulate an earthquake')
           : null),
-      h('p', { class: 'fine' }, 'Standby uses the motion sensor only while this screen is open. A planning aid, not an official warning system.')));
+      h('p', { class: 'fine' }, 'Standby uses the motion sensor only while this screen is open. A planning aid, not an official warning system.')),
+  ].filter(Boolean));
   render();
   askFix(() => { if (root.isConnected) render(); });
   startStandby({ onQuake: () => act.go('emergency'), isArmed: () => root.isConnected });

@@ -38,7 +38,8 @@ function leavePhase() {
 function onStop(fn) { if (fn) run.stops.push(fn); }
 
 const planOf = (em) => em?.place?.plan ?? em?.saved?.plan ?? null;
-const demoPrefix = (state) => (state.demo || state.emergency?.place?.demo ? 'This is a demo. ' : '');
+// Only demo mode itself simulates. A saved demo place outside demo mode gets real GPS like any other place.
+const demoPrefix = (state) => (state.demo ? 'This is a demo. ' : '');
 
 // What the shaking screen says: Drop, Cover, Hold On and the saved spot instruction for the nearest place's
 // first room. Nothing here moves anyone; the spot instruction is the server's fixed wording.
@@ -85,11 +86,11 @@ function shaking(state, act) {
     state.demo ? h('div', { class: 'demo-banner', role: 'status' }, 'DEMO: simulated earthquake') : null,
     h('div', { class: 'em-top' }, muteButton()),
     h('h1', { class: 'em-dch' }, h('span', null, 'Drop.'), h('span', null, 'Cover.'), h('span', null, 'Hold on.')),
-    guidance ? h('ol', { class: 'em-steps' }, guidance.during.map((t) => h('li', null, t))) : null,
     plan?.rooms?.length ? h('section', { class: 'em-spots' },
-      h('h2', { class: 'em-label' }, 'Your spots'),
+      h('h2', { class: 'em-label' }, `Your spots at ${em.place?.name ?? 'home'}`),
       plan.rooms.map((r) => h('div', { class: 'em-spot' }, h('h3', null, r.name), h('p', null, r.spots[0]?.instruction))))
       : h('p', { class: 'em-muted' }, 'No saved place on this device.'),
+    guidance ? h('ol', { class: 'em-steps' }, guidance.during.map((t) => h('li', null, t))) : null,
     duringSpecials(plan, guidance).map((t) => h('p', { class: 'em-special' }, t)),
     h('div', { class: 'em-dock' },
       h('p', { class: 'em-tap-hint fine' }, 'Tap anywhere when it stops'),
@@ -134,7 +135,8 @@ function after(state, act) {
   const afterSteps = guidance ? h('ol', { class: 'em-steps em-steps-small' }, guidance.after.map((t) => h('li', null, t))) : null;
   const noPlanLine = 'No saved place on this device. Follow official instructions. If the shaking was strong or lasted a long time and you are near the coast, move inland and uphill now.';
 
-  const nextLine = h('p', { class: 'em-next', 'aria-live': 'assertive' }, run.ui?.nextLine?.textContent ?? '');
+  const firstTurn = route?.steps?.[0] ? `${route.steps[0].instruction}, then ${route.steps.length - 1} more turns` : '';
+  const nextLine = h('p', { class: 'em-next', 'aria-live': 'assertive' }, run.ui?.nextLine?.textContent || firstTurn);
   const positionLine = h('p', { class: 'em-pos mono', 'aria-live': 'polite' },
     run.ui?.positionLine?.textContent ?? (moving && route.kind === 'walking_route' ? 'Finding your position' : ''));
   enterPhase('after', { nextLine, positionLine, map: null }, () => {
@@ -162,9 +164,10 @@ function after(state, act) {
       }
       run.ui.nextLine.textContent = prog.arrived ? 'End of the route' : prog.offRouteM > 35
         ? `Off the route, ${formatDistance(prog.offRouteM)} to your ${prog.bearingToRoute}`
-        : `${route.steps[prog.stepIndex]?.instruction ?? ''} in ${formatDistance(prog.metersToNext)}`;
+        : prog.metersToNext < 5 ? route.steps[prog.stepIndex]?.instruction ?? ''
+          : `${route.steps[prog.stepIndex]?.instruction ?? ''} in ${formatDistance(prog.metersToNext)}`;
     };
-    const source = state.demo || em?.place?.demo
+    const source = state.demo
       ? walkerSource(route, onFix)
       : gpsSource(onFix, (text) => { run.ui.positionLine.textContent = text; });
     onStop(source);
@@ -175,15 +178,17 @@ function after(state, act) {
   else if (!route) body = [h('p', { class: 'em-calm' }, TSUNAMI_MAP_MISSING), afterSteps];
   else if (route.kind === 'not_in_zone') body = [h('p', { class: 'em-calm' }, guidance?.not_in_zone ?? route.reason), afterSteps];
   else {
-    const demo = state.demo || em?.place?.demo;
+    const demo = state.demo;
     const view = routeView(route, plan.building, { onMap: (m) => { run.ui.map = m; } });
+    const speedBtn = demo ? h('button', { class: 'em-speed', onclick: () => {
+      run.demoSpeed = DEMO_SPEEDS[(DEMO_SPEEDS.indexOf(run.demoSpeed) + 1) % DEMO_SPEEDS.length];
+      speedBtn.textContent = `Walker speed ${run.demoSpeed}x`;
+    } }, `Walker speed ${run.demoSpeed}x`) : null;
     body = [
-      h('p', { class: 'em-go' }, guidance?.go_now ?? 'Go now, on foot, inland or to high ground.'),
       route.kind === 'walking_route' ? h('div', { class: 'em-turn' },
         h('p', { class: 'em-label' }, 'Next'), nextLine,
-        h('div', { class: 'em-pos-row' }, demo ? demoTag('Demo walker') : null, positionLine,
-          demo ? h('button', { class: 'em-speed', onclick: () => { run.demoSpeed = DEMO_SPEEDS[(DEMO_SPEEDS.indexOf(run.demoSpeed) + 1) % DEMO_SPEEDS.length]; } },
-            'Speed') : null)) : null,
+        h('div', { class: 'em-pos-row' }, demo ? demoTag('Demo walker') : null, positionLine, speedBtn)) : null,
+      h('p', { class: route.kind === 'walking_route' ? 'em-go em-go-small' : 'em-go' }, guidance?.go_now ?? 'Go now, on foot, inland or to high ground.'),
       view,
       guidance ? h('p', { class: 'em-muted' }, guidance.stay_away) : null,
       h('h2', { class: 'em-label' }, 'Also'),

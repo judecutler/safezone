@@ -67,7 +67,7 @@ test('a full walk says every maneuver once, never repeats a cue, and ends with a
   assert.match(said.at(-1).text, /outside the mapped tsunami hazard area/);
   assert.ok(!insideHazard(hazard, route.destination), 'the destination is outside the CGS hazard polygons');
   assert.ok(insideHazard(hazard, route.origin), 'the origin is inside them');
-  for (const s of said) assert.doesNotMatch(s.text, /\bsafe\b/i);
+  for (const s of said) assert.doesNotMatch(s.text.replace('officials say it is safe', ''), /\bsafe\b/i, 'SafeZone never calls anything safe itself');
 });
 
 test('standing still on the route produces one cue, not a cue every second', () => {
@@ -96,6 +96,17 @@ test('off route: says which way the route is, once, then resumes turn cues when 
   assert.ok(back && back.key.startsWith('step:'), 'turn cues resume');
 });
 
+test('off route but already outside the hazard polygons: never pointed back toward the route', () => {
+  const outsideSpot = offset(route.destination, 120, 60);
+  assert.ok(!insideHazard(hazard, outsideSpot));
+  const prog = progress(route, outsideSpot);
+  assert.ok(prog.offRouteM > OFF_ROUTE_M && !prog.arrived);
+  const c = cue(route, prog, null, { outsideHazard: true });
+  assert.equal(c.key, 'arrive');
+  assert.match(c.text, /outside the mapped tsunami hazard area/);
+  assert.doesNotMatch(c.text, /to your/);
+});
+
 test('far off route falls back to the fixed inland-and-uphill line', () => {
   const far = offset(route.origin, 0, -600);
   const c = cue(route, progress(route, far), null);
@@ -113,4 +124,20 @@ test('arrival near the destination fires even when the fix is a few metres past 
 test('a route with no steps gives no cue instead of throwing', () => {
   const bare = { ...route, steps: [] };
   assert.equal(cue(bare, progress(bare, route.origin), null), null);
+});
+
+// Standby: the detector that decides "sustained shaking" is pure, so it is checked here too.
+import { shakeDetector } from '../js/standby.js';
+
+test('standby ignores a single jolt and fires on two seconds of strong shaking', () => {
+  const det = shakeDetector();
+  let fired = false;
+  for (let t = 0; t < 3000; t += 20) fired = det.push(t, t === 1000 ? 25 : 0.3) || fired;
+  assert.equal(fired, false, 'one jolt');
+  det.reset();
+  fired = false;
+  for (let t = 0; t < 1500; t += 20) fired = det.push(t, 9) || fired;
+  assert.equal(fired, false, 'strong but under two seconds');
+  for (let t = 1500; t < 2400; t += 20) fired = det.push(t, 9) || fired;
+  assert.equal(fired, true, 'strong for two seconds');
 });

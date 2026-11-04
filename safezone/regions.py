@@ -22,7 +22,7 @@ from .japan import rules as jp_rules
 from .japan.tiles import TileUnavailable
 from .japan.tiles import live_transport as _jp_live_transport
 from .route.pipeline import plan_route
-from .shapes import BuildingProfile, DirectionOnly, Geocode, Household, LonLat, Shape, ShelterResult, WalkingRoute
+from .shapes import BuildingProfile, DirectionOnly, EvacRoute, Geocode, Household, LonLat, Shape, ShelterResult, WalkingRoute
 from .shelter.pipeline import find_shelters
 from .transport import HttpError, Transport
 
@@ -42,8 +42,8 @@ class NoCoverage(Shape):
 
 
 class Evacuation(Shape):
-    route: Any
-    """An EvacRoute, or japan.shapes.SiteRoute, or None when the hazard map was unavailable."""
+    route: EvacRoute | None
+    """None when the hazard map was unavailable."""
     shelters: ShelterResult | None
     shelters_error: str | None
 

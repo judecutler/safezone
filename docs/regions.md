@@ -31,7 +31,7 @@ Still unverified, and the recording will answer both:
 4. The shortest route that passes becomes a `SiteRoute`. If none passes, or a tile fails, the answer is `NoCheckedRoute` with "Move inland and to higher ground on foot", the same as the US fallback.
 5. After shaking, the "shelters" list holds the designated sites outside the mapped area, ranked by OSRM walking time. Each is labelled as an evacuation site, not a place to stay. GSI lists no access data, so a wheelchair household gets no matches and the exclusions are counted (fail closed, as with FEMA).
 
-Shape added: `safezone/japan/shapes.py` `SiteRoute` (kind `site_route`) and `EvacSite`. It is needed because `WalkingRoute.destination_kind` can only be `outside_hazard_area`, and an evacuation building sits inside the area. Every flag, site and route carries its source URL and provenance.
+Shape added: `SiteRoute` (kind `site_route`) and `EvacSite`, in `safezone/shapes.py`, and `SiteRoute` is part of `EvacRoute`. It is needed because `WalkingRoute.destination_kind` can only be `outside_hazard_area`, and an evacuation building sits inside the area. Every flag, site and route carries its source URL and provenance.
 
 ## Integration: the exact change `app.py` needs
 
@@ -63,7 +63,7 @@ Shape added: `safezone/japan/shapes.py` `SiteRoute` (kind `site_route`) and `Eva
 4. `/api/guidance?region=jp` returns `regions.guidance(request.query_params.get("region"))`. The `us-ca` payload has the same keys as today. `jp` adds `quotes` (`ja`, `en`, `source_url` for each line), and the UI should show `ja` under `en`.
 5. `shapes.EvacRoute` gains `SiteRoute`, so a saved plan validates:
    `EvacRoute = Annotated[WalkingRoute | SiteRoute | DirectionOnly | NoCheckedRoute | NotInZone, Field(discriminator="kind")]`.
-   Import `SiteRoute` lazily or move `japan/shapes.py` into `shapes.py`, because `japan/shapes.py` imports `shapes`.
+   Done: `SiteRoute` and `EvacSite` now live in `shapes.py`, and `japan/shapes.py` is gone.
 6. Web. `routeView` draws `site_route` like `walking_route` and adds `route.site.name`, `route.site.instruction` and `route.site.depth`. The places list shows `no_coverage` as a grey "No data" flag.
 
 ## Adding a third region
