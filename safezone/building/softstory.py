@@ -45,7 +45,7 @@ class StreetAddress:
 
 
 def normalize_address(text: str) -> StreetAddress | None:
-    tokens = text.split(",")[0].upper().replace(".", " ").split()
+    tokens = [t for t in text.split(",")[0].upper().replace(".", " ").split() if any(ch.isalnum() for ch in t)]
     m = NUMBER.match(tokens[0]) if tokens else None
     if not m:
         return None
@@ -63,8 +63,22 @@ def normalize_address(text: str) -> StreetAddress | None:
     return StreetAddress(lo, int(m.group(3) or lo), m.group(2), " ".join(street))
 
 
+def same_street(a: str, b: str) -> bool:
+    """Equal streets. DataSF sometimes leaves the suffix off ("1230 LA PLAYA"); then the names alone decide.
+    Two different suffixes never match: San Francisco has both a 24th Street and a 24th Avenue."""
+    if a == b:
+        return True
+    core_a, core_b = _core(a), _core(b)
+    return core_a == core_b and (core_a == a or core_b == b)
+
+
+def _core(street: str) -> str:
+    words = street.split()
+    return " ".join(words[:-1]) if len(words) > 1 and words[-1] in ABBREVIATIONS else street
+
+
 def same_building(ours: StreetAddress, theirs: StreetAddress) -> bool:
-    if ours.street != theirs.street:
+    if not same_street(ours.street, theirs.street):
         return False
     if ours.lo == ours.hi and theirs.lo == theirs.hi:
         return (ours.lo, ours.letter) == (theirs.lo, theirs.letter)

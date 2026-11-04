@@ -134,3 +134,12 @@ def test_real_datasf_rows_match_typed_addresses():
     assert parse_sf(normalize_address("2267 Hayes Street"), REAL_SF_ROWS) == ["Work Complete, CFC Issued"]
     assert parse_sf(normalize_address("1401 24th Street"), REAL_SF_ROWS) == []
     assert is_complete("Work Complete, CFC Issued")
+
+
+def test_datasf_rows_without_a_suffix_or_with_stray_symbols_still_match():
+    from safezone.building.softstory import parse_sf
+
+    rows = [{"property_address": "1230 LA PLAYA *", "status": "Work Complete, CFC Issued"}]
+    assert parse_sf(normalize_address("1230 La Playa Street, San Francisco"), rows) == ["Work Complete, CFC Issued"]
+    assert parse_sf(normalize_address("1230 La Playa"), rows) == ["Work Complete, CFC Issued"]
+    assert parse_sf(normalize_address("1230 La Playa Avenue"), [{"property_address": "1230 LA PLAYA ST", "status": "x"}]) == []
