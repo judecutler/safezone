@@ -156,3 +156,17 @@ def test_steps_are_built_from_maneuvers():
     assert [s.distance_m for s in parsed.steps] == [210.5, 240, 30, 0]
     assert osrm.parse_route({"code": "NoRoute", "routes": []}) is None
     assert osrm.parse_route({"code": "Ok", "routes": []}) is None
+
+
+def test_zero_length_turns_are_dropped_but_arrive_stays():
+    from safezone.route.osrm import parse_route
+
+    def step(kind, modifier, name, distance):
+        return {"maneuver": {"type": kind, "modifier": modifier, "bearing_after": 0}, "name": name, "distance": distance}
+
+    data = {"code": "Ok", "routes": [{"distance": 300.0, "geometry": {"coordinates": [[0, 0], [0, 0.001]]},
+            "legs": [{"steps": [step("depart", None, "48th Avenue", 220.0), step("turn", "right", "Fulton Street", 80.0),
+                                step("turn", "right", "46th Avenue", 0.0), step("arrive", None, "", 0.0)]}]}]}
+    steps = parse_route(data).steps
+    assert [s.distance_m for s in steps] == [220.0, 80.0, 0.0]
+    assert steps[-1].instruction.startswith("Arrive")

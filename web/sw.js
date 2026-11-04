@@ -1,5 +1,5 @@
 // Bump VERSION whenever any file in SHELL changes, so phones pick up the new shell.
-const VERSION = 'safezone-v2';
+const VERSION = 'safezone-v3';
 const SHELL = [
   '/',
   '/index.html',

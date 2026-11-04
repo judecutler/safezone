@@ -1,8 +1,9 @@
 """Standalone probe: calls each outside API once and saves the raw responses.
 
 No dependencies beyond the Python 3 standard library and no SafeZone code.
-Usage:
-    META_API_KEY=... python3 probe_apis.py path/to/room.jpg
+Usage (the key comes from the environment or a .env file next to this script or in the current folder):
+    python probe_apis.py path/to/room.jpg
+    PowerShell: $env:META_API_KEY = "your-key"; python probe_apis.py path\to\room.jpg
 It writes probe_out.json next to itself. The key is never written to the file.
 """
 import base64
@@ -16,6 +17,19 @@ import urllib.request
 from pathlib import Path
 
 UA = "SafeZone/0.1 (Meta hackathon earthquake and tsunami prep)"
+
+
+def _dotenv():
+    for folder in (Path(__file__).resolve().parent, Path.cwd()):
+        env = folder / ".env"
+        if env.exists():
+            for line in env.read_text(encoding="utf-8-sig").splitlines():
+                key, sep, value = line.partition("=")
+                if sep and not key.strip().startswith("#"):
+                    os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
+_dotenv()
 BASE = os.environ.get("META_API_BASE", "https://api.meta.ai/v1").rstrip("/")
 KEY = os.environ.get("META_API_KEY", "")
 HOME = (-122.51005, 37.76966)
@@ -44,7 +58,11 @@ def call(method, url, params=None, body=None, headers=None, timeout=120):
 def main():
     photo = Path(sys.argv[1]) if len(sys.argv) > 1 else None
     auth = {"Authorization": f"Bearer {KEY}"} if KEY else {}
-    results = {}
+    results = {"key_loaded": bool(KEY), "photo": str(photo) if photo else None}
+    if not KEY:
+        print("No META_API_KEY found (environment or .env); Meta calls will fail with 401.")
+    if not photo:
+        print("No photo path given; SAM 3.1 and Muse Spark calls are skipped.")
     results["meta_models"] = call("GET", f"{BASE}/models", headers=auth)
     if photo and KEY:
         image_url = "data:image/jpeg;base64," + base64.b64encode(photo.read_bytes()).decode()
@@ -74,7 +92,8 @@ def main():
                                          {"where": "1=1", "outFields": "*", "resultRecordCount": 3, "f": "json"})
     OUT.write_text(json.dumps(results, indent=1))
     for name, r in results.items():
-        print(f"{name:28s} {r['status']}  {r['seconds']}s")
+        if isinstance(r, dict):
+            print(f"{name:28s} {r['status']}  {r['seconds']}s  {'' if r['status'] == 200 else r['text'][:120]}")
     print(f"saved {OUT}")
 
 

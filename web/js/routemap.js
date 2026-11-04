@@ -21,9 +21,10 @@ export function routeMap(route, hazardPolygons) {
   const pts = (route.path?.length ? route.path : [route.origin, route.destination]).map(toSvg);
   const line = pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
   const [ox, oy] = toSvg(route.origin), [dx, dy] = toSvg(route.destination);
-
   const scaleLen = niceLength(vb.w * 0.3);
-  const sx = vb.x + 4 * u, sy = vb.y + vb.h - 5 * u, sw = scaleLen;
+  // The scale bar takes the bottom corner away from home, so the HOME label stays readable.
+  const homeOnLeft = ox < vb.x + vb.w / 2;
+  const sx = homeOnLeft ? vb.x + vb.w - 4 * u - scaleLen : vb.x + 4 * u, sy = vb.y + vb.h - 5 * u, sw = scaleLen;
   const nx = vb.x + vb.w - 7 * u, ny = vb.y + 6 * u;
 
   // Labels sit on the side of their marker that faces the middle of the map, so they never run off the edge.
