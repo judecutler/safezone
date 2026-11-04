@@ -203,13 +203,15 @@ def classify(jpeg: bytes, segments: list[Segment], image_size: tuple[int, int], 
     if not segments:
         return Classification([], [], None, None, called=False, ok=True, provenance=None, notes=[])
     user = user_prompt(segments, image_size)
+    reason = ""
     for _ in range(2):
         try:
             data, provenance = client.vision_json(jpeg, SYSTEM_PROMPT, user, "room_classification", SCHEMA)
             classified, relations, floor, exit_note = parse_classification(data, segments, image_size)
-        except (HttpError, MetaUnavailable, ValueError, ValidationError, KeyError, IndexError, TypeError):
+        except (HttpError, MetaUnavailable, ValueError, ValidationError, KeyError, IndexError, TypeError) as exc:
+            reason = f"{type(exc).__name__}: {str(exc)[:300]}"
             continue
         return Classification(classified, relations, floor, exit_note, True, True, provenance, [])
     fallback = [Classified(segment=s, role="neutral", hazard_kind=None, reason="Not classified.") for s in segments]
     return Classification(fallback, [], None, None, called=True, ok=False, provenance=None,
-                          notes=[CLASSIFIER_UNAVAILABLE])
+                          notes=[CLASSIFIER_UNAVAILABLE, f"Muse Spark error: {reason}"])

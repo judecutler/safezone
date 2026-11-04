@@ -70,7 +70,7 @@ class MetaClient:
             ],
         }
         data, provenance = post_json(self.transport, f"{self.settings.meta_api_base}/chat/completions",
-                                     body, self._headers(), timeout_s=120)
+                                     body, self._headers(), timeout_s=180)
         content = data["choices"][0]["message"]["content"]
         return json.loads(content), provenance
 

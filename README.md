@@ -63,7 +63,7 @@ python -m pytest -q
 
 ### Deploy
 
-The quickest public URL is Vercel's free Hobby plan. Push the repo to GitHub, import it at vercel.com/new, add `MODEL_API_KEY` under Settings, Environment Variables, and deploy. `index.py` is the entry point, and every push redeploys. The scan call takes tens of seconds, and `vercel.json` allows it 120 s. Photos are resized to at most 1600 px in the browser first, so uploads stay well under Vercel's 4.5 MB request limit.
+The quickest public URL is Vercel's free Hobby plan. Push the repo to GitHub, import it at vercel.com/new, add `MODEL_API_KEY` under Settings, Environment Variables, and deploy. `index.py` is the entry point, and every push redeploys. The scan call takes tens of seconds, and `vercel.json` allows it 300 s, the Hobby plan maximum. Photos are resized to at most 1600 px in the browser first, so uploads stay well under Vercel's 4.5 MB request limit.
 
 Modal also works: `modal deploy modal_app.py`.
 

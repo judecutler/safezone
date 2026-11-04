@@ -89,7 +89,7 @@ def test_retries_once_then_succeeds():
 def test_two_bad_answers_fall_back_to_neutral():
     t = ChatTransport((200, {"segments": "nope"}), (599, {}))
     result = classify(b"jpeg", SEGS, SIZE, MetaClient(t, SETTINGS))
-    assert not result.ok and result.called and result.notes == [CLASSIFIER_UNAVAILABLE]
+    assert not result.ok and result.called and result.notes[0] == CLASSIFIER_UNAVAILABLE and result.notes[1].startswith("Muse Spark error: ")
     assert {c.role for c in result.classified} == {"neutral"}
 
 
