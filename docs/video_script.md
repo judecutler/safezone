@@ -8,7 +8,7 @@ Every line below matches what the redesigned app shows or says. Facts in the voi
 - If a previous take left demo places, tap "Exit demo" first. The landing page should be the first screen.
 - Use a second phone, or screen recording plus a short shot of a hand holding the phone.
 - Check the labels on the shelter cards. SAMPLE DATA is expected, because FEMA listed no open shelters on the night we recorded. Never call those cards live or real.
-- If you recorded Kamakura and the go bag this morning, their cards show recorded data. If not, they show SAMPLE DATA. Say only what the card says.
+- Kamakura and the go bag are recorded data (Nov 4). The go-bag card shows 2 of 14 items seen. Kamakura shows no checked route, on purpose: say only what the card says.
 - Don't say: "safe route", "safest spot", "guarantees", "would have saved", or "that night" about Dec 5, 2024 (it was 10:44 a.m.).
 
 ## Hook (0:00 to 0:20). Landing page, the neighborhood loop playing.
@@ -25,7 +25,7 @@ Every line below matches what the redesigned app shows or says. Facts in the voi
 | 0:20 | Tap "Run the demo"; "Finding your location…", then "Found: 1000 Great Highway"; the map on the left flies to the home | "Setup finds where you are and gets to work right away." |
 | 0:26 | The map shades the official hazard area, then draws the checked route to high ground and the shelters; the findings list grows on the left | "While you take photos, it checks the official tsunami hazard map. This home is inside it. It works out a walking route to high ground and checks it in code, and finds shelters that fit the household." |
 | 0:36 | The quality ring fills; "Stand in the doorway and fit the whole room in"; tap the shutter | "One wide photo per room. The meter coaches the shot: light, focus, steady, level." |
-| 0:44 | "Bedroom saved", then Next; skip through The way out, Go bag, Gas shutoff (or show the go-bag card if recorded) | "Then the things people forget: the way out, the go bag, the gas shutoff. Muse Spark ticks off which basic-kit items it can see in the go-bag photo, and never tells you the kit is enough. Skip anything, come back to anything." |
+| 0:44 | "Bedroom saved", then Next; skip The way out; tap the shutter on Go bag (the recorded photo, "Go bag saved"); skip Gas shutoff | "Then the things people forget: the way out, the go bag, the gas shutoff. Muse Spark ticks off which basic-kit items it can see in the go-bag photo, and never tells you the kit is enough. Skip anything, come back to anything." |
 | 0:58 | Review: the room result with outlined, numbered hazards | "SAM 3.1 outlines everything that could fall. Two tall wardrobes that can tip, wardrobe doors that can swing open, a box stored up high." |
 | 1:06 | "What Muse Spark noticed" and the spot card with the set-aside line | "Muse Spark reasons about the room. The left bed is in the wardrobes' tipping zone; the box sits above the other bed. It suggested a spot on the floor, and SafeZone's own checks set it aside: it's in a doorway. The model proposes; code decides." |
 | 1:18 | The fixes list; tap "Save this place" | "The fixes come from a fixed table, never from the model. Save it, and this is a mapped place." |
@@ -39,7 +39,7 @@ Every line below matches what the redesigned app shows or says. Facts in the voi
 | 1:33 | Tap "Simulate an earthquake"; the screen shakes and goes dark | (Let the app speak: "This is a demo." "Drop, cover and hold on. No table nearby: get next to an interior wall, away from windows, and cover your head and neck.") |
 | 1:45 | The shaking screen, hands off the phone | "In an emergency you can't be tapping a phone. During shaking it says one thing, and nothing on this screen tells you to move." |
 | 1:53 | Tap "Shaking has stopped" | (Let the app speak the go-now line: "You are in a tsunami hazard area. Strong shaking, or shaking that lasts 20 seconds or more, means a tsunami may be coming. Go now, on foot...") |
-| 2:05 | "Walk to the nearby path", the route map with the walker; tap "Walker speed 8x" | (Let it speak one or two turns.) "Then it talks you out, turn by turn, along a route that's stored on the phone and works offline." |
+| 2:05 | The app says "Walk to the nearby path"; the Next card reads "Head north in 120 m"; the route map with the walker; tap "Walker speed 8x" | (Let it speak one or two turns.) "Then it talks you out, turn by turn, along a route that's stored on the phone and works offline." |
 | 2:15 | "10 min, 600 m to outside the hazard area" | "Every route is checked in code: it has to end outside the official hazard area, on mapped land, and never lead you deeper into it." |
 | 2:23 | Arrival line; the shelters screen with the SAMPLE DATA tag in frame | "When you're out, it lists shelters that fit your household. These are sample cards, because no shelters were open the night we recorded, and the app says so." |
 
@@ -52,5 +52,5 @@ Every line below matches what the redesigned app shows or says. Facts in the voi
 
 ## If you have time for one more shot
 
-- Kamakura (0:10, between 2:23 and 2:30): open Demo: Kamakura and show "the designated evacuation site". Line: "In Japan it guides you to the nearest officially designated tsunami evacuation site."
+- Kamakura (0:10, between 2:23 and 2:30): open Demo: Kamakura, show "SafeZone could not check a route" and the list of designated sites below it. Line: "In Kamakura, no route to a designated site passed its checks, so it says so, gives the official advice, and lists the nearest designated sites. It won't draw a line it can't check."
 - Airplane mode: switch it on before tapping "Simulate an earthquake" to show the emergency works offline.
