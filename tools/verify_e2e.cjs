@@ -227,6 +227,7 @@ async function demoFlow(browser) {
   const nowCues = afterLines.filter((t) => steps.slice(1, -1).some((s) => t.toLowerCase() === `${s}.`)).map((t) => t.slice(0, -1).toLowerCase());
   check(JSON.stringify(nowCues) === JSON.stringify(steps.slice(1, -1)), `every turn is announced at the turn, in order (${nowCues.join(' / ')})`);
   console.log('     after voice:', JSON.stringify(afterLines));
+  check(afterLines[1] === `${demo.plan.route.steps[0].instruction}.`, `first route step spoken right after go-now (${JSON.stringify(afterLines[1])})`);
   check(arrived, 'arrival line spoken');
   check(afterLines.includes(usGuidance.stay_away), 'stay-away line spoken on arrival');
   await shot('after-arrived', true);
