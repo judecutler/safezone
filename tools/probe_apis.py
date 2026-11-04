@@ -3,7 +3,7 @@
 No dependencies beyond the Python 3 standard library and no SafeZone code.
 Usage (the key comes from the environment or a .env file next to this script or in the current folder):
     python probe_apis.py path/to/room.jpg
-    PowerShell: $env:META_API_KEY = "your-key"; python probe_apis.py path\to\room.jpg
+    PowerShell: $env:MODEL_API_KEY = "your-key"; python probe_apis.py path\to\room.jpg
 It writes probe_out.json next to itself. The key is never written to the file.
 """
 import base64
@@ -31,7 +31,7 @@ def _dotenv():
 
 _dotenv()
 BASE = os.environ.get("META_API_BASE", "https://api.meta.ai/v1").rstrip("/")
-KEY = os.environ.get("META_API_KEY", "")
+KEY = os.environ.get("MODEL_API_KEY") or os.environ.get("META_API_KEY", "")
 HOME = (-122.51005, 37.76966)
 OUT = Path(__file__).with_name("probe_out.json")
 
@@ -60,7 +60,7 @@ def main():
     auth = {"Authorization": f"Bearer {KEY}"} if KEY else {}
     results = {"key_loaded": bool(KEY), "photo": str(photo) if photo else None}
     if not KEY:
-        print("No META_API_KEY found (environment or .env); Meta calls will fail with 401.")
+        print("No MODEL_API_KEY found (environment or .env); Meta calls will fail with 401.")
     if not photo:
         print("No photo path given; SAM 3.1 and Muse Spark calls are skipped.")
     results["meta_models"] = call("GET", f"{BASE}/models", headers=auth)

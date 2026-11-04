@@ -1,6 +1,6 @@
 """Scan one room photo and print the ranked safe spots and fixes.
 
-  python run.py PHOTO                          live Meta Model API (needs META_API_KEY)
+  python run.py PHOTO                          live Meta Model API (needs MODEL_API_KEY)
   python run.py PHOTO --fixtures DIR           replay saved responses, no network
   python run.py PHOTO --record-samples DIR     answer from tools/samples and save the exchanges to DIR
   python run.py PHOTO --record DIR             live, and save the exchanges to DIR

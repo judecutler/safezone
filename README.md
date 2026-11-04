@@ -44,7 +44,7 @@ Requires Python 3.12 or later.
 
 ```sh
 pip install -r requirements.txt
-cp .env.example .env            # add META_API_KEY from dev.meta.ai
+cp .env.example .env            # add MODEL_API_KEY from dev.meta.ai
 python tools/record_fixtures.py # optional: record real responses for the demo household
 uvicorn safezone.app:create_app --factory --port 8000
 ```
@@ -63,7 +63,7 @@ python -m pytest -q
 
 ### Deploy
 
-The quickest public URL is Vercel's free Hobby plan. Push the repo to GitHub, import it at vercel.com/new, add `META_API_KEY` under Settings, Environment Variables, and deploy. `index.py` is the entry point, and every push redeploys. The scan call takes tens of seconds, and `vercel.json` allows it 120 s. Photos are resized to at most 1600 px in the browser first, so uploads stay well under Vercel's 4.5 MB request limit.
+The quickest public URL is Vercel's free Hobby plan. Push the repo to GitHub, import it at vercel.com/new, add `MODEL_API_KEY` under Settings, Environment Variables, and deploy. `index.py` is the entry point, and every push redeploys. The scan call takes tens of seconds, and `vercel.json` allows it 120 s. Photos are resized to at most 1600 px in the browser first, so uploads stay well under Vercel's 4.5 MB request limit.
 
 Modal also works: `modal deploy modal_app.py`.
 

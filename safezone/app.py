@@ -2,7 +2,7 @@
 
 The server stores nothing: photos and addresses live only for the request.
 Configuration comes from the environment:
-- META_API_KEY etc.: see config.py.
+- MODEL_API_KEY etc.: see config.py.
 - SAFEZONE_FIXTURES=<dir>: answer outside calls from saved fixtures instead of
   the network (offline demo, tests).
 - SAFEZONE_SHELTER_SNAPSHOT=<dir>: take FEMA shelter data from a saved snapshot

@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parent.parent
 def _load_dotenv(path: Path) -> None:
     if not path.exists():
         return
-    for line in path.read_text().splitlines():
+    for line in path.read_text(encoding="utf-8-sig").splitlines():
         line = line.strip()
         if not line or line.startswith("#") or "=" not in line:
             continue
@@ -30,7 +30,7 @@ class Settings:
 def load_settings() -> Settings:
     _load_dotenv(ROOT / ".env")
     return Settings(
-        meta_api_key=os.environ.get("META_API_KEY") or None,
+        meta_api_key=os.environ.get("MODEL_API_KEY") or os.environ.get("META_API_KEY") or None,
         meta_api_base=os.environ.get("META_API_BASE", "https://api.meta.ai/v1").rstrip("/"),
         vision_model=os.environ.get("META_VISION_MODEL", "muse-spark-1.3"),
         segment_model=os.environ.get("META_SEGMENT_MODEL", "sam-3.1"),

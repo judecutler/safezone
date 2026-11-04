@@ -1,6 +1,6 @@
 """Record real responses for the demo household, replacing the SAMPLE fixtures.
 
-Run on a machine with internet access and META_API_KEY in .env:
+Run on a machine with internet access and MODEL_API_KEY in .env:
     python tools/record_fixtures.py
 It lists the Meta models your key can call, runs every pipeline live while
 saving each exchange to fixtures/demo, then rebuilds demo/plan.json from them.
@@ -31,7 +31,7 @@ def main() -> None:
     args = parser.parse_args()
     settings = load_settings()
     if not settings.meta_api_key:
-        raise SystemExit("META_API_KEY is not set (put it in .env)")
+        raise SystemExit("MODEL_API_KEY is not set (put it in .env)")
     live = LiveTransport()
     models = MetaClient(live, settings).list_models()
     (ROOT / "fixtures").mkdir(exist_ok=True)
