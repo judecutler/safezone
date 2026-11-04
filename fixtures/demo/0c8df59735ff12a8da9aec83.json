@@ -11,6 +11,6 @@
   }
  },
  "status": 200,
- "provenance": "sample",
- "text": "[{\"place_id\": 1, \"lat\": \"37.76966\", \"lon\": \"-122.51005\", \"display_name\": \"Beach Chalet, 1000 Great Highway, Outer Richmond, San Francisco, California, 94121, United States\", \"category\": \"amenity\", \"type\": \"building\", \"address\": {\"amenity\": \"Beach Chalet\", \"house_number\": \"1000\", \"road\": \"Great Highway\", \"suburb\": \"Outer Richmond\", \"city\": \"San Francisco\", \"county\": \"San Francisco\", \"state\": \"California\", \"postcode\": \"94121\", \"country\": \"United States\", \"country_code\": \"us\"}}]"
+ "provenance": "recorded",
+ "text": "[{\"place_id\":323488195,\"licence\":\"Data \u00a9 OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright\",\"osm_type\":\"node\",\"osm_id\":417235974,\"lat\":\"37.7694736\",\"lon\":\"-122.5099836\",\"category\":\"amenity\",\"type\":\"restaurant\",\"place_rank\":30,\"importance\":8.251392385743523e-05,\"addresstype\":\"amenity\",\"name\":\"Beach Chalet Brewery & Restaurant\",\"display_name\":\"Beach Chalet Brewery & Restaurant, 1000, Great Highway, Sunset District, San Francisco, California, 94121, United States\",\"address\":{\"amenity\":\"Beach Chalet Brewery & Restaurant\",\"house_number\":\"1000\",\"road\":\"Great Highway\",\"suburb\":\"Sunset District\",\"city\":\"San Francisco\",\"state\":\"California\",\"ISO3166-2-lvl4\":\"US-CA\",\"postcode\":\"94121\",\"country\":\"United States\",\"country_code\":\"us\"},\"boundingbox\":[\"37.7694236\",\"37.7695236\",\"-122.5100336\",\"-122.5099336\"]}]"
 }

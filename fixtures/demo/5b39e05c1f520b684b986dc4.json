@@ -1,0 +1,19 @@
+{
+ "request": {
+  "method": "GET",
+  "url": "https://gis.fema.gov/arcgis/rest/services/NSS/OpenShelters/FeatureServer/0/query",
+  "params": {
+   "distance": "25000",
+   "f": "json",
+   "geometry": "-122.507734,37.772346",
+   "geometryType": "esriGeometryPoint",
+   "inSR": "4326",
+   "outFields": "*",
+   "returnGeometry": "false",
+   "units": "esriSRUnit_Meter"
+  }
+ },
+ "status": 200,
+ "provenance": "recorded",
+ "text": "{\"objectIdFieldName\":\"objectid\",\"globalIdFieldName\":\"\",\"geometryType\":\"esriGeometryPoint\",\"spatialReference\":{\"wkid\":4326,\"latestWkid\":4326},\"features\":[]}"
+}
