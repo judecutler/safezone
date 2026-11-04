@@ -1,0 +1,695 @@
+{
+ "plan": {
+  "building": {
+   "address": "1000 Great Highway, San Francisco, CA 94121",
+   "display_name": "Beach Chalet, 1000 Great Highway, Outer Richmond, San Francisco, California, 94121, United States",
+   "lon": -122.51005,
+   "lat": 37.76966,
+   "city": "San Francisco",
+   "footprint": [
+    [
+     -122.5102548,
+     37.7695521
+    ],
+    [
+     -122.5098452,
+     37.7695521
+    ],
+    [
+     -122.5098452,
+     37.7697679
+    ],
+    [
+     -122.5102548,
+     37.7697679
+    ],
+    [
+     -122.5102548,
+     37.7695521
+    ]
+   ],
+   "flags": [
+    {
+     "kind": "tsunami_zone",
+     "tone": "alert",
+     "value": "In the tsunami hazard area",
+     "detail": "California's official tsunami hazard map includes this address. After strong or long shaking, leave on foot right away.",
+     "status": null,
+     "source_name": "California Geological Survey: Tsunami Hazard Area map",
+     "source_url": "https://www.conservation.ca.gov/cgs/tsunami/maps",
+     "provenance": "sample"
+    },
+    {
+     "kind": "soft_story",
+     "tone": "info",
+     "value": "Not found in San Francisco's soft-story list",
+     "detail": "Not being on the list is not proof the building is not soft-story; the list covers the city's mandatory program only.",
+     "status": null,
+     "source_name": "DataSF: Soft-Story Properties (Mandatory Soft Story Program)",
+     "source_url": "https://data.sfgov.org/d/beah-shgi",
+     "provenance": "sample"
+    },
+    {
+     "kind": "storeys",
+     "tone": "info",
+     "value": "2 storeys",
+     "detail": "From OpenStreetMap; volunteers map this and it can be wrong.",
+     "status": null,
+     "source_name": "OpenStreetMap",
+     "source_url": "https://www.openstreetmap.org/?mlat=37.76966&mlon=-122.51005#map=19/37.76966/-122.51005",
+     "provenance": "sample"
+    }
+   ],
+   "hazard_area": {
+    "contains_home": true,
+    "polygons": [
+     [
+      [
+       [
+        -122.54,
+        37.74
+       ],
+       [
+        -122.54,
+        37.79
+       ],
+       [
+        -122.512,
+        37.79
+       ],
+       [
+        -122.509,
+        37.782
+       ],
+       [
+        -122.5081,
+        37.7745
+       ],
+       [
+        -122.5085,
+        37.768
+       ],
+       [
+        -122.5078,
+        37.761
+       ],
+       [
+        -122.5072,
+        37.752
+       ],
+       [
+        -122.5068,
+        37.74
+       ],
+       [
+        -122.54,
+        37.74
+       ]
+      ]
+     ]
+    ],
+    "county": "San Francisco",
+    "map_url": "https://www.conservation.ca.gov/cgs/tsunami/maps",
+    "source_url": "https://gis.conservation.ca.gov/server/rest/services/CGS/IW_Tsunami_Hazard_Area/FeatureServer/0"
+   },
+   "provenance": "sample"
+  },
+  "household": {
+   "children": true,
+   "wheelchair": true,
+   "medical": false,
+   "pets": true
+  },
+  "rooms": [
+   {
+    "id": "e90d4be77504",
+    "name": "Bedroom",
+    "image_size": [
+     1600,
+     900
+    ],
+    "classified": [
+     {
+      "segment": {
+       "id": "bookshelf-0",
+       "label": "bookshelf",
+       "bbox": [
+        1136.0,
+        238.0,
+        1378.0,
+        548.0
+       ],
+       "outline": null,
+       "area_px": 75020.0,
+       "centroid": [
+        1257.0,
+        393.0
+       ],
+       "touches_floor": false,
+       "height_ratio": 0.344,
+       "confidence": 0.84
+      },
+      "role": "hazard",
+      "hazard_kind": "tall_furniture",
+      "reason": "Tall wire shelf with cartons on top; no wall anchor is visible."
+     },
+     {
+      "segment": {
+       "id": "cabinet-0",
+       "label": "cabinet",
+       "bbox": [
+        576.0,
+        140.0,
+        854.0,
+        256.0
+       ],
+       "outline": null,
+       "area_px": 32248.0,
+       "centroid": [
+        715.0,
+        198.0
+       ],
+       "touches_floor": false,
+       "height_ratio": 0.129,
+       "confidence": 0.63
+      },
+      "role": "hazard",
+      "hazard_kind": "heavy_up_high",
+      "reason": "Open shelf above the wardrobes holds bottles and bags."
+     },
+     {
+      "segment": {
+       "id": "wardrobe-0",
+       "label": "wardrobe",
+       "bbox": [
+        164.0,
+        188.0,
+        668.0,
+        812.0
+       ],
+       "outline": null,
+       "area_px": 314496.0,
+       "centroid": [
+        416.0,
+        500.0
+       ],
+       "touches_floor": true,
+       "height_ratio": 0.693,
+       "confidence": 0.91
+      },
+      "role": "hazard",
+      "hazard_kind": "tall_furniture",
+      "reason": "Tall wooden wardrobe, door open, no wall anchor visible."
+     },
+     {
+      "segment": {
+       "id": "wardrobe-1",
+       "label": "wardrobe",
+       "bbox": [
+        708.0,
+        252.0,
+        868.0,
+        788.0
+       ],
+       "outline": null,
+       "area_px": 85760.0,
+       "centroid": [
+        788.0,
+        520.0
+       ],
+       "touches_floor": true,
+       "height_ratio": 0.596,
+       "confidence": 0.89
+      },
+      "role": "hazard",
+      "hazard_kind": "tall_furniture",
+      "reason": "Tall wooden wardrobe next to the door, no wall anchor visible."
+     },
+     {
+      "segment": {
+       "id": "ceiling-light-0",
+       "label": "ceiling light",
+       "bbox": [
+        774.0,
+        4.0,
+        804.0,
+        44.0
+       ],
+       "outline": null,
+       "area_px": 1200.0,
+       "centroid": [
+        789.0,
+        24.0
+       ],
+       "touches_floor": false,
+       "height_ratio": 0.044,
+       "confidence": 0.77
+      },
+      "role": "neutral",
+      "hazard_kind": null,
+      "reason": "Small light mounted flush to the ceiling; not a falling hazard."
+     },
+     {
+      "segment": {
+       "id": "bed-0",
+       "label": "bed",
+       "bbox": [
+        0.0,
+        552.0,
+        544.0,
+        900.0
+       ],
+       "outline": null,
+       "area_px": 189312.0,
+       "centroid": [
+        272.0,
+        726.0
+       ],
+       "touches_floor": true,
+       "height_ratio": 0.387,
+       "confidence": 0.93
+      },
+      "role": "neutral",
+      "hazard_kind": null,
+      "reason": "A bed is not cover."
+     },
+     {
+      "segment": {
+       "id": "bed-1",
+       "label": "bed",
+       "bbox": [
+        1040.0,
+        512.0,
+        1600.0,
+        900.0
+       ],
+       "outline": null,
+       "area_px": 217280.0,
+       "centroid": [
+        1320.0,
+        706.0
+       ],
+       "touches_floor": true,
+       "height_ratio": 0.431,
+       "confidence": 0.92
+      },
+      "role": "neutral",
+      "hazard_kind": null,
+      "reason": "A bed is not cover."
+     },
+     {
+      "segment": {
+       "id": "box-0",
+       "label": "box",
+       "bbox": [
+        1220.0,
+        130.0,
+        1356.0,
+        310.0
+       ],
+       "outline": null,
+       "area_px": 24480.0,
+       "centroid": [
+        1288.0,
+        220.0
+       ],
+       "touches_floor": false,
+       "height_ratio": 0.2,
+       "confidence": 0.9
+      },
+      "role": "hazard",
+      "hazard_kind": "heavy_up_high",
+      "reason": "Large carton stored on top of the wire shelf."
+     },
+     {
+      "segment": {
+       "id": "box-1",
+       "label": "box",
+       "bbox": [
+        1182.0,
+        164.0,
+        1224.0,
+        308.0
+       ],
+       "outline": null,
+       "area_px": 6048.0,
+       "centroid": [
+        1203.0,
+        236.0
+       ],
+       "touches_floor": false,
+       "height_ratio": 0.16,
+       "confidence": 0.72
+      },
+      "role": "hazard",
+      "hazard_kind": "heavy_up_high",
+      "reason": "Carton stored on top of the wire shelf."
+     },
+     {
+      "segment": {
+       "id": "box-2",
+       "label": "box",
+       "bbox": [
+        194.0,
+        166.0,
+        270.0,
+        216.0
+       ],
+       "outline": null,
+       "area_px": 3800.0,
+       "centroid": [
+        232.0,
+        191.0
+       ],
+       "touches_floor": false,
+       "height_ratio": 0.056,
+       "confidence": 0.55
+      },
+      "role": "hazard",
+      "hazard_kind": "heavy_up_high",
+      "reason": "Basket with bottles on top of the left wardrobe."
+     },
+     {
+      "segment": {
+       "id": "door-0",
+       "label": "door",
+       "bbox": [
+        884.0,
+        232.0,
+        1108.0,
+        744.0
+       ],
+       "outline": null,
+       "area_px": 114688.0,
+       "centroid": [
+        996.0,
+        488.0
+       ],
+       "touches_floor": true,
+       "height_ratio": 0.569,
+       "confidence": 0.88
+      },
+      "role": "neutral",
+      "hazard_kind": null,
+      "reason": "The room's door; not a safe spot."
+     }
+    ],
+    "spots": [
+     {
+      "kind": "no_cover",
+      "anchor_id": null,
+      "point": null,
+      "nearest_hazard_px": null,
+      "score": 0.0,
+      "instruction": "No table nearby: get next to an interior wall, away from windows, and cover your head and neck.",
+      "cautions": [
+       "Tall furniture can tip. Stay clear of the bookshelf.",
+       "Heavy items up high can fall. Stay clear of the cabinet.",
+       "Tall furniture can tip. Stay clear of the wardrobe.",
+       "Heavy items up high can fall. Stay clear of the box.",
+       "Muse Spark: The left bed is right in front of the open wardrobe; if it tips it lands on the bed.",
+       "Muse Spark: The wire shelf stands at the head of the right bed and could fall onto it.",
+       "Muse Spark: The cartons on top of the wire shelf are above the head of the right bed.",
+       "Muse Spark: The wardrobe beside the door could fall across the way out.",
+       "In bed: stay there. Lie face down and cover your head and neck with a pillow.",
+       "Doorways are not safer than the rest of the room."
+      ]
+     }
+    ],
+    "fixes": [
+     {
+      "id": "fix-cabinet-0",
+      "target_id": "cabinet-0",
+      "target_label": "cabinet",
+      "hazard_kind": "heavy_up_high",
+      "action": "Move heavy or breakable items down to low shelves or the floor.",
+      "effort": "minutes",
+      "cost_usd": [
+       0,
+       0
+      ],
+      "done": false
+     },
+     {
+      "id": "fix-box-0",
+      "target_id": "box-0",
+      "target_label": "box",
+      "hazard_kind": "heavy_up_high",
+      "action": "Move heavy or breakable items down to low shelves or the floor.",
+      "effort": "minutes",
+      "cost_usd": [
+       0,
+       0
+      ],
+      "done": false
+     },
+     {
+      "id": "fix-box-1",
+      "target_id": "box-1",
+      "target_label": "box",
+      "hazard_kind": "heavy_up_high",
+      "action": "Move heavy or breakable items down to low shelves or the floor.",
+      "effort": "minutes",
+      "cost_usd": [
+       0,
+       0
+      ],
+      "done": false
+     },
+     {
+      "id": "fix-box-2",
+      "target_id": "box-2",
+      "target_label": "box",
+      "hazard_kind": "heavy_up_high",
+      "action": "Move heavy or breakable items down to low shelves or the floor.",
+      "effort": "minutes",
+      "cost_usd": [
+       0,
+       0
+      ],
+      "done": false
+     },
+     {
+      "id": "fix-bookshelf-0",
+      "target_id": "bookshelf-0",
+      "target_label": "bookshelf",
+      "hazard_kind": "tall_furniture",
+      "action": "Anchor it to a wall stud with furniture straps or L-brackets. Renting? Ask your landlord or housing office; most allow straps.",
+      "effort": "hour",
+      "cost_usd": [
+       10,
+       30
+      ],
+      "done": false
+     },
+     {
+      "id": "fix-wardrobe-0",
+      "target_id": "wardrobe-0",
+      "target_label": "wardrobe",
+      "hazard_kind": "tall_furniture",
+      "action": "Anchor it to a wall stud with furniture straps or L-brackets. Renting? Ask your landlord or housing office; most allow straps.",
+      "effort": "hour",
+      "cost_usd": [
+       10,
+       30
+      ],
+      "done": false
+     },
+     {
+      "id": "fix-wardrobe-1",
+      "target_id": "wardrobe-1",
+      "target_label": "wardrobe",
+      "hazard_kind": "tall_furniture",
+      "action": "Anchor it to a wall stud with furniture straps or L-brackets. Renting? Ask your landlord or housing office; most allow straps.",
+      "effort": "hour",
+      "cost_usd": [
+       10,
+       30
+      ],
+      "done": false
+     }
+    ],
+    "models": {
+     "segmenter": "sam-3.1",
+     "classifier": "muse-spark-1.3",
+     "classifier_ok": true
+    },
+    "notes": [
+     "Muse Spark's suggested floor spot was not used: it is where the wardrobe could land if it tips."
+    ],
+    "provenance": "sample",
+    "relations": [
+     {
+      "kind": "in_tip_zone",
+      "subject_id": "bed-0",
+      "hazard_id": "wardrobe-0",
+      "note": "The left bed is right in front of the open wardrobe; if it tips it lands on the bed."
+     },
+     {
+      "kind": "in_tip_zone",
+      "subject_id": "bed-1",
+      "hazard_id": "bookshelf-0",
+      "note": "The wire shelf stands at the head of the right bed and could fall onto it."
+     },
+     {
+      "kind": "under_stored_items",
+      "subject_id": "bed-1",
+      "hazard_id": "box-0",
+      "note": "The cartons on top of the wire shelf are above the head of the right bed."
+     },
+     {
+      "kind": "blocks_exit",
+      "subject_id": "door-0",
+      "hazard_id": "wardrobe-1",
+      "note": "The wardrobe beside the door could fall across the way out."
+     }
+    ],
+    "exit_note": "The way to the door runs between the beds, past the middle wardrobe and the wire shelf; either could fall across it."
+   }
+  ],
+  "route": {
+   "kind": "walking_route",
+   "origin": [
+    -122.51005,
+    37.76966
+   ],
+   "destination": [
+    -122.507101,
+    37.771587
+   ],
+   "destination_kind": "outside_hazard_area",
+   "path": [
+    [
+     -122.51005,
+     37.76966
+    ],
+    [
+     -122.51005,
+     37.7716
+    ],
+    [
+     -122.507101,
+     37.7716
+    ],
+    [
+     -122.507101,
+     37.771587
+    ]
+   ],
+   "steps": [
+    {
+     "instruction": "Head north on 48th Avenue",
+     "distance_m": 215.7
+    },
+    {
+     "instruction": "Turn right onto Fulton Street",
+     "distance_m": 259.2
+    },
+    {
+     "instruction": "Turn right onto 46th Avenue",
+     "distance_m": 1.4
+    },
+    {
+     "instruction": "Arrive",
+     "distance_m": 0.0
+    }
+   ],
+   "distance_m": 476.4,
+   "walk_min": 7.9399999999999995,
+   "computed_at": "2026-11-04T17:00:00Z",
+   "provenance": "sample"
+  },
+  "shelters": {
+   "origin": [
+    -122.507101,
+    37.771587
+   ],
+   "matches": [
+    {
+     "shelter": {
+      "id": "900001",
+      "name": "Sample Shelter A",
+      "address": "Sample address, San Francisco, CA, 94121",
+      "lon": -122.4964,
+      "lat": 37.77166,
+      "status": "OPEN",
+      "capacity": 200,
+      "residents": 60,
+      "ada": true,
+      "wheelchair": true,
+      "pets_code": "PETS ACCEPTED",
+      "source_url": "https://gis.fema.gov/arcgis/rest/services/NSS/OpenShelters/FeatureServer/0/query"
+     },
+     "walk_min": 20.38,
+     "walk_method": "route",
+     "fill_ratio": 0.3,
+     "notes": [
+      "Pet accommodation code: PETS ACCEPTED. Call ahead about pets.",
+      "Listed as wheelchair accessible."
+     ]
+    },
+    {
+     "shelter": {
+      "id": "900003",
+      "name": "Sample Shelter C",
+      "address": "Sample address, San Francisco, CA, 94121",
+      "lon": -122.46454,
+      "lat": 37.77266,
+      "status": "OPEN",
+      "capacity": null,
+      "residents": 12,
+      "ada": true,
+      "wheelchair": true,
+      "pets_code": null,
+      "source_url": "https://gis.fema.gov/arcgis/rest/services/NSS/OpenShelters/FeatureServer/0/query"
+     },
+     "walk_min": 81.09333333333333,
+     "walk_method": "route",
+     "fill_ratio": null,
+     "notes": [
+      "Capacity not reported.",
+      "No pet information. Call ahead about pets.",
+      "Listed as wheelchair accessible."
+     ]
+    },
+    {
+     "shelter": {
+      "id": "900002",
+      "name": "Sample Shelter B",
+      "address": "Sample address, San Francisco, CA, 94121",
+      "lon": -122.48161,
+      "lat": 37.76816,
+      "status": "OPEN",
+      "capacity": 100,
+      "residents": 85,
+      "ada": true,
+      "wheelchair": true,
+      "pets_code": null,
+      "source_url": "https://gis.fema.gov/arcgis/rest/services/NSS/OpenShelters/FeatureServer/0/query"
+     },
+     "walk_min": 49.24333333333333,
+     "walk_method": "route",
+     "fill_ratio": 0.85,
+     "notes": [
+      "Nearly full: about 85% of capacity.",
+      "No pet information. Call ahead about pets.",
+      "Listed as wheelchair accessible."
+     ]
+    }
+   ],
+   "excluded": {
+    "not_open": 1,
+    "in_hazard_area": 1,
+    "hazard_check_failed": 0,
+    "not_wheelchair_accessible": 1
+   },
+   "fetched_at": "2026-11-04T17:00:00Z",
+   "replay": true,
+   "provenance": "sample"
+  },
+  "generated_at": "2026-11-04T17:00:00Z"
+ },
+ "images": {
+  "e90d4be77504": "/demo/living_room.jpg"
+ }
+}

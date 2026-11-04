@@ -51,6 +51,7 @@ GO_NOW = (
     "You are in a tsunami hazard area. Strong shaking, or shaking that lasts 20 seconds or more, "
     "means a tsunami may be coming. Go now, on foot, inland or to high ground. Do not wait for an official warning."
 )
+DIRECTION_ONLY = "No walking route passed SafeZone's checks. Head {compass}, inland and uphill, on foot."
 STAY_AWAY = "Waves can keep arriving for 8 hours or longer. Return only when officials say it is safe."
 NOT_IN_ZONE = "This address is outside the mapped tsunami hazard area. After shaking, stay put unless officials tell you to leave."
 

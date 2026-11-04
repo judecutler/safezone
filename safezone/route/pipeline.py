@@ -41,7 +41,6 @@ DENSIFY_STEP_M = 10.0
 WALK_SPEED_MPS = 1.0
 """Conservative pace for children and older adults."""
 
-DIRECTION_ONLY_REASON = "No walking route passed SafeZone's checks. Head {compass}, inland and uphill, on foot."
 
 RouteFailure = Literal["ends_inside", "goes_deeper", "moves_away_from_exit", "re_enters"]
 
@@ -220,7 +219,7 @@ def plan_route(profile: BuildingProfile, transport: Transport, now: datetime) ->
     compass = geo.compass(bearing)
     return DirectionOnly(origin=home, destination=target, bearing_deg=bearing, compass=compass,
                          straight_m=geo.haversine_m(home, target),
-                         reason=DIRECTION_ONLY_REASON.format(compass=compass),
+                         reason=rules.DIRECTION_ONLY.format(compass=compass),
                          computed_at=now, provenance=weakest(*provenances))
 
 
