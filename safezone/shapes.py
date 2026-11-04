@@ -81,10 +81,25 @@ class Classified(Shape):
         return self
 
 
+RelationKind = Literal["in_tip_zone", "under_stored_items", "near_glass", "blocks_exit"]
+
+
+class Relation(Shape):
+    kind: RelationKind
+    subject_id: str
+    """The segment at risk, e.g. a bed."""
+    hazard_id: str
+    """A segment classified as a hazard."""
+    note: str
+    """The model's one line, shown attributed to Muse Spark."""
+
+
 class SafeSpot(Shape):
-    kind: Literal["cover", "no_cover"]
+    kind: Literal["cover", "open_floor", "no_cover"]
     anchor_id: str | None
-    """Segment id of the cover object. None for no_cover guidance."""
+    """Segment id of the cover object. None for open_floor and no_cover."""
+    point: ImagePoint | None
+    """Image pixels. Set only for open_floor."""
     nearest_hazard_px: float | None
     score: Annotated[float, Field(ge=0, le=1)]
     instruction: str
@@ -122,6 +137,9 @@ class RoomScan(Shape):
     models: ModelUse
     notes: list[str]
     provenance: Provenance
+    relations: list[Relation]
+    exit_note: str | None
+    """The model's one line on what could block the way to the door."""
 
 
 # Building ------------------------------------------------------------------
