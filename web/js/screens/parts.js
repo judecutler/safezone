@@ -27,7 +27,7 @@ export function duringSpecials(plan, guidance) {
 }
 
 // `shelters` is plan.shelters (drawn as places), `walker` adds the live position to the legend, `fitTo` frames the map.
-export function routeView(route, building, { onMap, shelters = null, walker = false, fitTo = 'all' } = {}) {
+export function routeView(route, building, { onMap, shelters = null, walker = false, fitTo = 'route' } = {}) {
   if (route.kind === 'no_checked_route') {
     return h('div', { class: 'route route-direction' },
       h('p', { class: 'route-reason' }, route.reason),

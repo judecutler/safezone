@@ -119,7 +119,12 @@ export async function liveMap(container, { region = 'us-ca', interactive = true 
       let dir = x > width * 0.5 ? 'left' : 'right';
       if (l.cls === 'lm-label-dest') destDir = dir;
       if (l.cls === 'lm-label-exit' && destDir) dir = destDir === 'left' ? 'right' : 'left';
-      if (dir !== l.direction) { l.direction = dir; bindLabel(marker, l.text, l.cls, dir); }
+      // Flip in place: unbinding and rebinding a permanent tooltip mid-zoom can leave the old element behind.
+      if (dir !== l.direction) {
+        l.direction = dir;
+        const tip = marker.getTooltip();
+        if (tip) { tip.options.direction = dir; tip.options.offset = OFFSET[dir]; tip.update(); }
+      }
     }
     // A label still too wide for its side slides back inside the map edge.
     const box = container.getBoundingClientRect();

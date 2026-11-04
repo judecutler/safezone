@@ -1,5 +1,5 @@
 // Bump VERSION whenever any file in SHELL changes, so phones pick up the new shell.
-const VERSION = 'safezone-v28';
+const VERSION = 'safezone-v29';
 const SHELL = [
   '/',
   '/app.css',
