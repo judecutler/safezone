@@ -9,9 +9,11 @@ TODO after tomorrow's recording:
 
 Prepare once for a coastal earthquake. When it comes, the phone talks you through it.
 
+![SafeZone: a coastal neighborhood map with a walking route from home to high ground](web/og.png)
+
 **Live app:** https://safezone-alpha-one.vercel.app/ · **Repo:** https://github.com/judecutler/safezone
 
-Built for the Meta Global AI Developer Hackathon (indie track, Build for Your World). Everything here was written during the building period (Oct 27 to Nov 4, 2026), and the git history shows each step.
+Built for the Meta Global AI Developer Hackathon (indie track, Build for Your World). Everything here was written during the hackathon, and the git history shows each step.
 
 ## The problem
 
