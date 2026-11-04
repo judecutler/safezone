@@ -17,7 +17,7 @@ SUFFIXES = {
     "CIRCLE": "CIR", "PARKWAY": "PKWY", "PLAZA": "PLZ", "SQUARE": "SQ", "EXPRESSWAY": "EXPY",
     "FREEWAY": "FWY", "TRAIL": "TRL", "WALK": "WALK", "ROW": "ROW", "LOOP": "LOOP", "HILL": "HL",
     "HEIGHTS": "HTS", "CRESCENT": "CRES", "GARDENS": "GDNS", "GREEN": "GRN", "PARK": "PARK", "PATH": "PATH",
-    "STAIRWAY": "STWY", "CENTER": "CTR",
+    "STAIRWAY": "STWY", "CENTER": "CTR", "AV": "AVE",
 }
 ABBREVIATIONS = set(SUFFIXES.values())
 UNIT_WORDS = {"APT", "APARTMENT", "UNIT", "STE", "SUITE", "FL", "FLOOR", "RM", "ROOM", "BLDG", "NO"}
@@ -36,8 +36,12 @@ class StreetAddress:
     """Uppercase street core with a USPS suffix abbreviation, e.g. "GREAT HWY"."""
 
     def query_text(self) -> str:
+        """Number plus street name without its suffix: San Francisco writes "24TH AV" where USPS says "24TH AVE"."""
         number = f"{self.lo}{self.letter}" if self.lo == self.hi else f"{self.lo}-{self.hi}"
-        return f"{number} {self.street}"
+        words = self.street.split()
+        if len(words) > 1 and words[-1] in ABBREVIATIONS:
+            words = words[:-1]
+        return f"{number} {' '.join(words)}"
 
 
 def normalize_address(text: str) -> StreetAddress | None:

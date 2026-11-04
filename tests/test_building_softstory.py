@@ -22,7 +22,9 @@ from safezone.transport import Response
 ])
 def test_normalize_address(text, expected):
     a = normalize_address(text)
-    assert a is not None and a.query_text() == expected
+    assert a is not None
+    number = f"{a.lo}{a.letter}" if a.lo == a.hi else f"{a.lo}-{a.hi}"
+    assert f"{number} {a.street}" == expected
 
 
 @pytest.mark.parametrize("text", ["Great Highway, San Francisco", "", "1000", "Pier 39"])
@@ -52,7 +54,7 @@ def test_like_match_on_a_longer_number_is_not_this_building():
         {"property_address": "2100 GREAT HWY", "status": "Listed"},
     ])
     assert statuses == []
-    assert params["$where"] == "upper(property_address) like '%100 GREAT HWY%'"
+    assert params["$where"] == "upper(property_address) like '%100 GREAT%'"
 
 
 def test_exact_number_and_street_match():
@@ -71,7 +73,7 @@ def test_listed_range_covers_same_side_numbers_only():
 
 def test_apostrophe_is_escaped_in_the_query():
     _, params = lookup("10 O'Farrell Street", [])
-    assert params["$where"] == "upper(property_address) like '%10 O''FARRELL ST%'"
+    assert params["$where"] == "upper(property_address) like '%10 O''FARRELL%'"
 
 
 SF = softstory.INVENTORIES["san francisco"]
@@ -113,3 +115,22 @@ def test_same_building_compares_parsed_addresses():
     a = StreetAddress(1000, 1000, "", "GREAT HWY")
     assert softstory.same_building(a, normalize_address("01000 Great Highway"))
     assert not softstory.same_building(a, normalize_address("1000A Great Highway"))
+
+
+REAL_SF_ROWS = [
+    {"block": "1829", "lot": "001", "parcel_number": "1829001", "property_address": "1401 24TH AV",
+     "address": "1401 24TH AV, SAN FRANCISCO CA", "tier": "3", "status": "Work Complete, CFC Issued"},
+    {"block": "1213", "lot": "10", "parcel_number": "121310", "property_address": "2267 HAYES ST",
+     "address": "2267 HAYES ST, SAN FRANCISCO CA", "tier": "3", "status": "Work Complete, CFC Issued"},
+]
+
+
+def test_real_datasf_rows_match_typed_addresses():
+    from safezone.building.softstory import is_complete, normalize_address, parse_sf
+
+    avenue = normalize_address("1401 24th Avenue, San Francisco, CA 94122")
+    assert avenue.query_text() == "1401 24TH"
+    assert parse_sf(avenue, REAL_SF_ROWS) == ["Work Complete, CFC Issued"]
+    assert parse_sf(normalize_address("2267 Hayes Street"), REAL_SF_ROWS) == ["Work Complete, CFC Issued"]
+    assert parse_sf(normalize_address("1401 24th Street"), REAL_SF_ROWS) == []
+    assert is_complete("Work Complete, CFC Issued")
