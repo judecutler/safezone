@@ -201,7 +201,7 @@ async function demoFlow(browser) {
   await page.locator('.em-dch').click();
   check(await visible(page.locator('.em-after')), 'after 3 s a tap leaves shaking for after');
   check(await page.locator('.em-after .routemap').count() === 1, 'after shows the route map');
-  await btn(page, /Walker speed/).click();
+  check(await btn(page, /Walker speed 1x/).count() === 1, 'demo walker starts at 8x; the button offers 1x');
   await shot('after');
   const goNow = usGuidance.go_now;
   const arrived = await (async () => {

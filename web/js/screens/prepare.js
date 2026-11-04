@@ -155,13 +155,29 @@ function scanningCard({ name, preview }) {
 const DEV_NOTE = /^(Masks not decoded|Muse Spark error:)/;
 const userNotes = (room) => room.notes.filter((n) => !DEV_NOTE.test(n));
 
+// Same rule as score.py's hazard_name: SAM's "door" phrase also hits wardrobe and cabinet doors.
+export const hazardName = (c) => (c.hazard_kind === 'cabinet_doors' && c.segment.label === 'door' ? 'cabinet door' : c.segment.label);
+
+const plural = (word, n) => (n === 1 ? word : /(s|x|ch|sh)$/.test(word) ? `${word}es` : `${word}s`);
+
+// "bed, bed, door" reads as raw output; "2 beds, 1 door" reads as a count.
+export function countedNames(names) {
+  const counts = new Map();
+  for (const n of names) counts.set(n, (counts.get(n) ?? 0) + 1);
+  return [...counts].map(([n, k]) => `${k} ${plural(n, k)}`).join(', ');
+}
+
+const DOORWAY_REJECTION = 'it is in a doorway';
+const caution = (c) => h('li', null, c,
+  c.includes(DOORWAY_REJECTION) ? h('span', { class: 'caution-source fine' }, ' Checked against SAM 3.1\u2019s door outline.') : null);
+
 export function roomResult(room, state, act, where) {
   const guidance = state.guidance;
   const numbers = hazardNumbers(room);
   const hazards = room.classified.filter((c) => c.role === 'hazard');
   const covers = room.classified.filter((c) => c.role === 'cover');
   const neutral = room.classified.filter((c) => c.role === 'neutral');
-  const label = (id) => room.classified.find((c) => c.segment.id === id)?.segment.label ?? id;
+  const label = (id) => { const c = room.classified.find((x) => x.segment.id === id); return c ? hazardName(c) : id; };
   const done = room.fixes.filter((f) => f.done).length;
   const imageUrl = state.images[room.id];
   return h('section', { class: 'card room', id: `room-${room.id}` },
@@ -177,24 +193,24 @@ export function roomResult(room, state, act, where) {
     h('div', { class: 'spot' },
       room.spots.map((spot, i) => h('div', { class: i === 0 ? 'spot-item spot-best' : 'spot-item' },
         h('p', { class: 'spot-kind' }, icon(spot.kind === 'no_cover' ? 'info' : 'target', 'icon-inline'),
-          i === 0 ? 'Drop here' : `Option ${i + 1}`, h('span', { class: 'spot-kind-tag' }, SPOT_KIND[spot.kind])),
+          i > 0 ? `Option ${i + 1}` : spot.kind === 'no_cover' ? 'Where to drop' : 'Drop here', h('span', { class: 'spot-kind-tag' }, SPOT_KIND[spot.kind])),
         h('p', { class: 'spot-instruction' }, spot.instruction),
-        spot.cautions.length ? h('ul', { class: 'cautions' }, spot.cautions.map((c) => h('li', null, c))) : null))),
-    hazards.length ? h('div', { class: 'block' },
-      h('h3', { class: 'label' }, `What could fall or break (${hazards.length})`),
-      h('ol', { class: 'legend' }, hazards.map((c) =>
-        h('li', null, h('span', { class: 'balloon' }, numbers.get(c.segment.id)),
-          h('div', null,
-            h('p', { class: 'legend-title' }, c.segment.label, h('span', { class: 'legend-kind' }, guidance?.hazard_labels?.[c.hazard_kind] ?? '')),
-            h('p', { class: 'legend-reason' }, c.reason)))))) : null,
-    covers.length ? h('p', { class: 'fine' }, h('strong', null, 'Cover: '), covers.map((c) => c.segment.label).join(', ')) : null,
-    neutral.length ? h('p', { class: 'fine' }, 'Also seen: ', neutral.map((c) => c.segment.label).join(', ')) : null,
+        spot.cautions.length ? h('ul', { class: 'cautions' }, spot.cautions.map(caution)) : null))),
     room.relations?.length || room.exit_note ? h('div', { class: 'block noticed' },
       h('h3', { class: 'label' }, 'What Muse Spark noticed'),
       room.relations?.length ? h('ul', { class: 'relations' }, room.relations.map((rel) =>
         h('li', null, h('span', { class: 'rel-kind' }, RELATION_TEXT[rel.kind] ?? rel.kind),
           h('span', null, rel.note), h('span', { class: 'fine mono' }, ` ${label(rel.subject_id)} / ${label(rel.hazard_id)}`)))) : null,
       room.exit_note ? h('p', { class: 'exit-note' }, h('strong', null, 'Way to the door: '), room.exit_note) : null) : null,
+    hazards.length ? h('div', { class: 'block' },
+      h('h3', { class: 'label' }, `What could fall or break (${hazards.length})`),
+      h('ol', { class: 'legend' }, hazards.map((c) =>
+        h('li', null, h('span', { class: 'balloon' }, numbers.get(c.segment.id)),
+          h('div', null,
+            h('p', { class: 'legend-title' }, hazardName(c), h('span', { class: 'legend-kind' }, guidance?.hazard_labels?.[c.hazard_kind] ?? '')),
+            h('p', { class: 'legend-reason' }, c.reason)))))) : null,
+    covers.length ? h('p', { class: 'fine' }, h('strong', null, 'Cover: '), countedNames(covers.map((c) => c.segment.label))) : null,
+    neutral.length ? h('p', { class: 'fine' }, 'Also seen: ', countedNames(neutral.map((c) => c.segment.label))) : null,
     room.fixes.length ? h('div', { class: 'block' },
       h('div', { class: 'fix-head' }, h('h3', { class: 'label' }, 'Fix list'),
         h('span', { class: 'mono fine' }, `${done} of ${room.fixes.length} done`)),
@@ -231,7 +247,7 @@ function planScreen(state, act) {
         h('h1', { class: 'title' }, plan.building.address)),
       h('dl', { class: 'tb-grid mono' },
         h('div', null, h('dt', null, 'Made'), h('dd', null, localTime(plan.generated_at))),
-        h('div', null, h('dt', null, 'Rooms'), h('dd', null, plan.rooms.length)),
+        h('div', null, h('dt', null, 'Rooms'), h('dd', null, plan.rooms.length || 'None photographed')),
         h('div', null, h('dt', null, 'Tsunami area'), h('dd', null, !route ? 'Unknown' : inZone ? 'Inside' : 'Outside')),
         h('div', null, h('dt', null, 'Saved'), h('dd', null, 'On this device')))),
 

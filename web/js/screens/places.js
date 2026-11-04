@@ -57,7 +57,7 @@ function placeRow(place, act) {
         h('p', { class: 'place-addr fine' }, b?.address ?? 'Address not checked'),
         h('p', { class: `place-flag sev-${lvl.sev}` }, lvl.sev === 4 ? tsunamiSign('sign place-flag-sign') : null, lvl.text),
         h('p', { class: 'place-meta fine mono' },
-          `${rooms} room${rooms === 1 ? '' : 's'}`, plan?.route?.kind === 'walking_route' ? `, way out ${Math.round(plan.route.walk_min)} min` : '',
+          rooms ? `${rooms} room${rooms === 1 ? '' : 's'}` : 'No rooms photographed', plan?.route?.kind === 'walking_route' ? `, way out ${Math.round(plan.route.walk_min)} min` : '',
           `, updated ${localTime(place.saved_at ?? plan?.generated_at)}`)),
       h('span', { class: 'place-chevron', 'aria-hidden': 'true' }, '›')));
 }

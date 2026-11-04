@@ -59,14 +59,23 @@ img { max-width: 100%; display: block; }
 @media (min-width: 720px) {
   :root { --frame-x: calc((100% - var(--frame-w)) / 2); }
   body { background: var(--paper-2); }
-  .backdrop { display: block; position: fixed; inset: 0; z-index: 0; opacity: 0.4; pointer-events: none; }
+  /* The art behind the column is ambience, not content: faded, softened and washed toward the edges. */
+  .backdrop {
+    display: block; position: fixed; inset: -24px; z-index: 0; pointer-events: none;
+    opacity: 0.22; filter: blur(6px) saturate(0.7);
+  }
   .backdrop > .nb { width: 100%; height: 100%; display: block; }
+  body:has(.landing) .backdrop { display: none; }
   #app {
     position: relative; z-index: 1;
     max-width: var(--frame-w); min-height: 100vh; min-height: 100dvh; margin: 0 auto;
     background: var(--paper); border-inline: 1px solid var(--hair);
     box-shadow: 0 0 0 8px color-mix(in srgb, var(--paper) 70%, transparent), 0 30px 80px -30px rgba(23, 21, 15, 0.45);
   }
+}
+/* From 1024 px the landing is a two-column page of its own (landing.css), so it leaves the phone column. */
+@media (min-width: 1024px) {
+  #app:has(> .landing) { max-width: none; border-inline: 0; box-shadow: none; }
 }
 
 /* Type ---------------------------------------------------------------------------- */

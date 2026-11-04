@@ -401,6 +401,7 @@ const actions = {
   demoPhoto() {
     return demoData?.photo ?? null;
   },
+  demoExtras: () => demoData?.extras ?? {},
 
   async exitDemo() {
     state.demo = false;

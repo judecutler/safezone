@@ -98,9 +98,10 @@ function shelterCard(m, result) {
             h('div', { class: pct >= 80 ? 'fill-in fill-high' : 'fill-in', style: `width:${Math.min(pct, 100)}%` })),
           h('span', { class: 'fill-label mono' }, `${pct}% full (${sh.residents} of ${sh.capacity})`)]),
     m.notes.length ? h('ul', { class: 'shelter-notes' }, m.notes.map((n) => h('li', null, n))) : null,
-    h('p', { class: 'shelter-meta mono' },
+    // Sample shelters are made up, so a fetch time or a replay tag would read as a real record.
+    h('p', { class: 'shelter-meta mono' }, result.provenance === 'sample' ? sampleTag(result) : [
       result.replay ? h('span', { class: 'tag-replay' }, 'Replay data') : null,
-      `Data from ${localTime(result.fetched_at)}`, ' ', sampleTag(result)));
+      `Data from ${localTime(result.fetched_at)}`]));
 }
 
 const TONE_ICON = { alert: 'alert', ok: 'check', unknown: 'question', info: 'info' };
