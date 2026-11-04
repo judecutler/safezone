@@ -17,6 +17,8 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Callable
+from urllib.parse import urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -30,15 +32,19 @@ from tools.demo import FIXTURES, ROOT, SampleResponder, build_plan, write_plan  
 
 @dataclass
 class FailureLog:
-    """Passes requests through and remembers every one that failed, so the run can say what went wrong."""
+    """Passes requests through, prints one line per call, and remembers every one that failed."""
     inner: Transport
     failures: list[str] = field(default_factory=list)
+    out: Callable[[str], None] = print
 
     def send(self, request: Request) -> Response:
+        host = urlsplit(request.url).hostname or request.url
+        self.out(f"  ... {request.method} {host} (waits up to {request.timeout_s:.0f}s)")
         started = time.monotonic()
         resp = self.inner.send(request)
+        took = time.monotonic() - started
+        self.out(f"  {'ok' if resp.status < 400 else 'ERR'} {resp.status} in {took:.0f}s  {host}")
         if resp.status >= 400:
-            took = time.monotonic() - started
             self.failures.append(f"{resp.status} after {took:.0f}s  {request.method} {request.url}\n      {resp.text[:300]!r}")
         return resp
 
@@ -79,6 +85,7 @@ def main() -> None:
     (ROOT / "fixtures").mkdir(exist_ok=True)
     (ROOT / "fixtures" / "models.json").write_text(json.dumps(models, indent=1))
     print("models your key can call:", ", ".join(models))
+    print("Recording the demo household. This takes several minutes; the Muse Spark call alone can take 3.")
     for wanted in (settings.vision_model, settings.segment_model):
         if wanted not in models:
             raise SystemExit(f"{wanted} is not in your model list; set META_VISION_MODEL / META_SEGMENT_MODEL in .env")
