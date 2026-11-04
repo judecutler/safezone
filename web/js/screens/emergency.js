@@ -166,8 +166,6 @@ function after(state, act) {
     const onFix = (lonlat, status, accuracyM = 0) => {
       const prog = progress(route, lonlat, prev, accuracyM);
       prev = prog;
-      const shown = run.ui.map?.showPosition(lonlat);
-      run.ui.positionLine.textContent = shown === false ? `${status}. You are outside this map.` : status;
       const c = cue(route, prog, last, { outsideHazard: outside(lonlat), accuracyM, siteInstruction });
       if (c) {
         last = c;
@@ -179,6 +177,8 @@ function after(state, act) {
         ? `Off the route, ${formatDistance(prog.offRouteM)} to your ${prog.bearingToRoute}`
         : prog.metersToNext < 5 ? route.steps[prog.stepIndex]?.instruction ?? ''
           : `${route.steps[prog.stepIndex]?.instruction ?? ''} in ${formatDistance(prog.metersToNext)}`;
+      const shown = run.ui.map?.showPosition(lonlat, run.ui.nextLine.textContent);
+      run.ui.positionLine.textContent = shown === false ? `${status}. You are outside this map.` : status;
     };
     const source = state.demo
       ? walkerSource(route, onFix)
@@ -192,7 +192,7 @@ function after(state, act) {
   else if (route.kind === 'not_in_zone') body = [h('p', { class: 'em-calm' }, guidance?.not_in_zone ?? route.reason), afterSteps];
   else {
     const demo = state.demo;
-    const view = routeView(route, plan.building, { onMap: (m) => { run.ui.map = m; } });
+    const view = routeView(route, plan.building, { shelters: plan.shelters, walker: guided, fitTo: 'route', onMap: (m) => { run.ui.map = m; } });
     // The button names the speed a tap switches to; the position line shows the current one.
     const speedBtn = demo ? h('button', { class: 'em-speed', onclick: () => {
       run.demoSpeed = nextSpeed();

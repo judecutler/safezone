@@ -1,5 +1,5 @@
 // Bump VERSION whenever any file in SHELL changes, so phones pick up the new shell.
-const VERSION = 'safezone-v27';
+const VERSION = 'safezone-v29';
 const SHELL = [
   '/',
   '/app.css',
@@ -8,6 +8,8 @@ const SHELL = [
   '/css/capture.css',
   '/css/emergency.css',
   '/css/landing.css',
+  '/css/livemap.css',
+  '/css/setup.css',
   '/css/tokens.css',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
@@ -23,6 +25,7 @@ const SHELL = [
   '/js/dom.js',
   '/js/geometry.js',
   '/js/guide.js',
+  '/js/livemap.js',
   '/js/machine.js',
   '/js/overlay.js',
   '/js/photo.js',
@@ -38,13 +41,42 @@ const SHELL = [
   '/js/screens/places.js',
   '/js/screens/prepare.js',
   '/js/screens/review.js',
+  '/js/screens/setupmap.js',
   '/js/shots.js',
   '/js/standby.js',
   '/js/voice.js',
   '/manifest.webmanifest',
+  '/vendor/leaflet/LICENSE',
+  '/vendor/leaflet/README.md',
+  '/vendor/leaflet/images/layers-2x.png',
+  '/vendor/leaflet/images/layers.png',
+  '/vendor/leaflet/images/marker-icon-2x.png',
+  '/vendor/leaflet/images/marker-icon.png',
+  '/vendor/leaflet/images/marker-shadow.png',
+  '/vendor/leaflet/leaflet.css',
+  '/vendor/leaflet/leaflet.js',
 ];
 
 const FONT_HOSTS = new Set(['fonts.googleapis.com', 'fonts.gstatic.com']);
+const TILES = `${VERSION}-tiles`;
+const TILE_MAX = 300;
+const isTileHost = (host) => host.endsWith('.basemaps.cartocdn.com') || host === 'disaportaldata.gsi.go.jp';
+
+// Map tiles are cached as they are viewed, so a plan looked at online shows its map offline. Cache keys keep
+// insertion order, so the first keys are the oldest.
+async function tile(request) {
+  const cache = await caches.open(TILES);
+  const hit = await cache.match(request);
+  if (hit) return hit;
+  // Offline with no cached copy: an empty 504 lets the map draw its overlays on the plain background.
+  const res = await fetch(request).catch(() => new Response(null, { status: 504, statusText: 'Offline' }));
+  if (res.ok || res.type === 'opaque') {
+    await cache.put(request, res.clone());
+    const keys = await cache.keys();
+    await Promise.all(keys.slice(0, Math.max(0, keys.length - TILE_MAX)).map((k) => cache.delete(k)));
+  }
+  return res;
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -53,7 +85,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== VERSION && k !== `${VERSION}-fonts`).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k !== VERSION && k !== `${VERSION}-fonts` && k !== TILES).map((k) => caches.delete(k))))
       .then(() => self.clients.claim()));
 });
 
@@ -68,6 +100,7 @@ self.addEventListener('fetch', (event) => {
     }))));
     return;
   }
+  if (isTileHost(url.hostname)) { event.respondWith(tile(event.request)); return; }
   if (url.origin !== location.origin) return;
   // The plan lives in IndexedDB, so API calls are never served stale from a cache.
   if (url.pathname.startsWith('/api/')) return;
