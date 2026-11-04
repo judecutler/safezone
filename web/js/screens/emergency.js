@@ -1,6 +1,6 @@
 import { h } from '../dom.js';
 import { formatDistance } from '../geometry.js';
-import { cue, insideHazard, pointAlong, progress, routeLength } from '../guide.js';
+import { OFF_ROUTE_M, cue, insideHazard, pointAlong, progress, routeLength } from '../guide.js';
 import { isMuted, keepAwake, onVoiceChange, repeat, say, setMuted, stopAll, vibrate } from '../voice.js';
 import { TSUNAMI_MAP_MISSING, duringSpecials, routeView, shelterSection } from './parts.js';
 
@@ -103,7 +103,7 @@ function shaking(state, act) {
 function gpsSource(onFix, onStatus) {
   if (!('geolocation' in navigator)) { onStatus('Location is not available on this device. Follow the turns on the map.'); return null; }
   const id = navigator.geolocation.watchPosition(
-    (p) => onFix([p.coords.longitude, p.coords.latitude], `Live position, within ${Math.round(p.coords.accuracy)} m`),
+    (p) => onFix([p.coords.longitude, p.coords.latitude], `Live position, within ${Math.round(p.coords.accuracy)} m`, p.coords.accuracy),
     () => onStatus('Location is off. Follow the turns on the map.'),
     { enableHighAccuracy: true, maximumAge: 3000, timeout: 20000 });
   return () => navigator.geolocation.clearWatch(id);
@@ -150,19 +150,19 @@ function after(state, act) {
 
     const hazard = plan.building?.hazard_area?.polygons ?? null;
     let prev = null, last = null;
-    const onFix = (lonlat, status) => {
+    const onFix = (lonlat, status, accuracyM = 0) => {
       const prog = progress(route, lonlat, prev);
       prev = prog;
       const shown = run.ui.map?.showPosition(lonlat);
       run.ui.positionLine.textContent = shown === false ? `${status}. You are outside this map.` : status;
-      const c = cue(route, prog, last, { outsideHazard: hazard ? !insideHazard(hazard, lonlat) : null });
+      const c = cue(route, prog, last, { outsideHazard: hazard ? !insideHazard(hazard, lonlat) : null, accuracyM });
       if (c) {
         last = c;
         say(c.text, { replace: true });
         vibrate(c.key === 'arrive' ? [200, 100, 200, 100, 600] : [120]);
         if (c.key === 'arrive' && guidance?.stay_away) say(guidance.stay_away);
       }
-      run.ui.nextLine.textContent = prog.arrived ? 'End of the route' : prog.offRouteM > 35
+      run.ui.nextLine.textContent = prog.arrived ? 'End of the route' : prog.offRouteM > OFF_ROUTE_M + accuracyM
         ? `Off the route, ${formatDistance(prog.offRouteM)} to your ${prog.bearingToRoute}`
         : prog.metersToNext < 5 ? route.steps[prog.stepIndex]?.instruction ?? ''
           : `${route.steps[prog.stepIndex]?.instruction ?? ''} in ${formatDistance(prog.metersToNext)}`;

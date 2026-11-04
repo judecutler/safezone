@@ -134,15 +134,18 @@ export function insideHazard(polygons, [lon, lat]) {
 
 // The one line to say for this progress, or null. `lastCue` is the previous cue this function returned.
 // Keys name a step and a phase, so the same phase is never spoken twice in a row however often this runs.
-export function cue(route, prog, lastCue, { outsideHazard = null } = {}) {
+// `accuracyM` is the fix's own error radius: a fix that could still be on the route is treated as on it, so a
+// poor indoor fix at the start never sends someone the wrong way.
+export function cue(route, prog, lastCue, { outsideHazard = null, accuracyM = 0 } = {}) {
   const points = stepPoints(route);
+  const off = prog.offRouteM > OFF_ROUTE_M + accuracyM;
   let next;
   // Once the walker is outside the hazard polygons, no cue points back toward the route (which may lie seaward).
-  if (prog.arrived || (outsideHazard === true && prog.offRouteM > OFF_ROUTE_M)) {
+  if (prog.arrived || (outsideHazard === true && off)) {
     next = { key: 'arrive', text: outsideHazard === false ? WORDS.arrivedUnchecked : prog.arrived ? WORDS.arrivedOutside : WORDS.outside };
-  } else if (prog.offRouteM > FAR_M) {
+  } else if (off && prog.offRouteM > FAR_M) {
     next = { key: 'far', text: WORDS.far };
-  } else if (prog.offRouteM > OFF_ROUTE_M) {
+  } else if (off) {
     next = { key: `off:${prog.bearingToRoute}`, text: WORDS.off(prog.offRouteM, prog.bearingToRoute) };
   } else if (points.length) {
     const p = points[prog.stepIndex];

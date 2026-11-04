@@ -107,6 +107,14 @@ test('off route but already outside the hazard polygons: never pointed back towa
   assert.doesNotMatch(c.text, /to your/);
 });
 
+test('a fix whose error radius still covers the route is treated as on the route', () => {
+  const on = pointAlong(route, 150);
+  const prog = progress(route, offset(on, 60, 0), progress(route, on));
+  assert.ok(prog.offRouteM > OFF_ROUTE_M);
+  assert.equal(cue(route, prog, null, { accuracyM: 50 }).key.startsWith('step:'), true);
+  assert.equal(cue(route, prog, null, { accuracyM: 10 }).key.startsWith('off:'), true);
+});
+
 test('far off route falls back to the fixed inland-and-uphill line', () => {
   const far = offset(route.origin, 0, -600);
   const c = cue(route, progress(route, far), null);
