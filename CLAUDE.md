@@ -1,6 +1,6 @@
 # SafeZone: context for any new session
 
-Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last updated Nov 4, about 10:05 AM PT.
+Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last updated Nov 4, about 12:50 PM PT.
 
 ## Deadline and state
 
@@ -18,6 +18,8 @@ Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last upd
 - Places and standby: saved places, nearest one by GPS, standby listens for sustained shaking (devicemotion) while the app is open.
 - Emergency, voice led: shaking says only "Drop, cover and hold on" plus the saved spot, repeated every 15 s; taps in the first 3 s are ignored; the only way forward is "Shaking has stopped". After: the go-now line, then spoken turn-by-turn from GPS (`web/js/guide.js`), with wake lock and a mute toggle. Demo mode says "This is a demo" and simulates the walker.
 - Regions (`safezone/regions.py`): `us-ca` (the original pipelines: Nominatim, CGS tsunami hazard and land polygons, DataSF soft-story, Overpass, OSRM, FEMA shelters) and `jp` (Hazard Map Portal tsunami inundation tiles, GSI designated tsunami evacuation sites, Cabinet Office and JMA guidance quoted in Japanese with English). A point outside both gets `no_coverage`. Add a city per `docs/regions.md`.
+- Real map (`web/js/livemap.js`, contract `docs/livemap.md`): Leaflet 1.9.4 vendored in `web/vendor/leaflet/`, OpenStreetMap tiles greyed with CSS and cached by the service worker as viewed (CARTO's free tiles now stamp "API key required"), CGS hazard polygons (US) or the Hazard Map Portal raster (Japan), numbered turns, a "Leaving the hazard area" marker, walker callout, legend with sources. Overlays draw with no tiles, so the emergency map works offline. Used on saved places, review, the emergency after screen, and the desktop setup panel.
+- Desktop setup (1024 px and up): live map on the left reveals findings as the background jobs finish (`web/js/screens/setupmap.js`); the form is on the right. The demo shows a visible "Finding your location…" step and offers "Use my real location instead".
 - "How it works" (`web/js/screens/about.js`): the Meta model pipeline with the demo room's recorded output, for judges.
 - Demo: "Run the demo" on the landing page. It walks the real setup on `demo/living_room.jpg` with recorded data, saves "Demo: Ocean Beach" and adds "Demo: Kamakura", then "Simulate an earthquake" runs the voice-led emergency. "Exit demo" removes the demo places.
 
@@ -55,7 +57,8 @@ Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last upd
 ## Tests
 
 - `python -m pytest -q` (236), `node --test web/tests/*.test.mjs` (37).
-- `node tools/verify_e2e.cjs <outdir> <base-url>` (140 checks: landing, demo flow with voice log, real flow and offline, no places, migration). In the sandbox: `NODE_PATH=/opt/node22/lib/node_modules`, and run the server with `SAFEZONE_FIXTURES=fixtures/demo MODEL_API_KEY=x python -m uvicorn safezone.app:create_app --factory --port 8000`.
+- The app reloads once when a new service worker takes over, but only on landing, places or about.
+- `node tools/verify_e2e.cjs <outdir> <base-url>` (146 checks: landing, demo flow with voice log, real flow and offline, no places, migration). In the sandbox: `NODE_PATH=/opt/node22/lib/node_modules`, and run the server with `SAFEZONE_FIXTURES=fixtures/demo MODEL_API_KEY=x python -m uvicorn safezone.app:create_app --factory --port 8000`.
 - After any web change run `python tools/sw_shell.py`: it rewrites the service worker's offline file list and bumps its version.
 
 ## Submission materials
