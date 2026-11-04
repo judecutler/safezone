@@ -1,12 +1,12 @@
 {
   "name": "SafeZone",
   "short_name": "SafeZone",
-  "description": "Earthquake and tsunami plan for your home, with an offline emergency screen.",
+  "description": "Prepare once for a coastal earthquake. When it comes, your phone talks you out.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#FBF8F1",
+  "theme_color": "#FBF8F1",
   "icons": [
     { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml" },
     { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
