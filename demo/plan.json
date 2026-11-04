@@ -419,7 +419,7 @@
       "target_id": "cabinet-0",
       "target_label": "cabinet",
       "hazard_kind": "heavy_up_high",
-      "action": "Move heavy or breakable items down to low shelves or the floor.",
+      "action": "Move heavy or breakable items down low.",
       "effort": "minutes",
       "cost_usd": [
        0,
@@ -432,7 +432,7 @@
       "target_id": "box-0",
       "target_label": "box",
       "hazard_kind": "heavy_up_high",
-      "action": "Move heavy or breakable items down to low shelves or the floor.",
+      "action": "Move heavy or breakable items down low.",
       "effort": "minutes",
       "cost_usd": [
        0,
@@ -445,7 +445,7 @@
       "target_id": "box-1",
       "target_label": "box",
       "hazard_kind": "heavy_up_high",
-      "action": "Move heavy or breakable items down to low shelves or the floor.",
+      "action": "Move heavy or breakable items down low.",
       "effort": "minutes",
       "cost_usd": [
        0,
@@ -458,7 +458,7 @@
       "target_id": "box-2",
       "target_label": "box",
       "hazard_kind": "heavy_up_high",
-      "action": "Move heavy or breakable items down to low shelves or the floor.",
+      "action": "Move heavy or breakable items down low.",
       "effort": "minutes",
       "cost_usd": [
        0,
@@ -471,7 +471,7 @@
       "target_id": "bookshelf-0",
       "target_label": "bookshelf",
       "hazard_kind": "tall_furniture",
-      "action": "Anchor it to a wall stud with furniture straps or L-brackets. Renting? Ask your landlord or housing office; most allow straps.",
+      "action": "Strap it to a wall stud. Renting? Ask housing first; most allow straps.",
       "effort": "hour",
       "cost_usd": [
        10,
@@ -484,7 +484,7 @@
       "target_id": "wardrobe-0",
       "target_label": "wardrobe",
       "hazard_kind": "tall_furniture",
-      "action": "Anchor it to a wall stud with furniture straps or L-brackets. Renting? Ask your landlord or housing office; most allow straps.",
+      "action": "Strap it to a wall stud. Renting? Ask housing first; most allow straps.",
       "effort": "hour",
       "cost_usd": [
        10,
@@ -497,7 +497,7 @@
       "target_id": "wardrobe-1",
       "target_label": "wardrobe",
       "hazard_kind": "tall_furniture",
-      "action": "Anchor it to a wall stud with furniture straps or L-brackets. Renting? Ask your landlord or housing office; most allow straps.",
+      "action": "Strap it to a wall stud. Renting? Ask housing first; most allow straps.",
       "effort": "hour",
       "cost_usd": [
        10,

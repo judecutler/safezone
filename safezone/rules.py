@@ -65,8 +65,8 @@ DISCLAIMERS = [
 
 # Hazard kind -> the one fix SafeZone suggests. The model picks the kind; it never writes the fix.
 FIX_TABLE: dict[HazardKind, tuple[str, Effort, tuple[int, int]]] = {
-    "tall_furniture": ("Anchor it to a wall stud with furniture straps or L-brackets. Renting? Ask your landlord or housing office; most allow straps.", "hour", (10, 30)),
-    "heavy_up_high": ("Move heavy or breakable items down to low shelves or the floor.", "minutes", (0, 0)),
+    "tall_furniture": ("Strap it to a wall stud. Renting? Ask housing first; most allow straps.", "hour", (10, 30)),
+    "heavy_up_high": ("Move heavy or breakable items down low.", "minutes", (0, 0)),
     "tv": ("Strap the TV to the wall or its stand.", "minutes", (15, 40)),
     "glass": ("Apply safety film, or move beds and seating away from the glass.", "hour", (20, 60)),
     "overhead_fixture": ("Have the fixture checked and secured to the ceiling framing.", "pro", (100, 300)),
