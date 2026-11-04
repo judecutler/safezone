@@ -544,7 +544,8 @@ export function debris(svg, onPhase = () => {}) {
       seen = true;
       const t = clock();
       draw(t);
-      const now = t == null ? 0 : TIMELINE.findLastIndex(([at]) => t >= at);
+      // Before the first mark (a negative clock right after start) the phase is the first one, not -1.
+      const now = t == null ? 0 : Math.max(0, TIMELINE.findLastIndex(([at]) => t >= at));
       if (now !== phase) { phase = now; onPhase(TIMELINE[now][1], TIMELINE[now][2]); }
     }
     if (!document.hidden) raf = requestAnimationFrame(frame);

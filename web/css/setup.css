@@ -43,7 +43,6 @@
 .setup-map-card { border: 1px solid var(--hair); border-radius: var(--radius, 14px); overflow: hidden; }
 .setup-map-card .sf-map { flex: none; height: 240px; }
 
-.setup-map .leaflet-top.leaflet-left { top: 56px; }
 
 .perm-real { justify-self: start; margin-top: 4px; font-size: 0.875rem; }
 .perm-note { color: var(--muted); }

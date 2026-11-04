@@ -269,7 +269,7 @@ function planScreen(state, act) {
 
     inZone ? h('section', { class: 'plan-section' },
       h('h2', { class: 'section-title' }, 'Way out of the hazard area'),
-      routeView(route, plan.building)) : null,
+      routeView(route, plan.building, { shelters: plan.shelters })) : null,
 
     inZone || plan.shelters ? h('section', { class: 'plan-section print-shelters' },
       h('h2', { class: 'section-title' }, 'Shelters that fit your household'),

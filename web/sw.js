@@ -1,5 +1,5 @@
 // Bump VERSION whenever any file in SHELL changes, so phones pick up the new shell.
-const VERSION = 'safezone-v27';
+const VERSION = 'safezone-v28';
 const SHELL = [
   '/',
   '/app.css',
@@ -8,6 +8,8 @@ const SHELL = [
   '/css/capture.css',
   '/css/emergency.css',
   '/css/landing.css',
+  '/css/livemap.css',
+  '/css/setup.css',
   '/css/tokens.css',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
@@ -23,6 +25,7 @@ const SHELL = [
   '/js/dom.js',
   '/js/geometry.js',
   '/js/guide.js',
+  '/js/livemap.js',
   '/js/machine.js',
   '/js/overlay.js',
   '/js/photo.js',
@@ -38,10 +41,20 @@ const SHELL = [
   '/js/screens/places.js',
   '/js/screens/prepare.js',
   '/js/screens/review.js',
+  '/js/screens/setupmap.js',
   '/js/shots.js',
   '/js/standby.js',
   '/js/voice.js',
   '/manifest.webmanifest',
+  '/vendor/leaflet/LICENSE',
+  '/vendor/leaflet/README.md',
+  '/vendor/leaflet/images/layers-2x.png',
+  '/vendor/leaflet/images/layers.png',
+  '/vendor/leaflet/images/marker-icon-2x.png',
+  '/vendor/leaflet/images/marker-icon.png',
+  '/vendor/leaflet/images/marker-shadow.png',
+  '/vendor/leaflet/leaflet.css',
+  '/vendor/leaflet/leaflet.js',
 ];
 
 const FONT_HOSTS = new Set(['fonts.googleapis.com', 'fonts.gstatic.com']);
@@ -55,7 +68,8 @@ async function tile(request) {
   const cache = await caches.open(TILES);
   const hit = await cache.match(request);
   if (hit) return hit;
-  const res = await fetch(request);
+  // Offline with no cached copy: an empty 504 lets the map draw its overlays on the plain background.
+  const res = await fetch(request).catch(() => new Response(null, { status: 504, statusText: 'Offline' }));
   if (res.ok || res.type === 'opaque') {
     await cache.put(request, res.clone());
     const keys = await cache.keys();

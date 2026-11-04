@@ -148,7 +148,7 @@ export function renderPlace(state, act) {
         g ? h('ol', { class: 'steps-list' }, g.after.map((t) => h('li', null, t))) : null),
       inZone ? h('section', { class: 'card stack' },
         h('div', { class: 'card-head' }, evacSign('sign'), h('h2', { class: 'section-title' }, 'Way out of the hazard area')),
-        routeView(route, plan.building),
+        routeView(route, plan.building, { shelters: plan.shelters }),
         h('p', { class: 'fine' }, 'In an emergency SafeZone reads these turns aloud as you walk.')) : null,
       inZone || plan.shelters ? h('section', { class: 'card stack' },
         h('h2', { class: 'section-title' }, 'Shelters that fit your household'),

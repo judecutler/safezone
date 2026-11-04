@@ -197,8 +197,9 @@ async function demoFlow(browser) {
   check(await waitFor(page, () => document.querySelectorAll('.place .lm-hazard').length > 0 && document.querySelector('.place .lm-route-line')
     && document.querySelectorAll('.place .lm-turn').length > 0 && document.querySelector('.place .lm-home') && document.querySelector('.place .lm-dest')),
     'place map draws the hazard area, route, numbered turns, home and destination (with or without tiles)');
-  check(/Outside the hazard area · 10 min walk/.test(await text(page, '.place .lm-holder')), 'place map labels the destination with its walk time');
-  check((await text(page, '.place .lm-holder')).includes('Leaving the hazard area'), 'place map marks where the route leaves the hazard area');
+  check(/Outside the hazard area\s+10 min walk/.test(await text(page, '.place .lm-holder')), 'place map labels the destination with its walk time');
+  check(await page.locator('.place .lm-exit').count() === 1 && (await page.locator('.place .lm-label-exit').textContent()).includes('Leaving the hazard area'),
+    'place map marks where the route leaves the hazard area');
   check(await page.locator('.place .lm-place').count() === demo.plan.shelters.matches.length, 'place map shows each shelter');
   check((await text(page, '.place .lm-legend')).includes('California Geological Survey'), 'place map legend names its sources');
   check(await page.locator('.place .shelter').count() === demo.plan.shelters.matches.length, 'place lists the shelters');

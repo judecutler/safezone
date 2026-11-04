@@ -30,6 +30,8 @@ function loadLeaflet() {
 }
 
 const ll = ([lon, lat]) => [lat, lon];
+// Leaflet sets tooltip strings as HTML, and names come from outside data, so every text is escaped.
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 const isPoint = (p) => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1]);
 const FRAME_PLACES_M = 2000;
 const EXIT_CLEAR_PX = 40;
@@ -82,6 +84,8 @@ export async function liveMap(container, { region = 'us-ca', interactive = true 
   const dark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
   L.tileLayer(`https://{s}.basemaps.cartocdn.com/${dark ? 'dark_all' : 'light_all'}/{z}/{x}/{y}{r}.png`, {
     subdomains: 'abcd', maxZoom: 19, attribution: TILE_ATTR, className: 'lm-tiles',
+    // CORS responses, so the service worker caches real-size tiles rather than padded opaque ones.
+    crossOrigin: 'anonymous',
   }).addTo(map);
   L.control.scale({ imperial: false, position: 'bottomleft' }).addTo(map);
   map.setView([37.77, -122.5], 15);
@@ -91,7 +95,7 @@ export async function liveMap(container, { region = 'us-ca', interactive = true 
   L.DomEvent.disableClickPropagation(card);
 
   const layers = { home: null, hazard: null, route: null, places: null, walker: null, exit: null };
-  let homeAt = null, hazardArea = null, routeData = null, walkerAt = null, follow = true;
+  let homeText = 'Home', homeAt = null, hazardArea = null, routeData = null, walkerAt = null, follow = true;
 
   const divMarker = (at, cls, html, pane = 'lm-marks', size = [24, 24]) =>
     L.marker(ll(at), { pane, interactive: false, keyboard: false,
@@ -117,12 +121,27 @@ export async function liveMap(container, { region = 'us-ca', interactive = true 
       if (l.cls === 'lm-label-exit' && destDir) dir = destDir === 'left' ? 'right' : 'left';
       if (dir !== l.direction) { l.direction = dir; bindLabel(marker, l.text, l.cls, dir); }
     }
+    // A label still too wide for its side slides back inside the map edge.
+    const box = container.getBoundingClientRect();
+    for (const [marker] of live) {
+      const el = marker.getTooltip()?.getElement();
+      if (!el) continue;
+      el.style.marginLeft = el.style.marginTop = '';
+      const r = el.getBoundingClientRect();
+      const dx = r.left < box.left + 4 ? box.left + 4 - r.left : r.right > box.right - 4 ? box.right - 4 - r.right : 0;
+      const dy = r.top < box.top + 4 ? box.top + 4 - r.top : r.bottom > box.bottom - 4 ? box.bottom - 4 - r.bottom : 0;
+      if (dx) el.style.marginLeft = `${dx}px`;
+      if (dy) el.style.marginTop = `${dy}px`;
+    }
     const kept = [];
+    const view = map.getBounds();
     live.sort((a, b) => (RANK[a[1].cls] ?? 9) - (RANK[b[1].cls] ?? 9));
     for (const [marker, l] of live) {
       const el = marker.getTooltip()?.getElement();
       if (!el) continue;
       el.style.visibility = '';
+      // A label whose marker is off the map would point at nothing.
+      if (!view.contains(marker.getLatLng())) { el.style.visibility = 'hidden'; continue; }
       const r = el.getBoundingClientRect();
       const gap = l.cls === 'lm-label-exit' ? EXIT_CLEAR_PX : 2;
       const hit = kept.some((k) => r.left < k.right + gap && r.right > k.left - gap && r.top < k.bottom + gap && r.bottom > k.top - gap);
@@ -130,6 +149,10 @@ export async function liveMap(container, { region = 'us-ca', interactive = true 
     }
   }
   map.on('moveend zoomend', orient);
+  // The container can change size after the map is made (late CSS, a legend that wraps); without this the
+  // vector layers stay clipped to the old size.
+  const resize = new ResizeObserver(() => map.invalidateSize({ pan: false }));
+  resize.observe(container);
   const replace = (key, layer) => { layers[key]?.remove(); layers[key] = layer ? layer.addTo(map) : null; };
   // Labels go on the side away from the other end of the route, so home and destination labels never collide.
   const sideAwayFrom = (at, other) => (other && other[0] > at[0] ? 'left' : 'right');
@@ -138,8 +161,9 @@ export async function liveMap(container, { region = 'us-ca', interactive = true 
     const exit = routeData ? hazardExit(routeData, hazardArea) : null;
     if (!exit) { replace('exit', null); return; }
     const m = divMarker(exit.at, 'lm-exit', '', 'lm-marks', [14, 14]);
-    label(m, `Leaving the hazard area · after ${formatDistance(exit.alongM)}`, 'lm-label-exit', sideAwayFrom(exit.at, routeData.origin));
+    label(m, `Leaving the hazard area<br>after ${formatDistance(exit.alongM)}`, 'lm-label-exit', sideAwayFrom(exit.at, routeData.origin));
     replace('exit', m);
+    orient();
   }
 
   // 'all' frames home, the route and its destination, plus only the places within FRAME_PLACES_M of home;
@@ -174,8 +198,10 @@ export async function liveMap(container, { region = 'us-ca', interactive = true 
       if (!isPoint(at)) return;
       homeAt = at;
       const m = divMarker(at, 'lm-home', '<span></span>', 'lm-marks', [22, 22]);
-      label(m, text, 'lm-label-home', sideAwayFrom(at, routeData?.destination));
+      homeText = text;
+      label(m, esc(text), 'lm-label-home', sideAwayFrom(at, routeData?.destination));
       replace('home', m);
+      orient();
     },
     setHazard(area) {
       hazardArea = area ?? null;
@@ -210,21 +236,21 @@ export async function liveMap(container, { region = 'us-ca', interactive = true 
         const pts = stepPoints(route);
         pts.slice(1, -1).filter((p) => isPoint(p.at)).forEach((p) =>
           divMarker(p.at, 'lm-turn', `<span>${p.index + 1}</span>`, 'lm-marks', [22, 22])
-            .bindTooltip(p.instruction, { direction: 'top', className: 'lm-label', offset: [0, -10] }).addTo(group));
+            .bindTooltip(esc(p.instruction), { direction: 'top', className: 'lm-label', offset: [0, -10] }).addTo(group));
         const site = route.kind === 'site_route' ? route.site : null;
         const dest = divMarker(route.destination, 'lm-dest', '<span></span>', 'lm-marks', [20, 20]);
-        const name = site ? site.name : 'Outside the hazard area';
-        label(dest, `${name} · ${walkText(route.walk_min)}`, 'lm-label-dest', sideAwayFrom(route.destination, route.origin));
+        const name = site ? esc(site.name) : 'Outside the hazard area';
+        label(dest, `${name}<br>${walkText(route.walk_min)}`, 'lm-label-dest', sideAwayFrom(route.destination, route.origin));
         dest.addTo(group);
       } else if (route?.kind === 'direction_only' && isPoint(route.origin) && Number.isFinite(route.bearing_deg)) {
         const end = destinationPoint(route.origin, route.bearing_deg, Math.min(route.straight_m ?? 500, 1500));
         L.polyline([ll(route.origin), ll(end)], { pane: 'lm-route', className: 'lm-route-bearing', interactive: false, weight: 4, dashArray: '10 8', color: '#17150F' }).addTo(group);
         const arrow = divMarker(end, 'lm-arrow', `<span style="transform: rotate(${route.bearing_deg}deg)"></span>`, 'lm-marks', [26, 26]);
-        label(arrow, `Head ${route.compass}`, 'lm-label-dest');
+        label(arrow, `Head ${esc(route.compass)}`, 'lm-label-dest');
         arrow.addTo(group);
       }
       replace('route', group.getLayers().length ? group : null);
-      if (homeAt) controller.setHome(homeAt, layers.home?.getTooltip()?.getContent() ?? 'Home');
+      if (homeAt) controller.setHome(homeAt, homeText);
       drawExit();
     },
     setPlaces(list) {
@@ -232,11 +258,12 @@ export async function liveMap(container, { region = 'us-ca', interactive = true 
       const few = (list ?? []).length <= 3;
       for (const p of (list ?? []).filter((q) => q && Number.isFinite(q.lon) && Number.isFinite(q.lat))) {
         const m = divMarker([p.lon, p.lat], `lm-place lm-place-${p.kind}`, '<span></span>', 'lm-marks', [20, 20]);
-        if (few) label(m, p.label, 'lm-label-place', homeAt && p.lon < homeAt[0] ? 'left' : 'right');
-        else m.bindTooltip(p.label, { className: 'lm-label lm-label-place' });
+        if (few) label(m, esc(p.label), 'lm-label-place', homeAt && p.lon < homeAt[0] ? 'left' : 'right');
+        else m.bindTooltip(esc(p.label), { className: 'lm-label lm-label-place' });
         m.addTo(group);
       }
       replace('places', group.getLayers().length ? group : null);
+      orient();
     },
     // `note` is a short callout shown beside the dot (the next turn); `follow` keeps the dot in view.
     setWalker(at, { note = null, follow: keep = follow } = {}) {
@@ -250,10 +277,10 @@ export async function liveMap(container, { region = 'us-ca', interactive = true 
         layers.walker.setLatLng(ll(at));
       }
       const tip = layers.walker.getTooltip();
-      if (note && !tip) label(layers.walker, note, 'lm-callout', 'top').openTooltip();
-      else if (note) tip.setContent(note);
+      if (note && !tip) label(layers.walker, esc(note), 'lm-callout', 'top').openTooltip();
+      else if (note) tip.setContent(esc(note));
       else if (tip) layers.walker.unbindTooltip();
-      if (follow && !map.getBounds().pad(-0.2).contains(ll(at))) map.panTo(ll(at), { animate: true, duration: 0.5 });
+      if (follow && !map.getBounds().pad(-0.2).contains(ll(at))) map.panTo(ll(at), { animate: false });
     },
     highlight(what, text) {
       fit(what);
@@ -261,7 +288,7 @@ export async function liveMap(container, { region = 'us-ca', interactive = true 
       card.textContent = text ?? '';
     },
     fit,
-    destroy() { map.remove(); card.remove(); container.classList.remove('livemap'); },
+    destroy() { resize.disconnect(); map.remove(); card.remove(); container.classList.remove('livemap'); },
   };
   return controller;
 }
