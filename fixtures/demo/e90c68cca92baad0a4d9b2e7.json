@@ -1,0 +1,10 @@
+{
+ "request": {
+  "method": "POST",
+  "url": "https://api.meta.ai/v1/responses",
+  "params": {}
+ },
+ "status": 200,
+ "provenance": "sample",
+ "text": "event: response.created\ndata: {\"type\": \"response.created\", \"response\": {\"status\": \"in_progress\"}}\n\nevent: response.completed\ndata: {\"type\": \"response.completed\", \"response\": {\"status\": \"completed\", \"output\": [{\"type\": \"message\", \"content\": [{\"type\": \"output_text\", \"text\": \"\"}]}]}}\n\n"
+}
