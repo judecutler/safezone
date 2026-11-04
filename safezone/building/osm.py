@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import re
+import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
@@ -9,13 +11,16 @@ from pydantic import BaseModel, ConfigDict
 
 from ..geo import LocalFrame, distance_to_boundary_m, point_in_ring
 from ..shapes import BuildingFlag, FlagKind, LonLat, Provenance, Ring
-from ..transport import HttpError, Transport, get_json
+from ..transport import HttpError, Request, Transport, get_json
 
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
 OVERPASS_MIRRORS = ("https://overpass.private.coffee/api/interpreter", "https://overpass.kumi.systems/api/interpreter")
 """The main instance is often at capacity (502) or slow; these public worldwide mirrors are tried in order."""
 OVERPASS_TIMEOUT_S = 60.0
 """Busy instances queue the query before running it, so 30 s read timeouts hit on every instance."""
+OVERPASS_BUDGET_S = 10.0
+"""Total wait across every instance when a person is waiting. Overpass only adds the optional storeys flag, and on
+Vercel it timed out on all three instances, holding the address lookup for 56 s. The recorders raise this."""
 RADIUS_M = 25.0
 OSM_CAVEAT = "From OpenStreetMap; volunteers map this and it can be wrong."
 LEVELS = re.compile(r"^\d+(\.\d+)?$")
@@ -92,14 +97,19 @@ def building_flags(building: Building, point: LonLat, provenance: Provenance) ->
     return flags
 
 
-def fetch_building(transport: Transport, point: LonLat) -> tuple[Building | None, Provenance]:
+def fetch_building(transport: Transport, point: LonLat,
+                   clock: Callable[[], float] = time.monotonic) -> tuple[Building | None, Provenance]:
+    """Tries each instance in turn until one answers or OVERPASS_BUDGET_S runs out; then raises HttpError."""
     params = {"data": overpass_query(point)}
-    *fallbacks, last = (OVERPASS_URL, *OVERPASS_MIRRORS)
-    for url in fallbacks:
+    deadline = clock() + OVERPASS_BUDGET_S
+    error: HttpError | None = None
+    for url in (OVERPASS_URL, *OVERPASS_MIRRORS):
+        remaining = deadline - clock()
+        if remaining < 1.0:
+            break
         try:
-            data, provenance = get_json(transport, url, params, timeout_s=OVERPASS_TIMEOUT_S)
+            data, provenance = get_json(transport, url, params, timeout_s=min(OVERPASS_TIMEOUT_S, remaining))
             return choose_building(parse_buildings(data), point), provenance
-        except HttpError:
-            pass
-    data, provenance = get_json(transport, last, params, timeout_s=OVERPASS_TIMEOUT_S)
-    return choose_building(parse_buildings(data), point), provenance
+        except HttpError as e:
+            error = e
+    raise error or HttpError(Request("GET", OVERPASS_URL), 599, "Overpass time budget spent")

@@ -18,6 +18,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from safezone.building import osm  # noqa: E402
 from safezone import regions  # noqa: E402
 from safezone.shapes import Household  # noqa: E402
 from safezone.transport import RecordingTransport, ReplayTransport, Transport  # noqa: E402
@@ -65,6 +66,7 @@ def summarize(result: dict) -> None:
 
 
 def main() -> None:
+    osm.OVERPASS_BUDGET_S = 180.0  # nobody is waiting on a screen; give every Overpass instance its full wait
     parser = argparse.ArgumentParser()
     parser.add_argument("--address", default=JP_DEMO_ADDRESS)
     args = parser.parse_args()

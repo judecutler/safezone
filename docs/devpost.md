@@ -2,7 +2,6 @@
 TODO after tomorrow's recording:
 - Go-bag check: if `python tools/record_fixtures.py --gobag <photo>` succeeds, change "the demo's go-bag result is labelled sample data" (What it does) to "the demo's go-bag result is a recorded Muse Spark answer".
 - Kamakura: if `python tools/record_japan.py` succeeds and demo/plan_jp.json is rebuilt, change "Kamakura runs on labelled sample data until it is recorded" (What it does, Accomplishments) to "recorded real data".
-- Test counts in Accomplishments: rerun both suites and update them.
 - Video link: add it to the Devpost video field.
 -->
 
@@ -97,7 +96,7 @@ Two regions work today. The San Francisco demo (1000 Great Highway, inside the o
 - In the real demo room, Muse Spark proposed a floor spot in a doorway, and SafeZone's own check set it aside. The model reasons, and code decides.
 - A voice-led emergency that only speaks official guidance, the saved spot and checked route steps, and never tells anyone to move during shaking.
 - Two regions behind one registry, with Japanese guidance quoted verbatim from the Cabinet Office and JMA. Kamakura runs on labelled sample data until it is recorded.
-- 224 Python tests (including adversarial safety tests and a test of the whole demo plan), 31 web tests, and a browser check that drives the flows in a phone-sized Chromium.
+- 234 Python tests (including adversarial safety tests and a test of the whole demo plan), 36 web tests, and a 132-check browser run that drives every flow in a phone-sized Chromium and checks what the voice says.
 
 ## What we learned
 

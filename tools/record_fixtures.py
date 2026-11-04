@@ -26,6 +26,7 @@ from urllib.parse import urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from safezone.building import osm  # noqa: E402
 from safezone.app import FEMA_HOST, HostSplit  # noqa: E402
 from safezone.config import load_settings  # noqa: E402
 from safezone.meta import MetaClient  # noqa: E402
@@ -97,6 +98,7 @@ def record_gobag(photo: Path, log: FailureLog) -> None:
 
 
 def main() -> None:
+    osm.OVERPASS_BUDGET_S = 180.0  # nobody is waiting on a screen; give every Overpass instance its full wait
     parser = argparse.ArgumentParser()
     parser.add_argument("--keep-sample-shelters", action="store_true")
     parser.add_argument("--gobag", type=Path, metavar="PHOTO", help="record only a go-bag check of this photo")
