@@ -6,3 +6,13 @@ __pycache__/
 node_modules/
 /scratch/
 tools/probe_out.json
+# Secrets: never commit these
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local caches and build output
+.venv/
+venv/
+.DS_Store
