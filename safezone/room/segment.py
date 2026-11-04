@@ -191,7 +191,12 @@ def _segment(seg_id: str, label: str, rec: SamRecord, image_size: tuple[int, int
     decoded = rec.mask is None
     if rec.mask is not None:
         sx, sy = _scale(rec, image_size)
-        mask_out = _decode_mask(rec.mask, rec.box[0] + rec.mask.x, rec.box[1] + rec.mask.y, sx, sy)
+        # SAM 3.1 sends the mask downscaled so its long side is at most 1024 px (a 1794 x 1567 box came back
+        # as a 1024 x 894 mask in a recorded response), so mask pixels are stretched over the box. x and y are
+        # taken to be offsets in mask pixels.
+        kx = (rec.box[2] - rec.box[0]) / rec.mask.width
+        ky = (rec.box[3] - rec.box[1]) / rec.mask.height
+        mask_out = _decode_mask(rec.mask, rec.box[0] / kx + rec.mask.x, rec.box[1] / ky + rec.mask.y, kx * sx, ky * sy)
         if mask_out is not None:
             outline, area, centroid = mask_out
             decoded = True

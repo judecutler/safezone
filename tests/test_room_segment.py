@@ -84,3 +84,24 @@ def test_every_phrase_failing_raises_meta_unavailable():
 def test_offset_path_moves_absolute_coordinates_only():
     assert offset_path("M0 0 L2 0 l0 3 H5 V7 Z", 10, 20) == "M 10 20 L 12 20 l 0 3 H 15 V 27 Z"
     assert offset_path("m1,1 2,0z", 10, 20, 2, 2) == "m 22 42 4 0 z"
+
+
+def test_real_sam_record_maps_its_downscaled_mask_onto_the_box(monkeypatch):
+    # Header of a recorded SAM 3.1 answer for "wardrobe" on the 4032 x 2268 demo photo; payload shortened.
+    text = ("<0f>0<|box;x1=400;y1=483;x2=2193;y2=2049;w=4032;h=2268;c=0.6559139490127563|>"
+            "<|mask;x=0;y=0;c=0.6559139490127563;data=894,1024,~!!88k#L*0P|>\n")
+    from safezone.room import segment
+
+    (rec,) = segment.parse_sam_output(text)
+    assert (rec.mask.width, rec.mask.height, rec.mask.encoding) == (1024, 894, "lossless")
+    seen = {}
+
+    def fake_decode(mask, ox, oy, sx, sy):
+        seen["corners"] = ((ox * sx, oy * sy), ((ox + mask.width) * sx, (oy + mask.height) * sy))
+        return "M0 0Z", 1.0, (0.0, 0.0)
+
+    monkeypatch.setattr(segment, "_decode_mask", fake_decode)
+    seg, decoded = segment._segment("wardrobe-0", "wardrobe", rec, (1600, 900))
+    (x0, y0), (x1, y1) = seen["corners"]
+    assert decoded
+    assert (x0, y0, x1, y1) == pytest.approx(seg.bbox, abs=0.01)

@@ -81,3 +81,14 @@ def test_osm_flags_only_when_mapped():
     assert all(f.tone == "info" and "can be wrong" in f.detail for f in flags)
     bare = osm.Building(footprint=box(0, 0, 5), tags={"building": "yes", "building:levels": "lots"})
     assert osm.building_flags(bare, HOME, "live") == []
+
+
+def test_land_polygons_come_from_the_outside_features_only():
+    ring = [[-122.0, 37.0], [-122.0, 37.1], [-121.9, 37.1], [-121.9, 37.0], [-122.0, 37.0]]
+    data = {"features": [
+        {"attributes": {"Evacuate": "Yes, Tsunami Hazard Area"}, "geometry": {"rings": [ring]}},
+        {"attributes": {"Evacuate": "No, Outside Hazard Area"}, "geometry": {"rings": [ring]}},
+        {"attributes": {"Evacuate": "No, Outside Hazard Area"}, "geometry": {"rings": [ring]}},
+    ]}
+    assert len(cgs.parse_polygons(data)) == 1
+    assert len(cgs.parse_polygons(data, "No")) == 2

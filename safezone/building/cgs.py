@@ -81,13 +81,14 @@ def group_rings(rings: list[Ring]) -> list[Polygon]:
     return outers
 
 
-def parse_polygons(data: Any) -> list[Polygon]:
+def parse_polygons(data: Any, evacuate: str = "Yes") -> list[Polygon]:
+    """Polygons of the features whose Evacuate value starts with `evacuate`."""
     fs = _FeatureSet.model_validate(data)
     if fs.exceededTransferLimit:
         raise IncompleteHazardArea("CGS returned a truncated polygon set")
     polygons: list[Polygon] = []
     for f in fs.features:
-        if _is_hazard(f) and f.geometry:
+        if (f.attributes.Evacuate or "").startswith(evacuate) and f.geometry:
             polygons.extend(group_rings([[tuple(p) for p in r] for r in f.geometry.rings]))
     return polygons
 
@@ -126,7 +127,7 @@ def _polygons_near(transport: Transport, home: LonLat, evacuate: str) -> tuple[l
         "spatialRel": "esriSpatialRelIntersects", "where": f"Evacuate LIKE '{evacuate}%'", "returnGeometry": "true",
         "outSR": 4326, "maxAllowableOffset": 0.00005, "outFields": OUT_FIELDS, "f": "json",
     })
-    return parse_polygons(data), provenance
+    return parse_polygons(data, evacuate), provenance
 
 
 def _flag(tone: FlagTone, value: str, detail: str, url: str, provenance: Provenance) -> BuildingFlag:
