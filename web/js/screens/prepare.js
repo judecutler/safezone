@@ -12,7 +12,7 @@ const RELATION_TEXT = {
 function header(state, act) {
   const idx = STEPS.findIndex(([k]) => k === state.screen);
   return h('header', { class: 'bar' },
-    h('div', { class: 'wordmark' }, icon('target', 'wordmark-icon'), 'SafeZone'),
+    h('div', { class: 'wordmark' }, icon('mark', 'wordmark-icon'), 'SafeZone'),
     idx >= 0 ? h('ol', { class: 'steps', 'aria-label': 'Progress' }, STEPS.map(([k, label], i) =>
       h('li', { class: i < idx ? 'done' : i === idx ? 'now' : '', 'aria-current': i === idx ? 'step' : null },
         h('span', { class: 'step-n' }, i + 1), h('span', { class: 'step-label' }, label)))) : null,

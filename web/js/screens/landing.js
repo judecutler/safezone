@@ -16,7 +16,7 @@ export function renderLanding(state, act) {
       map,
       animate ? debris(map) : null,
       h('div', { class: 'landing-top' },
-        h('div', { class: 'landing-mark' }, icon('target', 'landing-mark-icon'), 'SafeZone'),
+        h('div', { class: 'landing-mark' }, icon('mark', 'landing-mark-icon'), 'SafeZone'),
         h('div', { class: 'landing-phase', 'aria-hidden': 'true' },
           tsunamiSign('sign landing-phase-sign'),
           h('span', { class: 'landing-phase-words' }, PHASES.map((p, i) => h('span', { class: `landing-phase-${i}` }, p)))))),

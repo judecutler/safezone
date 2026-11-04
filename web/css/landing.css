@@ -7,6 +7,9 @@
   border-bottom: 1px solid var(--hair);
 }
 .landing-map > .nb { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.landing-map > .nb-stack { position: absolute; inset: -16px; }
+.nb-stack > svg, .nb-stack > .nb-flash { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.nb-stack > .nb-layer { background: none; overflow: visible; }
 .landing-map > .nb-debris { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
 
 .landing-top {
@@ -43,6 +46,8 @@
 .landing-card .display { font-size: clamp(2.125rem, 10.5vw, 3.25rem); }
 .landing-actions { display: grid; gap: 10px; }
 .landing-actions .btn-text { justify-self: center; }
+.landing-fact { font-size: 0.875rem; line-height: 1.45; color: var(--muted); border-left: 3px solid var(--accent); padding-left: 10px; max-width: 60ch; }
+.landing-fact a { color: var(--ink); text-underline-offset: 3px; }
 .landing { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
 
 /* Short windows (a laptop with its browser chrome): a tighter card so the map keeps at least 40% of the height. */
@@ -51,88 +56,99 @@
   .landing-card { margin-top: -28px; padding: 16px 18px 14px; gap: 10px; }
   .landing-card .display { font-size: clamp(1.75rem, 7.5vw, 2.25rem); }
   .landing-card .lede { font-size: 0.9375rem; line-height: 1.45; }
+  .landing-fact { font-size: 0.8125rem; }
   .landing-actions { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .landing-actions .btn, .landing-actions .btn-ghost { min-height: 48px; padding-inline: 10px; font-size: 1.0625rem; white-space: nowrap; }
   .landing-actions .btn-text { grid-column: 1 / -1; }
 }
 
-/* The art: a site plan in soft colour. Warm grey roofs with fine ink lines, green crowns, a blue-green sea. */
+/* The art: a tilted map in soft colour. Light-grey prisms with fine ink edges, light-green crowns, a blue-green sea. */
 
-.nb { background: #F4F0E6; }
-.nb-paper { fill: #F4F0E6; }
-.nb-hill { fill: #DCE7CB; opacity: 0.38; stroke: none; }
-.nb-sand { fill: #EEDDBB; }
-.nb-wrack { fill: none; stroke: #D9C49A; stroke-width: 0.7; stroke-dasharray: 5 3 1.5 3; }
-.nb-sea-base { fill: #CCE2DC; }
+.nb { background: #F1EEE7; }
+.nb-paper { fill: #F1EEE7; }
+.nb-hill { fill: #C9E3B0; opacity: 0.32; stroke: none; }
+.nb-sand { fill: #F1D9A4; }
+.nb-wrack { fill: none; stroke: #DDBF80; stroke-width: 0.8; stroke-dasharray: 5 3 1.5 3; }
+.nb-sea-base { fill: #A9D6DA; }
 .nb-sea { stroke: none; }
-.nb-scale { fill: #CCE2DC; stroke: #A3C7BF; stroke-width: 0.6; }
+.nb-scale { fill: #A9D6DA; stroke: #84BCC3; stroke-width: 0.6; }
 .nb-scale-ring { fill: none; }
-.nb-fscale { fill: #A9CEC8; stroke: #6E9F98; stroke-width: 0.6; }
+.nb-fscale { fill: #86C0C4; stroke: #5B979C; stroke-width: 0.6; }
 .nb-fscale-ring { fill: none; }
-.nb-shore { fill: none; stroke: #6E8F88; stroke-width: 0.8; }
-.nb-surf { fill: none; stroke: #FFFFFF; stroke-width: 1; stroke-dasharray: 4 3; opacity: 0.9; }
-.nb-contour { fill: none; stroke: #B5C69F; stroke-width: 0.6; }
-.nb-contour-major { stroke: #9AB083; stroke-width: 0.8; }
-.nb-park { fill: #D7E6C6; stroke: #A8BE92; stroke-width: 0.6; }
-.nb-field { fill: #E1ECD2; }
-.nb-trail { fill: none; stroke: #A8BE92; stroke-width: 0.8; stroke-dasharray: 2 2; }
+.nb-shore { fill: none; stroke: #5E8F94; stroke-width: 0.8; }
+.nb-surf { fill: none; stroke: #FFFFFF; stroke-width: 1.1; stroke-dasharray: 4 3; }
+.nb-contour { fill: none; stroke: #A9C98E; stroke-width: 0.6; }
+.nb-contour-major { stroke: #8CB46F; stroke-width: 0.8; }
+.nb-park { fill: #CDE6B6; stroke: #9DC283; stroke-width: 0.6; }
+.nb-field { fill: #DCEFC8; }
+.nb-trail { fill: none; stroke: #9DC283; stroke-width: 0.8; stroke-dasharray: 2 2; }
 .nb-casing, .nb-road { fill: none; stroke-linecap: round; stroke-linejoin: round; }
-.nb-casing { stroke: #BBB2A0; }
-.nb-road { stroke: #FFFCF4; }
-.nb-casing-end { fill: #BBB2A0; }
-.nb-road-end { fill: #FFFCF4; }
-/* The shadows and the outline are <use> clones of the fill paths; the clone's colours come in through these properties. */
-.nb-house { fill: var(--nb-fill, #E8E4DC); stroke: var(--nb-stroke, none); stroke-width: 0.5; stroke-linejoin: round; }
-.nb-cast { --nb-fill: rgba(96, 82, 60, 0.2); fill: rgba(96, 82, 60, 0.2); }
-.nb-house-outline { --nb-fill: none; --nb-stroke: #34302A; }
-.nb-house-shade { fill: #C6BFB2; }
-.nb-house-line { fill: none; stroke: #34302A; stroke-width: 0.45; stroke-linejoin: round; stroke-linecap: round; }
-.nb-tree-0 { fill: var(--nb-fill, #B4D29A); }
-.nb-tree-1 { fill: var(--nb-fill, #93BD7D); }
-.nb-tree-shadow { --nb-fill: rgba(70, 96, 52, 0.22); }
-.nb-pole { fill: none; stroke: #5E584D; stroke-width: 0.7; }
-.nb-wire { fill: none; stroke: #5E584D; stroke-width: 0.3; opacity: 0.8; }
-.nb-marker { fill: #FFFCF4; stroke: #34302A; stroke-width: 0.9; }
-.nb-ripple { fill: none; stroke: #34302A; stroke-width: 0.8; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.nb-casing { stroke: #A6A299; }
+.nb-road { stroke: #D9D6CF; }
+.nb-road.nb-main { stroke: #CFCBC3; }
+.nb-casing.nb-main { stroke: #97928A; }
+.nb-casing-end { fill: #A6A299; }
+.nb-road-end { fill: #D9D6CF; }
+.nb-cast { fill: rgba(80, 70, 52, 0.16); }
+.nb-house-wall, .nb-house-roof, .nb-home-wall, .nb-home-roof { stroke: #36322B; stroke-width: 0.45; stroke-linejoin: round; }
+.nb-house-wall { fill: #CFCBC3; }
+.nb-house-wall-dark { fill: #AEA89D; }
+.nb-house-roof { fill: #E7E5E0; }
+.nb-house-roof-dark { fill: #CBC7BF; }
+.nb-block.nb-house-wall { fill: #C7C4BE; }
+.nb-block.nb-house-wall-dark { fill: #A39E95; }
+.nb-home-wall, .nb-home-roof { stroke-width: 0.8; stroke: var(--ink); }
+.nb-home-wall { fill: #F2B71C; }
+.nb-home-wall-dark { fill: #D99A00; }
+.nb-home-roof { fill: var(--accent); }
+.nb-home-roof-dark { fill: #EDB000; }
+.nb-tree-shadow { fill: rgba(60, 86, 40, 0.18); }
+.nb-tree-0 { fill: #BCE39A; }
+.nb-tree-1 { fill: #A3D67E; }
+.nb-pole { fill: none; stroke: #5B554B; stroke-width: 0.7; stroke-linecap: round; }
+.nb-wire { fill: none; stroke: #5B554B; stroke-width: 0.3; opacity: 0.85; }
+.nb-post { stroke: var(--ink); stroke-width: 0.9; }
+.nb-marker { fill: #FFFCF4; stroke: #36322B; stroke-width: 0.9; }
+.nb-ripple { fill: none; stroke: #36322B; stroke-width: 0.8; opacity: 0; transform-box: fill-box; transform-origin: center; }
 .nb-label {
-  font: 700 7px var(--f-cond); font-stretch: condensed; letter-spacing: 0.32em; fill: #6F6A5E;
-  paint-order: stroke; stroke: #F4F0E6; stroke-width: 2.4px; stroke-linejoin: round;
+  font: 700 7px var(--f-cond); font-stretch: condensed; letter-spacing: 0.32em; fill: #5F5A4F;
+  paint-order: stroke; stroke: #F1EEE7; stroke-width: 2.4px; stroke-linejoin: round;
 }
-.nb-label-sea { fill: #4F7D76; stroke: #CCE2DC; }
+.nb-label-sea { fill: #3F7378; stroke: #A9D6DA; }
 .nb-label-small { font-size: 5.5px; letter-spacing: 0.24em; fill: var(--sev-3-text); }
 .nb-label-strong { font-size: 7.5px; fill: var(--ink); letter-spacing: 0.18em; }
-.nb-hazard { fill: none; stroke: var(--sev-3); stroke-width: 1.1; stroke-dasharray: 4 2.5; }
+.nb-hazard { fill: none; stroke: var(--sev-3); stroke-width: 1.2; stroke-dasharray: 4 2.5; }
 .nb-route-case { fill: none; stroke: var(--ink); stroke-width: 4.4; stroke-linecap: round; stroke-linejoin: round; }
 .nb-route { fill: none; stroke: var(--accent); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 5 3.5; }
-.nb-home-ring { fill: rgba(255, 198, 41, 0.3); stroke: var(--ink); stroke-width: 1; }
-.nb-home { fill: var(--accent); stroke: var(--ink); stroke-width: 1.1; stroke-linejoin: round; }
-.nb-home-shade { fill: #E3A400; }
-.nb-home-line { fill: none; stroke: var(--ink); stroke-width: 0.7; stroke-linecap: round; }
-.nb-flash { fill: #1E1A14; opacity: 0; pointer-events: none; }
+.nb-home-ring { fill: rgba(255, 198, 41, 0.32); stroke: var(--ink); stroke-width: 1; }
+.nb-flash { background: #1E1A14; opacity: 0; pointer-events: none; }
 
-.nb-flood { opacity: 0; transform: translateX(-215px); }
-.nb-flood-base { fill: #A9CEC8; opacity: 0.8; }
-.nb-flood-water { stroke: none; opacity: 0.8; }
+/* The flood is drawn twice: solid water under the buildings, so houses stand in it, and a thin wash over them. */
+.nb-flood { opacity: 0; transform: translate(-215px, -27.95px); }
+.nb-flood-base { fill: #8DC3C6; }
+.nb-flood-water { stroke: none; opacity: 0.32; }
 .nb-edge { fill: none; stroke-width: 1.4; stroke-linecap: round; }
 .nb-edge-1 { stroke: var(--sev-1); }
 .nb-edge-3 { stroke: var(--sev-3); }
-.nb-crest { fill: none; stroke: #3C5E5A; stroke-width: 1.1; stroke-linecap: round; }
+.nb-crest { fill: none; stroke: #2F5F62; stroke-width: 1.1; stroke-linecap: round; }
 
 /* The loop: 15 s. Calm 0-4.5 s; shaking 4.5-8.4 s with jolts at 4.5, 5.7 and 6.9 s (the debris canvas uses the same
    times, see neighborhood.js); the wave floods 8.4-11.7 s, recedes to 13.8 s; calm to 15 s. */
 
-.nb-animate .nb-quake { animation: nb-quake 15s ease-in-out infinite; transform-box: view-box; transform-origin: 200px 320px; }
-.nb-animate .nb-houses-0 { animation: nb-jitter-a 15s linear infinite; }
-.nb-animate .nb-houses-1 { animation: nb-jitter-b 15s linear infinite; }
-.nb-animate .nb-houses-2 { animation: nb-jitter-c 15s linear infinite; }
-.nb-animate .nb-houses-3 { animation: nb-jitter-b 15s linear -0.37s infinite reverse; }
-.nb-animate .nb-trees-0 { animation: nb-jitter-c 15s linear -0.2s infinite; }
-.nb-animate .nb-trees-1 { animation: nb-jitter-a 15s linear 0.15s infinite; }
-.nb-animate .nb-wires { animation: nb-swing 15s ease-in-out infinite; }
-.nb-animate .nb-flash { animation: nb-flash 15s linear infinite; }
-.nb-animate .nb-ripple { animation: nb-ripple 15s ease-out infinite; }
-.nb-animate .nb-flood { animation: nb-flood 15s infinite; }
-.nb-animate .nb-route { animation: nb-march 1.6s linear infinite; }
-.nb-animate .nb-home-ring { animation: nb-breathe 3.5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+/* The shake moves the whole layer stack and the jitter moves single band layers: compositor work, no repaint. */
+.landing-map > .nb-stack { animation: nb-quake 15s ease-in-out infinite; }
+.nb-stack .nb-band-0 { animation: nb-jitter-a 15s linear infinite; }
+.nb-stack .nb-band-1 { animation: nb-jitter-b 15s linear infinite; }
+.nb-stack .nb-band-2 { animation: nb-jitter-c 15s linear infinite; }
+.nb-stack .nb-band-3 { animation: nb-jitter-a 15s linear -0.3s infinite reverse; }
+.nb-stack .nb-band-4 { animation: nb-jitter-b 15s linear 0.2s infinite; }
+.nb-stack .nb-band-5 { animation: nb-jitter-c 15s linear -0.15s infinite reverse; }
+.nb-stack .nb-wire-layer { animation: nb-swing 15s ease-in-out infinite; }
+.nb-stack .nb-flash { animation: nb-flash 15s linear infinite; }
+.nb-stack .nb-ripple { animation: nb-ripple 15s ease-out infinite; }
+.nb-stack .nb-flood { animation: nb-flood 15s infinite; }
+.nb-stack .nb-route { animation: nb-march 1.6s linear infinite; }
+.nb-stack .nb-home-ring { animation: nb-breathe 3.5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
 .landing-map:has(.nb-animate) .landing-phase-0 { animation: nb-phase-0 15s step-end infinite; }
 .landing-map:has(.nb-animate) .landing-phase-1 { animation: nb-phase-1 15s step-end infinite; }
 .landing-map:has(.nb-animate) .landing-phase-2 { animation: nb-phase-2 15s step-end infinite; }
@@ -223,12 +239,12 @@
   100% { opacity: 0; transform: scale(1); }
 }
 @keyframes nb-flood {
-  0%, 56% { opacity: 0; transform: translateX(-215px); animation-timing-function: ease-out; }
-  57.8% { opacity: 1; transform: translateX(-190px); animation-timing-function: cubic-bezier(0.3, 0.1, 0.25, 1); }
+  0%, 56% { opacity: 0; transform: translate(-215px, -27.95px); animation-timing-function: ease-out; }
+  57.8% { opacity: 1; transform: translate(-190px, -24.7px); animation-timing-function: cubic-bezier(0.3, 0.1, 0.25, 1); }
   73.5% { opacity: 1; transform: translateX(0); }
-  78% { opacity: 1; transform: translateX(-3px); animation-timing-function: ease-in-out; }
-  90.5% { opacity: 1; transform: translateX(-205px); }
-  92%, 100% { opacity: 0; transform: translateX(-215px); }
+  78% { opacity: 1; transform: translate(-3px, -0.39px); animation-timing-function: ease-in-out; }
+  90.5% { opacity: 1; transform: translate(-205px, -26.65px); }
+  92%, 100% { opacity: 0; transform: translate(-215px, -27.95px); }
 }
 @keyframes nb-march { to { stroke-dashoffset: -17; } }
 @keyframes nb-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
@@ -246,6 +262,16 @@
 
 @media (prefers-reduced-motion: reduce) {
   .nb-flood { opacity: 0 !important; }
-  .nb-flash { opacity: 0 !important; }
   .landing-phase { display: none; }
+}
+
+/* Phones: both buttons, including "Run the demo", fit on the first screen without scrolling. */
+@media (max-width: 520px) and (min-height: 761px) {
+  .landing-map { height: 46vh; height: 46dvh; }
+  .landing-card { padding: 18px 16px 16px; gap: 12px; }
+  .landing-card .display { font-size: clamp(1.875rem, 8.6vw, 2.5rem); }
+  .landing-card .lede { font-size: 1rem; line-height: 1.45; }
+  .landing-actions { grid-template-columns: 1fr 1fr; }
+  .landing-actions .btn-text { grid-column: 1 / -1; }
+  .landing-actions .btn, .landing-actions .btn-ghost { min-height: 52px; padding-inline: 8px; font-size: 1.0625rem; white-space: nowrap; }
 }
