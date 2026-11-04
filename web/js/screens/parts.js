@@ -26,6 +26,11 @@ export function duringSpecials(plan, guidance) {
 }
 
 export function routeView(route, building, { onMap } = {}) {
+  if (route.kind === 'no_checked_route') {
+    return h('div', { class: 'route route-direction' },
+      h('p', { class: 'route-reason' }, route.reason),
+      route.map_url ? h('p', null, h('a', { href: route.map_url, target: '_blank', rel: 'noopener' }, 'Official tsunami hazard map')) : null);
+  }
   if (route.kind === 'direction_only') {
     return h('div', { class: 'route route-direction' },
       compassArrow(route.bearing_deg),

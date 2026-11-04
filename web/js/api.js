@@ -18,7 +18,7 @@ async function call(path, init) {
   return body;
 }
 
-const ROUTE_KINDS = new Set(['walking_route', 'direction_only', 'not_in_zone']);
+const ROUTE_KINDS = new Set(['walking_route', 'direction_only', 'no_checked_route', 'not_in_zone']);
 
 export const getGuidance = () => call('/api/guidance');
 export const getDemo = () => call('/api/demo');

@@ -151,6 +151,24 @@ const check = (ok, msg) => { if (!ok) { errors.push(msg); console.log('FAIL', ms
   check(txt.includes('outside the mapped tsunami hazard area') && !txt.includes('Go now'), 'outside the zone: stay-put text, no go-now');
   check(await p3.locator('.routemap').count() === 0, 'outside the zone: no route');
   await p3.screenshot({ path: `${OUT}/16-outside-after.png`, fullPage: true });
+
+  const ctx4 = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+  const p4 = await ctx4.newPage();
+  p4.on('pageerror', (e) => errors.push('pageerror(no-route): ' + e.message));
+  await p4.route('**/api/demo', async (r) => {
+    const body = await (await fetch(`${BASE}/api/demo`)).json();
+    body.plan.route = { kind: 'no_checked_route', reason: 'NO CHECKED ROUTE TEXT', map_url: 'https://example.test/map' };
+    await r.fulfill({ json: body });
+  });
+  await p4.goto(BASE + '/');
+  await p4.click('text=Load the demo household');
+  await p4.waitForSelector('.titleblock');
+  await p4.click('.btn-emergency');
+  await p4.click('text=Shaking has stopped');
+  await p4.waitForSelector('.em-go');
+  const t4 = await p4.textContent('main');
+  check(t4.includes('NO CHECKED ROUTE TEXT') && (await p4.locator('.routemap').count()) === 0, 'no checked route: says so, draws no map');
+  await p4.screenshot({ path: `${OUT}/17-no-checked-route.png`, fullPage: true });
   await browser.close();
   console.log(errors.length ? `ERRORS:\n${errors.join('\n')}` : 'ALL CHECKS PASSED');
   process.exit(errors.length ? 1 : 0);
