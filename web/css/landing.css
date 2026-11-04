@@ -3,7 +3,7 @@
 .landing { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; background: var(--paper); }
 
 .landing-map {
-  position: relative; height: 66vh; height: 66dvh; min-height: 380px; overflow: hidden;
+  position: relative; height: 60vh; height: 60dvh; min-height: 360px; overflow: hidden;
   border-bottom: 1px solid var(--hair);
 }
 .landing-map > .nb { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
@@ -31,7 +31,7 @@
 .landing-phase-sign { width: 22px; height: 22px; }
 .landing-phase-words { display: grid; }
 .landing-phase-words > span { grid-area: 1 / 1; opacity: 0; }
-.landing-phase-0 { opacity: 1 !important; }
+.landing-phase-0 { opacity: 1; }
 
 .landing-card {
   position: relative; z-index: 2;
@@ -93,7 +93,7 @@
 .nb-home { fill: var(--accent); stroke: var(--ink); stroke-width: 1.2; stroke-linejoin: round; }
 
 .nb-flood { opacity: 0; transform: translateX(-215px); }
-.nb-flood-water { stroke: none; }
+.nb-flood-water { stroke: none; opacity: 0.78; }
 .nb-edge { fill: none; stroke-width: 1.4; stroke-linecap: round; }
 .nb-edge-1 { stroke: var(--sev-1); }
 .nb-edge-3 { stroke: var(--sev-3); }
@@ -108,11 +108,10 @@
 .nb-animate .nb-flood { animation: nb-flood 14s infinite; }
 .nb-animate .nb-route { animation: nb-march 1.6s linear infinite; }
 .nb-animate .nb-home-ring { animation: nb-breathe 3.5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
-.landing-map:has(.nb-animate) .landing-phase-words > span { animation: 14s step-end infinite; }
-.landing-map:has(.nb-animate) .landing-phase-0 { animation-name: nb-phase-0; opacity: 1; }
-.landing-map:has(.nb-animate) .landing-phase-1 { animation-name: nb-phase-1; }
-.landing-map:has(.nb-animate) .landing-phase-2 { animation-name: nb-phase-2; }
-.landing-map:has(.nb-animate) .landing-phase-3 { animation-name: nb-phase-3; }
+.landing-map:has(.nb-animate) .landing-phase-0 { animation: nb-phase-0 14s step-end infinite; }
+.landing-map:has(.nb-animate) .landing-phase-1 { animation: nb-phase-1 14s step-end infinite; }
+.landing-map:has(.nb-animate) .landing-phase-2 { animation: nb-phase-2 14s step-end infinite; }
+.landing-map:has(.nb-animate) .landing-phase-3 { animation: nb-phase-3 14s step-end infinite; }
 .landing-map:has(.nb-animate) .landing-phase-sign { animation: nb-sign 14s step-end infinite; }
 
 @keyframes nb-quake {

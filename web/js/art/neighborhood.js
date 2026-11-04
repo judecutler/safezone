@@ -248,7 +248,7 @@ export function neighborhood({ animate }) {
       s('path', { d: flood, class: 'nb-flood-water', fill: url('flood') }),
       s('path', { d: shifted(-9), class: 'nb-edge nb-edge-1' }),
       s('path', { d: shifted(-4.5), class: 'nb-edge nb-edge-3' }),
-      s('path', { d: crestPath(0), class: 'nb-crest' })),
+      s('path', { d: crestPath(-8), class: 'nb-crest' })),
     s('path', { d: line(range(-20, 660, 8).map((y) => [HAZARD(y), y])), class: 'nb-hazard' }),
     label('TSUNAMI HAZARD LINE', 279, 132, true, 'nb-label nb-label-small'),
     label('HIGH GROUND', FIELD.x, FIELD.y + FIELD.r + 12),
