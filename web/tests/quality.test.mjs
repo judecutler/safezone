@@ -105,8 +105,8 @@ test('tilt from orientation: upright portrait and landscape are level, pointing 
   assert.ok(tiltFromOrientation(90, 0) < 1);
   assert.ok(tiltFromOrientation(0, 90) < 1, 'landscape held level');
   assert.ok(tiltFromOrientation(60, 0) > 25, 'pointing down');
-  const rolled = tiltFromOrientation(90 - 1e-6, 0);
-  assert.ok(rolled < 1);
-  assert.ok(tiltFromOrientation(80, 30) > 20, 'rolled sideways');
+  assert.ok(tiltFromOrientation(80, 30) < 15, 'turning left or right while upright is not tilt');
+  const rolled = tiltFromOrientation(60, 90);
+  assert.ok(Math.abs(rolled - 30) < 1, `rolled 30 degrees in the screen plane: ${rolled}`);
   assert.equal(tiltFromOrientation(null, null), null);
 });
