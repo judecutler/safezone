@@ -45,6 +45,21 @@ function playNext() {
   setTimeout(() => { if (playing && !s.speaking) done(); }, 1000 + item.text.length * 90);
 }
 
+// iOS Safari speaks only if speech first starts inside a tap. The demo and the emergency start talking after a
+// timer, so the first tap anywhere speaks one silent, empty line to unlock speech for the rest of the session.
+let primed = false;
+function prime() {
+  const s = synth();
+  if (primed || !s) return;
+  primed = true;
+  const u = new SpeechSynthesisUtterance('');
+  u.volume = 0;
+  s.speak(u);
+  for (const type of PRIME_EVENTS) document.removeEventListener(type, prime, true);
+}
+const PRIME_EVENTS = ['touchend', 'pointerup', 'keydown'];
+if (typeof document !== 'undefined') for (const type of PRIME_EVENTS) document.addEventListener(type, prime, true);
+
 export function say(text, { interrupt = false, replace = false } = {}) {
   if (!text) return;
   spoken.push({ at: Date.now(), text, muted });
