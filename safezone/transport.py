@@ -138,7 +138,7 @@ class RecordingTransport:
             self.directory.mkdir(parents=True, exist_ok=True)
             record = {"request": request.describe(), "status": resp.status,
                       "provenance": self.provenance, "text": resp.text}
-            (self.directory / f"{request.key()}.json").write_text(json.dumps(record, indent=1))
+            (self.directory / f"{request.key()}.json").write_text(json.dumps(record, indent=1), encoding="utf-8")
         return Response(resp.status, resp.text, self.provenance)
 
 
@@ -151,5 +151,5 @@ class ReplayTransport:
         path = self.directory / f"{request.key()}.json"
         if not path.exists():
             return Response(NETWORK_FAILURE, f"no fixture for {request.describe()}", "sample")
-        record = json.loads(path.read_text())
+        record = json.loads(path.read_text(encoding="utf-8"))
         return Response(record["status"], record["text"], record["provenance"])

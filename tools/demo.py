@@ -91,9 +91,9 @@ def build_plan(transport: Transport, shelter_replay: bool, now: datetime) -> dic
     return {"plan": plan.model_dump(mode="json"), "images": {scan.id: "/demo/living_room.jpg"}}
 
 
-def build_plan_jp(transport: Transport, now: datetime) -> dict:
+def build_plan_jp(transport: Transport, now: datetime, place: tuple[float, float] = japan.JP_DEMO_HOME) -> dict:
     """The Kamakura demo household, from whatever answers `transport` gives: samples, or a replayed recording."""
-    region, profile = regions.profile_for_point(*japan.JP_DEMO_HOME, transport)
+    region, profile = regions.profile_for_point(*place, transport)
     assert region.id == "jp"
     evac = regions.evacuate(profile, JP_DEMO_HOUSEHOLD, transport, transport, now, True)
     plan = Plan(building=profile, household=JP_DEMO_HOUSEHOLD, rooms=[], route=evac.route, shelters=evac.shelters,
@@ -103,7 +103,7 @@ def build_plan_jp(transport: Transport, now: datetime) -> dict:
 
 
 def write_plan_jp(payload: dict) -> None:
-    PLAN_JP.write_text(json.dumps(payload, indent=1, ensure_ascii=False))
+    PLAN_JP.write_text(json.dumps(payload, indent=1, ensure_ascii=False), encoding="utf-8")
     plan = payload["plan"]
     print(f"wrote {PLAN_JP.relative_to(ROOT)}: route {plan['route']['kind'] if plan['route'] else None}, "
           f"{len(plan['shelters']['matches']) if plan['shelters'] else 0} sites, {plan['building']['provenance']}")
@@ -121,7 +121,7 @@ def exercise_outside_address(transport: Transport, now: datetime) -> None:
 
 def write_gobag(transport: Transport, jpeg: bytes) -> None:
     check = check_gobag(jpeg, MetaClient(transport, load_settings()))
-    GOBAG.write_text(json.dumps(check.model_dump(mode="json"), indent=1))
+    GOBAG.write_text(json.dumps(check.model_dump(mode="json"), indent=1), encoding="utf-8")
     print(f"wrote {GOBAG.relative_to(ROOT)}: {check.seen_count} of {check.total} items seen, {check.provenance}")
     for item in check.items:
         print(f"  {item.status:<17} {item.label}" + (f"  ({item.note})" if item.note else ""))
@@ -131,7 +131,7 @@ def write_plan(payload: dict) -> None:
     if any(note == MASKS_NOT_DECODED for room in payload["plan"]["rooms"] for note in room["notes"]):
         raise SystemExit("Not writing demo/plan.json: masks did not decode here (pip install meta-sam-parser), "
                          "so the room would show boxes instead of the recorded outlines.")
-    PLAN.write_text(json.dumps(payload, indent=1))
+    PLAN.write_text(json.dumps(payload, indent=1), encoding="utf-8")
     plan = payload["plan"]
     print(f"wrote {PLAN.relative_to(ROOT)}: {len(plan['rooms'][0]['classified'])} objects, "
           f"route {plan['route']['kind']}, {len(plan['shelters']['matches'])} shelters")

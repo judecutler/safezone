@@ -210,7 +210,7 @@ function after(state, act) {
     ];
   }
   return h('main', { class: 'em em-after' },
-    state.demo ? h('div', { class: 'demo-banner', role: 'status' }, 'DEMO: simulated walk along the recorded route') : null,
+    state.demo ? h('div', { class: 'demo-banner', role: 'status' }, guided ? 'DEMO: simulated walk along the recorded route' : 'DEMO: recorded data, no walk to simulate') : null,
     h('div', { class: 'em-top' }, muteButton()),
     body,
     plan?.shelters

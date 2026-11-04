@@ -1,6 +1,6 @@
 # SafeZone: context for any new session
 
-Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last updated Nov 4, about 10:05 AM PT.
+Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last updated Nov 4, about 2:15 PM PT. Credit name: Jude Cutler (in README).
 
 ## Deadline and state
 
@@ -18,6 +18,8 @@ Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last upd
 - Places and standby: saved places, nearest one by GPS, standby listens for sustained shaking (devicemotion) while the app is open.
 - Emergency, voice led: shaking says only "Drop, cover and hold on" plus the saved spot, repeated every 15 s; taps in the first 3 s are ignored; the only way forward is "Shaking has stopped". After: the go-now line, then spoken turn-by-turn from GPS (`web/js/guide.js`), with wake lock and a mute toggle. Demo mode says "This is a demo" and simulates the walker.
 - Regions (`safezone/regions.py`): `us-ca` (the original pipelines: Nominatim, CGS tsunami hazard and land polygons, DataSF soft-story, Overpass, OSRM, FEMA shelters) and `jp` (Hazard Map Portal tsunami inundation tiles, GSI designated tsunami evacuation sites, Cabinet Office and JMA guidance quoted in Japanese with English). A point outside both gets `no_coverage`. Add a city per `docs/regions.md`.
+- Real map (`web/js/livemap.js`, contract `docs/livemap.md`): Leaflet 1.9.4 vendored in `web/vendor/leaflet/`, OpenStreetMap tiles greyed with CSS and cached by the service worker as viewed (CARTO's free tiles now stamp "API key required"), CGS hazard polygons (US) or the Hazard Map Portal raster (Japan), numbered turns, a "Leaving the hazard area" marker, walker callout, legend with sources. Overlays draw with no tiles, so the emergency map works offline. Used on saved places, review, the emergency after screen, and the desktop setup panel.
+- Desktop setup (1024 px and up): live map on the left reveals findings as the background jobs finish (`web/js/screens/setupmap.js`); the form is on the right. The demo shows a visible "Finding your location…" step and offers "Use my real location instead".
 - "How it works" (`web/js/screens/about.js`): the Meta model pipeline with the demo room's recorded output, for judges.
 - Demo: "Run the demo" on the landing page. It walks the real setup on `demo/living_room.jpg` with recorded data, saves "Demo: Ocean Beach" and adds "Demo: Kamakura", then "Simulate an earthquake" runs the voice-led emergency. "Exit demo" removes the demo places.
 
@@ -49,13 +51,16 @@ Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last upd
 ## Fixtures and recording
 
 - `fixtures/demo/`: real US responses recorded Nov 3 (attempt 3), plus labelled SAMPLE shelters and outside-zone address (`python tools/demo.py fill-samples`), plus Japan samples. Recorders merge into this folder; they never empty it.
-- `demo/plan.json` (Ocean Beach) can only be rebuilt where `meta-sam-parser` installs (the user's machine); `tools/demo.py` refuses otherwise. `demo/plan_jp.json` (Kamakura) and `demo/gobag.json` are SAMPLE until recorded.
+- `demo/plan.json` (Ocean Beach) can only be rebuilt where `meta-sam-parser` installs (the user's machine); `tools/demo.py` refuses otherwise. `demo/gobag.json` is SAMPLE until recorded. `demo/plan_jp.json` (Kamakura) was recorded on the user's machine at 35.3108, 139.5426 (Yuigahama, on the Enoden line; inundation 1 m to 3 m): the first recording at City Hall (35.3192, 139.5466) read "outside the mapped area" (`not_in_zone`), so it was moved with `tools/probe_jp_zone.py`, which maps where the inundation is and prints `record_japan.py --lon --lat` commands. That recording found 10 sites but `no_checked_route` (the 6 nearest sites all failed `check_route`); `MAX_SITES` is now 12, which needs one rerecord (`python tools/record_japan.py --lon 139.5426 --lat 35.3108`). Until then the Kamakura card honestly says no checked route.
+- Windows: all JSON reads and writes are UTF-8 now (the Japanese text crashed `write_plan_jp` under cp1252 and left a half-written file; `git checkout -- demo/plan_jp.json` restores it).
+- Go-bag photo: `demo/gobag_input.jpg` (from the project's GoBag.jpg, the handwritten phone number on the backpack painted over, EXIF removed). Record with `python tools/record_fixtures.py --gobag demo/gobag_input.jpg`; delete `demo/gobag_input.jpg` afterwards if wanted. The project also holds Bathroom.jpg, CommonRoom.jpg and room.jpg (not used; no way-out or gas-meter photo exists, so those steps stay skip-able reference steps). Never commit a photo with a visible phone number, address or face.
 - On the user's machine: `python tools/record_japan.py` (no key; rebuilds `demo/plan_jp.json` when every call succeeded) and `python tools/record_fixtures.py --gobag <photo.jpg>` (writes `demo/gobag.json`). `python tools/record_fixtures.py` rerecords the US household.
 
 ## Tests
 
 - `python -m pytest -q` (236), `node --test web/tests/*.test.mjs` (37).
-- `node tools/verify_e2e.cjs <outdir> <base-url>` (140 checks: landing, demo flow with voice log, real flow and offline, no places, migration). In the sandbox: `NODE_PATH=/opt/node22/lib/node_modules`, and run the server with `SAFEZONE_FIXTURES=fixtures/demo MODEL_API_KEY=x python -m uvicorn safezone.app:create_app --factory --port 8000`.
+- The app reloads once when a new service worker takes over, but only on landing, places or about.
+- `node tools/verify_e2e.cjs <outdir> <base-url>` (146 checks: landing, demo flow with voice log, real flow and offline, no places, migration). In the sandbox: `NODE_PATH=/opt/node22/lib/node_modules`, and run the server with `SAFEZONE_FIXTURES=fixtures/demo MODEL_API_KEY=x python -m uvicorn safezone.app:create_app --factory --port 8000`.
 - After any web change run `python tools/sw_shell.py`: it rewrites the service worker's offline file list and bumps its version.
 
 ## Submission materials
@@ -67,8 +72,8 @@ Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last upd
 ## Still to do (Nov 4)
 
 1. DONE: independent safety review (verdict merge), merged to `main`, live site checked with a real scan. In progress: landing art restyle (isometric, light-grey houses, soft colour, dramatic quake with falling particles) after the user said the houses looked copied from the reference.
-2. User records Kamakura and a go-bag check; review the output, fix failures, confirm the demo shows recorded data.
-3. Rewrite `docs/video_script.md` for the new flow.
+2. DONE: Kamakura recorded (see above). Left: the MAX_SITES rerecord, the go-bag recording, then commit `fixtures/demo demo`, push, review the output, rerun the gate, merge to `main`.
+3. `docs/video_script.md` was rewritten for the new flow at noon; recheck Act 2 once the Kamakura card and go-bag card are final.
 4. Fill the TODOs in the submission drafts. User films and submits by 6 PM PT.
 
 ## Safety rules (never break)

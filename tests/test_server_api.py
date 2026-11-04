@@ -84,13 +84,13 @@ def test_gobag_reports_meta_unavailable_when_the_model_is_down():
     assert (r.status, r.json()["error"]) == (502, "meta_unavailable")
 
 
-def test_demo_includes_the_labelled_sample_gobag_and_extras(tmp_path):
+def test_demo_includes_the_labelled_gobag_and_extras(tmp_path):
     plan = tmp_path / "plan.json"
     plan.write_text(json.dumps({"plan": {"rooms": []}, "images": {}}))
     (tmp_path / "gobag.json").write_text((ROOT / "demo" / "gobag.json").read_text())
     (tmp_path / "exit.jpg").write_bytes(jpeg())
     body = call(create_app(services(demo_plan=plan)), "GET", "/api/demo").json()
-    assert body["gobag"]["provenance"] == "sample"
+    assert body["gobag"]["provenance"] in ("sample", "recorded")
     assert body["extras"] == {"exit": "/demo/exit.jpg"}
     assert body["plan"] == {"rooms": []}
 

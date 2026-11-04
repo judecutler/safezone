@@ -1,0 +1,13 @@
+{
+ "request": {
+  "method": "GET",
+  "url": "https://routing.openstreetmap.de/routed-foot/table/v1/foot/139.546600,35.319200;139.559678,35.297324;139.565967,35.300481;139.566235,35.299690",
+  "params": {
+   "annotations": "distance",
+   "sources": "0"
+  }
+ },
+ "status": 200,
+ "provenance": "recorded",
+ "text": "{\"code\":\"Ok\",\"distances\":[[0,3763.3,3615.9,3695.1]],\"destinations\":[{\"hint\":\"k0XCjJpFwoyGAQAAuwAAAEACAAAAAAAAk2A7QqHoskGGcYpCAAAAAHcBAACzAAAAKgIAAAAAAABvAgAAS1BRCF3vGgLoT1EIoO0aAgQATwYAAAAA\",\"location\":[139.546699,35.319645],\"name\":\"\",\"distance\":50.18511747},{\"hint\":\"bKCBgXCggYGCAgAAUwIAAAAAAAAAAAAABnuAQlAEbkIAAAAAAAAAAAICAADcAQAAAAAAAAAAAABvAgAABoNRCLSXGgL-glEILJgaAgAAbwUAAAAA\",\"location\":[139.559686,35.297204],\"name\":\"\",\"distance\":13.33335547},{\"hint\":\"zKCBgemggYGoAAAATgAAAO0CAADeAAAAQotzQbMV3UDK8oZCwoifQXkAAAA4AAAAHAIAAKAAAABvAgAABpxRCPqjGgKPm1EIgaQaAggAbwMAAAAA\",\"location\":[139.566086,35.300346],\"name\":\"\",\"distance\":18.47728163},{\"hint\":\"x6CBge01-YJDAAAAUAAAAAAAAABCBAAAkFvCQPNe5UAAAAAAtlPEQjAAAAA6AAAAAAAAABEDAABvAgAAXpxRCAOhGgKbnFEIaqEaAgAAPwcAAAAA\",\"location\":[139.566174,35.299587],\"name\":\"\",\"distance\":12.70380463}],\"sources\":[{\"hint\":\"k0XCjJpFwoyGAQAAuwAAAEACAAAAAAAAk2A7QqHoskGGcYpCAAAAAHcBAACzAAAAKgIAAAAAAABvAgAAS1BRCF3vGgLoT1EIoO0aAgQATwYAAAAA\",\"location\":[139.546699,35.319645],\"name\":\"\",\"distance\":50.18511747}]}"
+}

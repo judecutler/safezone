@@ -286,7 +286,10 @@ async function demoFlow(browser) {
 
   await page.locator('.place-row', { hasText: 'Demo: Kamakura' }).click();
   check(await visible(page.locator('.place')), 'Kamakura place opens');
-  check(await visible(page.locator('.place .route-site')), 'Kamakura place shows the designated evacuation site');
+  const jpDemo = await (await fetch(`${BASE}/api/demo?region=jp`)).json();
+  const jpRouted = jpDemo.plan.route.kind === 'site_route';
+  if (jpRouted) check(await visible(page.locator('.place .route-site')), 'Kamakura place shows the designated evacuation site');
+  else check((await text(page, '.place')).includes(jpDemo.plan.route.reason) && await page.locator('.place .route-site').count() === 0 && !(await text(page, '.place')).includes('reads these turns aloud'), 'Kamakura place says it has no checked route, names no site and promises no turns');
   await shot('kamakura-place', true);
   await btn(page, /My places/).first().click();
   voice.length = 0;
@@ -301,12 +304,17 @@ async function demoFlow(browser) {
   const jpText = await text(page, '.em-after');
   check(jpText.includes(jpGuidance.after[0]), 'Kamakura after uses Japan after-steps');
   check(jpText.includes(jpGuidance.go_now), 'Kamakura after shows the Japan go-now line');
-  check(jpText.includes('Sample site A (hill)') && /designated evacuation site/i.test(jpText), 'Kamakura after shows the designated evacuation site');
   check(voice.some((v) => v.text.includes(jpGuidance.go_now)), 'Kamakura after speaks the Japan go-now line');
-  const jpDemo = await (await fetch(`${BASE}/api/demo?region=jp`)).json();
-  const jpFirst = `${jpDemo.plan.route.steps[0].instruction}.`;
-  check(await waitFor(page, (t) => performance.now() > 0 && [...document.querySelectorAll('.em-next')].some((el) => el.textContent.length > 0), null, 5000)
-    && voice.some((v) => v.text === jpFirst), `Kamakura after speaks the first turn of the site route (${JSON.stringify(jpFirst)})`);
+  if (jpRouted) {
+    check(jpText.includes(jpDemo.plan.route.site.name) && /designated evacuation site/i.test(jpText), 'Kamakura after shows the designated evacuation site');
+    const jpFirst = `${jpDemo.plan.route.steps[0].instruction}.`;
+    check(await waitFor(page, (t) => performance.now() > 0 && [...document.querySelectorAll('.em-next')].some((el) => el.textContent.length > 0), null, 5000)
+      && voice.some((v) => v.text === jpFirst), `Kamakura after speaks the first turn of the site route (${JSON.stringify(jpFirst)})`);
+  } else {
+    check(jpText.includes(jpDemo.plan.route.reason) && await page.locator('.em-after .em-turn').count() === 0, 'Kamakura after with no checked route shows the fallback line and no turn-by-turn');
+    check(voice.some((v) => v.text === jpDemo.plan.route.reason), 'Kamakura after speaks the no-checked-route fallback');
+    check(!(await text(page, '.demo-banner')).includes('walk along'), 'Kamakura demo banner claims no simulated walk');
+  }
   check(!voice.some((v) => /outside the mapped tsunami hazard area/.test(v.text)), 'Kamakura never claims to be outside a hazard area it has no polygons for');
   await shot('kamakura-after', true);
   await btn(page, 'Leave emergency mode').click();
