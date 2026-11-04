@@ -2,8 +2,7 @@
 .livemap { position: relative; background: var(--paper-2); font-family: var(--f-body, inherit); }
 .livemap.leaflet-container { background: var(--paper-2); }
 .lm-holder { height: 360px; width: 100%; }
-@media (min-width: 720px) { .lm-holder { height: 460px; } }
-@media (min-width: 1100px) { .lm-holder { height: 520px; } }
+@media (min-width: 720px) { .lm-holder { height: 420px; } }
 
 .lm-tiles { filter: saturate(0.6); }
 .lm-hazard { fill: var(--sev-3); fill-opacity: 0.22; stroke: var(--sev-3); stroke-width: 2px; stroke-opacity: 0.9; }
@@ -40,8 +39,8 @@
 .leaflet-tooltip.lm-label-exit { border-color: var(--sev-3); color: var(--sev-3-text); }
 .leaflet-tooltip.lm-label-place { border-color: var(--sign-green); }
 .leaflet-tooltip.lm-callout {
-  background: var(--accent); color: var(--accent-ink); border: 2px solid var(--ink); font-size: 14px; max-width: 220px;
-  white-space: normal; padding: 5px 9px;
+  background: var(--accent); color: var(--accent-ink); border: 2px solid var(--ink); font-size: 14px;
+  width: max-content; max-width: 230px; white-space: normal; padding: 5px 9px;
 }
 
 .lm-card {

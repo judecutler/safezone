@@ -118,7 +118,7 @@ function mapLegend(route, building, region, { shelters, walker }) {
   const row = (sw, name, src) => h('li', null, h('span', { class: `lm-sw lm-sw-${sw}` }), h('span', null, name), h('span', { class: 'lm-src' }, src));
   const places = mapPlaces(shelters, route, region);
   return h('figcaption', null, h('ul', { class: 'lm-legend' },
-    jp ? row('hazard-jp', 'Tsunami inundation, expected depth', ['Hazard Map Portal, GSI (', h('span', { class: 'jp' }, 'ハザードマップポータルサイト'), ')'])
+    jp ? row('hazard-jp', 'Tsunami inundation, expected depth', 'GSI Hazard Map Portal, ハザードマップポータルサイト')
       : row('hazard', 'Tsunami hazard area', link(area?.source_url, 'California Geological Survey')),
     row('route', 'Walking route with numbered turns', ['OSRM on OpenStreetMap streets ', sampleTag(route)]),
     exit ? row('exit', 'Leaving the hazard area', 'Where the route crosses the CGS hazard line') : null,
