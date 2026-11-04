@@ -1,10 +1,3 @@
-<!--
-TODO after tomorrow's recording:
-- Go-bag check: if `python tools/record_fixtures.py --gobag <photo>` succeeds, change "the demo's go-bag result is labelled sample data" (What it does) to "the demo's go-bag result is a recorded Muse Spark answer".
-- Kamakura: if `python tools/record_japan.py` succeeds and demo/plan_jp.json is rebuilt, change "Kamakura runs on labelled sample data until it is recorded" (What it does, Accomplishments) to "recorded real data".
-- Video link: add it to the Devpost video field.
--->
-
 # SafeZone: Devpost text
 
 Paste each section into the Devpost field with the same name.
@@ -44,7 +37,7 @@ SafeZone is a household plan in two acts. It is not a photo analyzer. The photo 
 **Act 1. Prepare once.** A camera-first setup walks you through a short shot list with a live quality meter, and Skip and Back on every step.
 
 - **Rooms.** SAM 3.1 outlines the furniture and objects that matter. Muse Spark reasons about the room: which objects can tip or fall, which bed is in a wardrobe's tip zone, what is stored above a bed, and what could block the way to the door. Code picks the best place to take cover and builds a fix list from a fixed table ("Strap it to a wall stud", "Move heavy or breakable items down low").
-- **Go bag.** Muse Spark checks a photo of the open bag against Ready.gov's 14-item basic kit and reports each item as "Seen in the photo" or "Not seen". It never says the kit is complete. The demo's go-bag result is labelled sample data.
+- **Go bag.** Muse Spark checks a photo of the open bag against Ready.gov's 14-item basic kit and reports each item as "Seen in the photo" or "Not seen". It never says the kit is complete. The demo's go-bag result is a recorded Muse Spark answer: 2 of 14 items seen.
 - **The way out and the gas shutoff.** These photos are saved with the plan, so everyone in the household can find them.
 - **Building and route.** From the address or the phone's location, SafeZone checks the official tsunami hazard map. In the hazard area, it computes a walking route out and checks it in code before it is shown.
 - **Shelters.** In California, it lists FEMA open shelters that fit the household (wheelchair access, outside the hazard area), ranked by walking time and how full they are. In Japan, it lists designated tsunami evacuation sites.
@@ -57,7 +50,7 @@ The plan is saved on the phone, prints as a two-page fridge sheet, and can cover
 - When you tap "Shaking has stopped" in the hazard area, the voice says to go now, on foot, without waiting for an official warning. Then it gives turn-by-turn directions along the saved route from live GPS, and warns you if you leave the route.
 - The route map is drawn from stored data without map tiles, so it works offline.
 
-Two regions work today. The San Francisco demo (1000 Great Highway, inside the official CGS hazard area) runs on real responses recorded from every service, except the shelters, which are labelled sample data because FEMA listed no open shelters that day. Kamakura, Japan, runs on labelled sample data until it is recorded.
+Two regions work today. The San Francisco demo (1000 Great Highway, inside the official CGS hazard area) runs on real responses recorded from every service, except the shelters, which are labelled sample data because FEMA listed no open shelters that day. Kamakura, Japan, runs on real data recorded on Nov 4. From the demo point on the beach at Yuigahama no route passed the checks, so the card says so, gives the official fallback, and lists the nearest designated sites.
 
 ## How we built it
 
@@ -87,7 +80,7 @@ Two regions work today. The San Francisco demo (1000 Great Highway, inside the o
 - **FEMA's empty layer on a quiet day.** The real FEMA answer listed 0 open shelters, which is correct on a day with no disaster but leaves the emergency's last screen empty. We kept the real filters and filled the demo with clearly labelled sample shelters instead of hiding the gap.
 - **The model saw a door that was a wardrobe door.** SAM's "door" phrase also matched wardrobe doors, so "stay clear of the door" read like "stay away from the exit". The text now names it "cabinet door".
 - **A reviewer broke our first route check.** Where a hazard polygon stops at the shore, "outside the hazard area" includes the ocean. We changed the rule so a route must end on the map's own land outside the zone, and fail closed when no land is proven.
-- **Tokyo's 23 wards have no mapped inundation.** Tokyo's tsunami inundation assumption covers only its islands, so a central Tokyo demo would always say "outside". We moved the Japan demo to Kamakura City Hall, which Kamakura's own plan says floods under 0.5 m.
+- **Tokyo's 23 wards have no mapped inundation.** Tokyo's tsunami inundation assumption covers only its islands, so a central Tokyo demo would always say "outside". We moved the Japan demo to Kamakura. City Hall came back outside the mapped inundation area, so we mapped the raster with a probe script and moved the point to Yuigahama (1 m to 3 m). There, no route to a designated site passed our checks, and the app says that instead of drawing a line.
 - **Keeping model output behind code guards.** In a safety app, a model's sentence must never become the instruction someone follows in the dark. Every instruction read or spoken during an emergency is fixed text from an official source or our fixed table. The model's words appear only as labelled context.
 
 ## Accomplishments that we're proud of
@@ -95,8 +88,8 @@ Two regions work today. The San Francisco demo (1000 Great Highway, inside the o
 - The San Francisco demo runs end to end on real responses from SAM 3.1, Muse Spark, CGS, DataSF, Nominatim and OSRM, recorded on Nov 3.
 - In the real demo room, Muse Spark proposed a floor spot in a doorway, and SafeZone's own check set it aside. The model reasons, and code decides.
 - A voice-led emergency that only speaks official guidance, the saved spot and checked route steps, and never tells anyone to move during shaking.
-- Two regions behind one registry, with Japanese guidance quoted verbatim from the Cabinet Office and JMA. Kamakura runs on labelled sample data until it is recorded.
-- 236 Python tests (including adversarial safety tests and a test of the whole demo plan), 37 web tests, and a 140-check browser run that drives every flow in a phone-sized Chromium and checks what the voice says.
+- Two regions behind one registry, with Japanese guidance quoted verbatim from the Cabinet Office and JMA. Kamakura runs on recorded real data.
+- 237 Python tests (including adversarial safety tests and a test of the whole demo plan), 37 web tests, and a 150-check browser run that drives every flow in a phone-sized Chromium and checks what the voice says.
 
 ## What we learned
 
@@ -108,7 +101,7 @@ Two regions work today. The San Francisco demo (1000 Great Highway, inside the o
 ## What's next for SafeZone
 
 - Start the emergency screens from real alerts, such as USGS ShakeAlert in California and J-Alert in Japan. Today a web app cannot wake itself, so standby works only while the app is open.
-- Record Kamakura and add more regions. Each region is one set of adapters.
+- Add more regions. Each region is one set of adapters.
 - Floor plans pinned to room scans.
 - Room scans through Meta's glasses.
 

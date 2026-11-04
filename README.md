@@ -1,10 +1,3 @@
-<!--
-TODO: put your name in the Credits line.
-TODO after tomorrow's recording:
-- Go-bag check: if `python tools/record_fixtures.py --gobag <photo>` succeeds, change "The demo's go-bag result is SAMPLE data" in "How it works" and "Honest limits" to say it is a recorded Muse Spark answer.
-- Kamakura: if `python tools/record_japan.py` succeeds and demo/plan_jp.json is rebuilt from it, change "Kamakura is SAMPLE data" in "Regions" and "Honest limits" to "recorded real data".
--->
-
 # SafeZone
 
 Prepare once for a coastal earthquake. When it comes, the phone talks you through it.
@@ -86,7 +79,7 @@ There are two Meta models, called through the Meta Model API (`safezone/meta.py`
 ### What code decides, not the model
 
 - **Room.** Code drops any answer that names an unknown segment. `room/score.py` rejects the model's floor spot if it is outside the photo, in a doorway, on or inside furniture, above the floor line, in a tall object's tip zone, below stored items, or close to glass. These checks go by what the object is, so a model that calls a wardrobe "neutral" cannot switch them off. Cover counts only for a table or desk away from glass. If no spot passes, the plan gives the fixed "no table nearby" guidance. The model picks a hazard kind. The fix text comes only from `FIX_TABLE` in `safezone/rules.py`.
-- **Go bag.** Code keeps the checklist's own ids, labels and order and drops any other id. It removes notes that use words such as "complete", "enough" or "ready". The result says "Seen in the photo" or "Not seen", and it never says the kit is complete. The demo's go-bag result is SAMPLE data.
+- **Go bag.** Code keeps the checklist's own ids, labels and order and drops any other id. It removes notes that use words such as "complete", "enough" or "ready". The result says "Seen in the photo" or "Not seen", and it never says the kit is complete. The demo's go-bag result is a recorded Muse Spark answer (Nov 4): it saw 2 of the 14 items, a first aid kit and food.
 - **Route (California).** `safezone/route/pipeline.py` sends OSRM foot routes to candidate points on the CGS map's own "outside the hazard area" land polygons. It samples each route every 50 m and rejects it if the route does not end on that land, goes deeper into the zone than home, doubles back, re-enters the zone, or wanders along the shore. If no route passes, the plan gives a compass direction toward proven land. If there is none, it says "SafeZone could not check a route" and gives the official fallback. Walking time uses 1.0 m/s, a pace chosen for children and older adults.
 - **Shelters (California).** `safezone/shelter/pipeline.py` reads FEMA's Open Shelters layer. It drops shelters that are not open, that are inside the hazard area, or whose hazard check failed. For a wheelchair household it keeps only shelters listed as wheelchair accessible. It counts every exclusion and ranks the rest by walking time, with shelters at 80% of capacity or more ranked after the others.
 
@@ -95,7 +88,7 @@ There are two Meta models, called through the Meta Model API (`safezone/meta.py`
 `safezone/regions.py` holds one entry per covered area, and each entry owns geocoding, the building profile, the evacuation plan and the guidance text. A place outside every region gets "SafeZone has no hazard data for this area yet". SafeZone never guesses. `docs/regions.md` explains how to add a region.
 
 - **California (`us-ca`), the main demo.** 1000 Great Highway, San Francisco, which is inside the official CGS tsunami hazard area. The room, building and route data are real responses recorded on Nov 3. The shelters are SAMPLE data.
-- **Japan (`jp`).** Kamakura City Hall. Tokyo's 23 wards have no mapped tsunami inundation, because Tokyo's assumption covers only its islands, so the demo uses Kamakura. SafeZone reads the Hazard Map Portal inundation tiles and depth classes, routes to designated tsunami evacuation sites from GSI, and checks each route against the inundation raster (`safezone/japan/evac.py`). Japanese guidance is quoted verbatim from the Cabinet Office and JMA in `safezone/japan/rules.py`, with an English rendering that the app shows and speaks. Kamakura is SAMPLE data until it is recorded with `tools/record_japan.py`.
+- **Japan (`jp`).** Yuigahama, Kamakura. Tokyo's 23 wards have no mapped tsunami inundation, because Tokyo's assumption covers only its islands, so the demo uses Kamakura. City Hall turned out to be outside the mapped inundation area, so the demo point is on the beach road at Yuigahama. SafeZone reads the Hazard Map Portal inundation tiles and depth classes, routes to designated tsunami evacuation sites from GSI, and checks each route against the inundation raster (`safezone/japan/evac.py`). Japanese guidance is quoted verbatim from the Cabinet Office and JMA in `safezone/japan/rules.py`, with an English rendering that the app shows and speaks. Kamakura is recorded real data from Nov 4, at Yuigahama (35.3108, 139.5426, inundation 1 m to 3 m). The recording found no route that passes the checks: GSI's tsunami site layer lists no sites in Kamakura city at all, and every route to the nearest sites, in Zushi, failed a check. So the Kamakura card says it could not check a route and gives the official fallback, and it lists the 10 nearest designated sites outside the inundation area by walking time.
 
 ## Safety design
 
@@ -179,15 +172,16 @@ To record fresh responses on your own machine, run `python tools/record_fixtures
 
 ## Tests
 
-- `python -m pytest -q` runs 236 Python tests, including adversarial safety tests, record-then-replay tests and a test of the whole demo plan.
+- `python -m pytest -q` runs 237 Python tests, including adversarial safety tests, record-then-replay tests and a test of the whole demo plan.
 - `node --test web/tests/*.test.mjs` runs 37 tests of the photo-quality meter, the turn-by-turn guide (including GPS noise and walking the route backward) and the app logic.
-- `node tools/verify_e2e.cjs <outdir> <base-url>` (needs Playwright and a running server) makes 140 checks in a phone-sized Chromium: the demo end to end with the spoken voice log, the real flow, offline, a phone with no saved places, and plans saved by the old app.
+- `node tools/verify_e2e.cjs <outdir> <base-url>` (needs Playwright and a running server) makes 150 checks in a phone-sized Chromium: the demo end to end with the spoken voice log, the real flow, offline, a phone with no saved places, and plans saved by the old app.
 
 ## Honest limits
 
 - A web app cannot wake itself. Standby listens for shaking only while the places screen is open on a phone that is awake. It does not receive official alerts.
 - The demo shelters are SAMPLE data, because FEMA's Open Shelters layer listed 0 open shelters on the quiet day we recorded. The filters and ranking are real and tested.
-- The demo's go-bag result is SAMPLE data, and Kamakura is SAMPLE data until it is recorded.
+- The go-bag check reports what the photo shows and nothing more. In the demo photo it saw 2 of 14 items; a hidden or packed item reads "Not seen".
+- In Kamakura, SafeZone could not check a route from the demo point, and it says so instead of drawing one.
 - SafeZone is not a structural assessment. It shows hazards it can see in a photo and flags from official public data. It does not have your building's plans.
 - Routes are planning aids, not official evacuation routes. Official instructions, municipal hazard maps and local evacuation signs always come first.
 - The hazard map is the minimum, not the limit. At Unosumai in Kamaishi in 2011, 86% of the dead were in homes outside the mapped hazard area ([EERI report](https://kamome.humboldt.edu/sites/default/files/Japan-eq-report-tsunami_dengler.pdf)). SafeZone's guidance tells people at the end of the route to keep moving inland and uphill if they can.

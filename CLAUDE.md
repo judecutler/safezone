@@ -1,6 +1,6 @@
 # SafeZone: context for any new session
 
-Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last updated Nov 4, about 2:15 PM PT. Credit name: Jude Cutler (in README).
+Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last updated Nov 4, about 3:00 PM PT. Credit name: Jude Cutler (in README).
 
 ## Deadline and state
 
@@ -51,30 +51,30 @@ Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last upd
 ## Fixtures and recording
 
 - `fixtures/demo/`: real US responses recorded Nov 3 (attempt 3), plus labelled SAMPLE shelters and outside-zone address (`python tools/demo.py fill-samples`), plus Japan samples. Recorders merge into this folder; they never empty it.
-- `demo/plan.json` (Ocean Beach) can only be rebuilt where `meta-sam-parser` installs (the user's machine); `tools/demo.py` refuses otherwise. `demo/gobag.json` is SAMPLE until recorded. `demo/plan_jp.json` (Kamakura) was recorded on the user's machine at 35.3108, 139.5426 (Yuigahama, on the Enoden line; inundation 1 m to 3 m): the first recording at City Hall (35.3192, 139.5466) read "outside the mapped area" (`not_in_zone`), so it was moved with `tools/probe_jp_zone.py`, which maps where the inundation is and prints `record_japan.py --lon --lat` commands. That recording found 10 sites but `no_checked_route` (the 6 nearest sites all failed `check_route`); `MAX_SITES` is now 12, which needs one rerecord (`python tools/record_japan.py --lon 139.5426 --lat 35.3108`). Until then the Kamakura card honestly says no checked route.
+- `demo/plan.json` (Ocean Beach) can only be rebuilt where `meta-sam-parser` installs (the user's machine); `tools/demo.py` refuses otherwise. `demo/gobag.json` is RECORDED (Nov 4, muse-spark-1.3, 2 of 14 seen: first aid kit, food) from `demo/gobag.jpg`. `demo/plan_jp.json` (Kamakura) is RECORDED (Nov 4) at 35.3108, 139.5426 (Yuigahama, inundation 1 m to 3 m). City Hall (35.3192, 139.5466) read `not_in_zone`, so `tools/probe_jp_zone.py` moved the point. With 12 sites checked the route is still `no_checked_route`: GSI's skhb05 tiles list zero sites in 鎌倉市 (checked in both recorded tiles); the nearest designated sites are in Zushi (1.7 km+) and every route there failed `check_route`. The card honestly says no checked route and lists the 10 nearest sites outside the inundation area (38 to 64 min). Moving the point to Zushi would give a site route; that is a new recording and was not done.
+- Tests pin the recorded state: `test_the_shipped_jp_demo_matches_a_replay_of_its_recording` rebuilds `plan_jp.json` from `fixtures/demo` and compares.
 - Windows: all JSON reads and writes are UTF-8 now (the Japanese text crashed `write_plan_jp` under cp1252 and left a half-written file; `git checkout -- demo/plan_jp.json` restores it).
 - Go-bag photo: `demo/gobag_input.jpg` (from the project's GoBag.jpg, the handwritten phone number on the backpack painted over, EXIF removed). Record with `python tools/record_fixtures.py --gobag demo/gobag_input.jpg`; delete `demo/gobag_input.jpg` afterwards if wanted. The project also holds Bathroom.jpg, CommonRoom.jpg and room.jpg (not used; no way-out or gas-meter photo exists, so those steps stay skip-able reference steps). Never commit a photo with a visible phone number, address or face.
 - On the user's machine: `python tools/record_japan.py` (no key; rebuilds `demo/plan_jp.json` when every call succeeded) and `python tools/record_fixtures.py --gobag <photo.jpg>` (writes `demo/gobag.json`). `python tools/record_fixtures.py` rerecords the US household.
 
 ## Tests
 
-- `python -m pytest -q` (236), `node --test web/tests/*.test.mjs` (37).
+- `python -m pytest -q` (237), `node --test web/tests/*.test.mjs` (37). `test_no_app_screen_says_safest_safe_route_or_guarantee` scans every `web/js` file.
 - The app reloads once when a new service worker takes over, but only on landing, places or about.
-- `node tools/verify_e2e.cjs <outdir> <base-url>` (146 checks: landing, demo flow with voice log, real flow and offline, no places, migration). In the sandbox: `NODE_PATH=/opt/node22/lib/node_modules`, and run the server with `SAFEZONE_FIXTURES=fixtures/demo MODEL_API_KEY=x python -m uvicorn safezone.app:create_app --factory --port 8000`.
+- `node tools/verify_e2e.cjs <outdir> <base-url>` (150 checks: landing, demo flow with voice log, real flow and offline, no places, migration). In the sandbox: `NODE_PATH=/opt/node22/lib/node_modules`, and run the server with `SAFEZONE_FIXTURES=fixtures/demo MODEL_API_KEY=x python -m uvicorn safezone.app:create_app --factory --port 8000`.
 - After any web change run `python tools/sw_shell.py`: it rewrites the service worker's offline file list and bumps its version.
 
 ## Submission materials
 
-- `README.md`, `docs/devpost.md`, `docs/judge_quickstart.md`: drafts. Each opens with a TODO block (credits name, recordings, live URL, test counts).
+- `README.md`, `docs/devpost.md`, `docs/judge_quickstart.md`: final. TODO blocks filled Nov 4 (recorded go bag and Kamakura, 237/37/150 test counts, live URL, credit Jude Cutler). The Devpost video link is the only item left, and it goes in Devpost's own field.
 - `docs/story.md`: verified disaster facts with sources (Dec 5, 2024 warning was 10:44 to 11:54 AM, not at night; Berkeley after-action survey; Kamaishi; furniture injuries; preparedness). Use only facts from it.
-- `docs/video_script.md`: must be rewritten for the new app before filming.
+- `docs/video_script.md`: final for the app on `main` (Act 2 rechecked Nov 4 against the browser run's screens and voice log).
 
 ## Still to do (Nov 4)
 
-1. DONE: independent safety review (verdict merge), merged to `main`, live site checked with a real scan. In progress: landing art restyle (isometric, light-grey houses, soft colour, dramatic quake with falling particles) after the user said the houses looked copied from the reference.
-2. DONE: Kamakura recorded (see above). Left: the MAX_SITES rerecord, the go-bag recording, then commit `fixtures/demo demo`, push, review the output, rerun the gate, merge to `main`.
-3. `docs/video_script.md` was rewritten for the new flow at noon; recheck Act 2 once the Kamakura card and go-bag card are final.
-4. Fill the TODOs in the submission drafts. User films and submits by 6 PM PT.
+1. DONE: recordings reviewed, gate rerun on a clean worktree (237 pytest, 37 node, 150/150 browser), merged to `main` (062ef68 and after), submission TODOs filled, video script Act 2 rechecked.
+2. User: check the live link on a phone with sound on, film from `docs/video_script.md`, submit by 6 PM PT.
+3. Not done, offered only: a map (hazard raster and site markers, no line) on the no-checked-route card; a Zushi recording that would give Japan a site route.
 
 ## Safety rules (never break)
 
