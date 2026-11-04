@@ -16,6 +16,7 @@ SOURCES = {
                     "https://conservation.ca.gov/cgs/tsunami/preparedness"),
     "cgs_survive": ("California Geological Survey: How to survive a tsunami",
                     "https://www.conservation.ca.gov/cgs/Documents/Tsunami/How-to-Survive-a-Tsunami.pdf"),
+    "ready_gov_kit": ("Ready.gov: Build a Kit", "https://www.ready.gov/kit"),
     "pge": ("PG&E: Earthquake safety", "https://www.pge.com/assets/pge/docs/newsroom/safety-action-center/earthquake.pdf"),
 }
 
@@ -92,3 +93,28 @@ HAZARD_LABELS: dict[HazardKind, str] = {
     "bed_under_window": "Bed under a window",
     "cabinet_doors": "Doors can swing open",
 }
+
+# Ready.gov's Basic Disaster Supplies Kit, in its order. The model only says which ids it can see.
+GO_BAG: list[tuple[str, str]] = [
+    ("water", "Water, one gallon per person per day for several days"),
+    ("food", "Non-perishable food, at least a several-day supply"),
+    ("radio", "Battery-powered or hand crank radio"),
+    ("flashlight", "Flashlight"),
+    ("first_aid", "First aid kit"),
+    ("batteries", "Extra batteries"),
+    ("whistle", "Whistle to signal for help"),
+    ("dust_mask", "Dust mask"),
+    ("sheeting_tape", "Plastic sheeting, scissors and duct tape"),
+    ("sanitation", "Moist towelettes, garbage bags and plastic ties"),
+    ("wrench", "Wrench or pliers to turn off utilities"),
+    ("can_opener", "Manual can opener"),
+    ("maps", "Local maps"),
+    ("phone_power", "Phone chargers and a backup battery"),
+]
+GO_BAG_SOURCE = "ready_gov_kit"
+GO_BAG_SEEN = "Seen in the photo"
+GO_BAG_NOT_SEEN = "Not seen"
+GO_BAG_CAVEAT = (
+    "This lists what the photo shows. It cannot tell whether your kit is enough for your household: "
+    "items can be hidden, packed or out of frame. Check the full list at Ready.gov."
+)
