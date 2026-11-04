@@ -1,6 +1,7 @@
 import { h } from '../dom.js';
 import { formatDistance } from '../geometry.js';
 import { OFF_ROUTE_M, cue, insideHazard, pointAlong, progress, routeLength } from '../guide.js';
+import { motionTriggered } from '../standby.js';
 import { isMuted, keepAwake, onVoiceChange, repeat, say, setMuted, stopAll, vibrate } from '../voice.js';
 import { TSUNAMI_MAP_MISSING, duringSpecials, routeView, shelterSection } from './parts.js';
 
@@ -82,7 +83,9 @@ function shaking(state, act) {
     leavePhase();
     act.go('stopped');
   };
-  return h('main', { class: 'em em-shaking', onclick: stopped },
+  // Opened by the motion sensor: only the button leaves, so a pocket touch cannot start the go-now voice.
+  const tapAnywhere = !motionTriggered();
+  return h('main', { class: 'em em-shaking', onclick: tapAnywhere ? stopped : null },
     state.demo ? h('div', { class: 'demo-banner', role: 'status' }, 'DEMO: simulated earthquake') : null,
     h('div', { class: 'em-top' }, muteButton()),
     h('h1', { class: 'em-dch' }, h('span', null, 'Drop.'), h('span', null, 'Cover.'), h('span', null, 'Hold on.')),
@@ -93,7 +96,7 @@ function shaking(state, act) {
     guidance ? h('ol', { class: 'em-steps' }, guidance.during.map((t) => h('li', null, t))) : null,
     duringSpecials(plan, guidance).map((t) => h('p', { class: 'em-special' }, t)),
     h('div', { class: 'em-dock' },
-      h('p', { class: 'em-tap-hint fine' }, 'Tap anywhere when it stops'),
+      h('p', { class: 'em-tap-hint fine' }, tapAnywhere ? 'Tap anywhere when it stops' : 'Tap the button when it stops'),
       h('button', { class: 'em-big', onclick: (e) => { e.stopPropagation(); stopped(); } }, 'Shaking has stopped'),
       exitLink(act)));
 }

@@ -25,6 +25,14 @@ export function shakeDetector({ strong = STRONG_MS2, windowMs = WINDOW_MS, fract
 const magnitude = (a) => (a && a.x != null ? Math.hypot(a.x, a.y, a.z) : null);
 
 let active = null;
+let motionFiredAt = -Infinity;
+
+// True for a while after the motion detector itself opened the shaking screen. A person who tapped Emergency
+// or ran the demo meant it; a sensor may not have, so that opening leaves only through the big button, never
+// through a stray touch on the rest of the screen.
+export const MOTION_RECENT_MS = 10 * 60 * 1000;
+export const motionTriggered = (now = Date.now()) => now - motionFiredAt < MOTION_RECENT_MS;
+export function markMotionTrigger(now = Date.now()) { motionFiredAt = now; }
 
 // Listens while `isArmed()` says so (the places screen checks it is still on screen). Fires `onQuake` once,
 // then rearms after 30 s so one quake cannot reopen the screen the moment the user leaves it.
@@ -41,6 +49,7 @@ export function startStandby({ onQuake, isArmed = () => true }) {
     if (det.push(t, m)) {
       det.reset();
       cooldownUntil = t + 30000;
+      markMotionTrigger();
       onQuake();
     }
   };

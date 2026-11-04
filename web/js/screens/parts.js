@@ -75,6 +75,7 @@ export function shelterSection(plan, sheltersError) {
   };
   return h('div', { class: 'shelters' },
     h('p', { class: 'call-ahead' }, 'Call ahead and confirm with local officials before you go. Shelter status changes fast.'),
+    result.ranking ? h('p', { class: 'fine' }, result.ranking) : null,
     result.matches.length === 0
       ? h('p', { class: 'notice' }, 'No open shelter in the data fits this household. Follow official instructions for where to go.')
       : h('ol', { class: 'shelter-list' }, result.matches.map((m) => shelterCard(m, result))),

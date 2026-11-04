@@ -177,7 +177,7 @@ export function roomResult(room, state, act, where) {
     h('div', { class: 'spot' },
       room.spots.map((spot, i) => h('div', { class: i === 0 ? 'spot-item spot-best' : 'spot-item' },
         h('p', { class: 'spot-kind' }, icon(spot.kind === 'no_cover' ? 'info' : 'target', 'icon-inline'),
-          i === 0 ? 'Safe spot' : `Option ${i + 1}`, h('span', { class: 'spot-kind-tag' }, SPOT_KIND[spot.kind])),
+          i === 0 ? 'Drop here' : `Option ${i + 1}`, h('span', { class: 'spot-kind-tag' }, SPOT_KIND[spot.kind])),
         h('p', { class: 'spot-instruction' }, spot.instruction),
         spot.cautions.length ? h('ul', { class: 'cautions' }, spot.cautions.map((c) => h('li', null, c))) : null))),
     hazards.length ? h('div', { class: 'block' },

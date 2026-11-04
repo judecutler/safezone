@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { haversine } from '../js/geometry.js';
-import { FAR_M, OFF_ROUTE_M, cue, insideHazard, pointAlong, progress, routeLength, stepPoints } from '../js/guide.js';
+import { BACK_FIXES, FAR_M, OFF_ROUTE_M, cue, insideHazard, pointAlong, progress, routeLength, stepPoints } from '../js/guide.js';
 
 const plan = JSON.parse(readFileSync(new URL('../../demo/plan.json', import.meta.url))).plan;
 const route = plan.route;
@@ -138,8 +138,74 @@ test('a route with no steps gives no cue instead of throwing', () => {
   assert.equal(cue(bare, progress(bare, route.origin), null), null);
 });
 
+// Collects every cue for a list of fixes, as the emergency screen does.
+function run(fixes, opts = {}) {
+  const said = [];
+  let last = null, prev = null;
+  for (const f of fixes) {
+    const prog = progress(route, f, prev, opts.accuracyM ?? 0);
+    prev = prog;
+    const c = cue(route, prog, last, { outsideHazard: opts.outside ? opts.outside(f) : !insideHazard(hazard, f), ...opts });
+    if (c) { said.push(c); last = c; }
+  }
+  return said;
+}
+const along = (a, b, step = 1.4) => { const out = []; for (let m = a; step > 0 ? m <= b : m >= b; m += step) out.push(pointAlong(route, m)); return out; };
+
+test('walking the route backward, toward the water, says turn around and never reads the passed turns again', () => {
+  const said = run([...along(0, 300), ...along(300, 0, -1.4)]);
+  const back = said.findIndex((c) => c.key === 'back');
+  assert.ok(back > 0, 'a turn-around cue');
+  assert.match(said[back].text, /Turn around/);
+  assert.deepEqual(said.slice(back + 1), [], 'nothing else is said on the way back');
+  const fromEnd = run(along(routeLength(route), 0, -1.4));
+  assert.equal(fromEnd[0].key, 'arrive');
+  assert.ok(fromEnd.some((c) => c.key === 'back'));
+  assert.ok(!fromEnd.some((c) => c.key.endsWith(':now') && c.key !== 'step:5:now'), `no turn re-announced: ${fromEnd.map((c) => c.text).join(' | ')}`);
+});
+
+test('GPS noise never says turn around and never announces a passed turn a second time', () => {
+  let seed = 7;
+  const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647 - 0.5; };
+  for (let trial = 0; trial < 6; trial++) {
+    const fixes = along(0, routeLength(route)).map((p) => offset(p, rnd() * 40, rnd() * 40));
+    const said = run(fixes);
+    assert.ok(!said.some((c) => c.key === 'back'), `trial ${trial}: no turn-around under +-20 m noise`);
+    const nows = said.filter((c) => c.key.endsWith(':now')).map((c) => c.key);
+    assert.deepEqual(nows, [...new Set(nows)], `trial ${trial}: each turn announced once: ${nows}`);
+    for (let i = 1; i < nows.length; i++) assert.ok(nows[i] > nows[i - 1], `trial ${trial}: turns in order`);
+  }
+  assert.ok(BACK_FIXES >= 3, 'a reversal needs several fixes in a row');
+});
+
+test('a fix the map cannot place (no polygons, or beyond them) is never called outside the hazard area', () => {
+  const unknown = () => null;
+  const beach = offset(route.origin, -300, 0);
+  const far = offset(route.origin, -1000, -3000);
+  for (const c of run([beach], { outside: unknown })) assert.doesNotMatch(c.text, /outside the mapped/);
+  for (const c of run([far], { outside: unknown })) assert.doesNotMatch(c.text, /outside the mapped/);
+  assert.match(run([far], { outside: unknown })[0].text, /inland and uphill/);
+  const arrived = run([route.destination], { outside: unknown });
+  assert.equal(arrived[0].key, 'arrive');
+  assert.doesNotMatch(arrived[0].text, /outside the mapped/);
+});
+
+test('arrival at a designated site (Japan) says the site instruction, not "outside the hazard area"', () => {
+  const site = 'Evacuation building: go to the upper floors.';
+  const said = run(along(routeLength(route) - 60, routeLength(route)), { outside: () => null, siteInstruction: site });
+  assert.equal(said.at(-1).key, 'arrive');
+  assert.equal(said.at(-1).text, `You have reached the end of the route. ${site}`);
+});
+
 // Standby: the detector that decides "sustained shaking" is pure, so it is checked here too.
-import { shakeDetector } from '../js/standby.js';
+import { markMotionTrigger, motionTriggered, shakeDetector } from '../js/standby.js';
+
+test('a motion-sensor opening is remembered so the shaking screen leaves only through its button', () => {
+  assert.equal(motionTriggered(0), false);
+  markMotionTrigger(1000);
+  assert.equal(motionTriggered(1000 + 60000), true);
+  assert.equal(motionTriggered(1000 + 11 * 60 * 1000), false);
+});
 
 test('standby ignores a single jolt and fires on two seconds of strong shaking', () => {
   const det = shakeDetector();

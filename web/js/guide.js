@@ -163,7 +163,7 @@ export function cue(route, prog, lastCue, { outsideHazard = null, accuracyM = 0,
   // Once the walker is outside the hazard polygons, no cue points back toward the route (which may lie seaward).
   if (prog.arrived || (outsideHazard === true && off)) {
     const arrivedText = siteInstruction ? WORDS.arrivedSite(siteInstruction)
-      : outsideHazard === false ? WORDS.arrivedUnchecked : WORDS.arrivedOutside;
+      : outsideHazard === true ? WORDS.arrivedOutside : WORDS.arrivedUnchecked;
     next = { key: 'arrive', text: prog.arrived ? arrivedText : WORDS.outside };
   } else if (off && prog.offRouteM > FAR_M) {
     next = { key: 'far', text: WORDS.far };

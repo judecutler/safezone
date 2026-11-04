@@ -156,6 +156,7 @@ def find_sites_as_shelters(origin: LonLat, household: Household, transport: Tran
     matches = [_match(s, cell, origin, household) for s, cell in zip(kept, cells)]
     matches.sort(key=lambda m: m.walk_min)
     return ShelterResult(origin=origin, matches=matches, excluded=excluded, fetched_at=now, replay=False,
+                         ranking="Designated tsunami evacuation sites, nearest walk first.",
                          provenance=weakest(*provenances))
 
 

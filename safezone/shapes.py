@@ -327,6 +327,8 @@ class ShelterResult(Shape):
     fetched_at: datetime
     replay: bool
     """True when the shelters come from a saved snapshot instead of the live FEMA feed."""
+    ranking: str | None = None
+    """One line that says how the matches are ordered, for the list header."""
     provenance: Provenance
 
 

@@ -94,7 +94,8 @@ html[data-quake] .standby-pulse { background: var(--sev-4); animation-duration: 
 .em-shaking .demo-banner + .em-top { top: 44px; }
 .em-shaking .em-steps { font-size: 1.0625rem; gap: 8px; }
 .em-shaking .em-steps li::before { font-size: 1.0625rem; }
-.em-shaking .em-special { font-size: 1.0625rem; padding: 10px 12px; }
+.em-shaking .em-special { font-size: 1.0625rem; border: 0; padding: 0 0 0 12px; border-left: 6px solid var(--accent); border-radius: 0; }
+.em-shaking .em-special + .em-special { margin-top: -4px; }
 .em-shaking .em-spots { gap: 8px; }
 .em-shaking .em-big { min-height: 92px; }
 .em .demo-banner { margin: -20px -16px 0; position: static; }

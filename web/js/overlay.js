@@ -25,7 +25,7 @@ export function spotPoint(spot, byId) {
 }
 
 // Line art over the photo: hazards in red with numbered balloons, cover thick black, neutral thin dashed grey,
-// Muse Spark's relations as red dashed connectors, and a crosshair at each located safe spot.
+// Muse Spark's relations as red dashed connectors, and a crosshair at each located spot to drop.
 export function roomOverlay(scan, imageUrl) {
   const [w, h] = scan.image_size;
   const u = w / 100;
@@ -83,7 +83,7 @@ export function roomOverlay(scan, imageUrl) {
       s('path', { d: ticks, class: 'ov-spot-ring' }),
       s('circle', { cx: x, cy: y, r: u * 0.7, class: 'ov-spot-dot' }),
       s('text', { x: x + R * 1.25, y: y - R * 1.25, class: 'ov-spot-label', 'font-size': 2.6 * u },
-        i === 0 ? 'SAFE SPOT' : `OPTION ${i + 1}`)));
+        i === 0 ? 'DROP HERE' : `OPTION ${i + 1}`)));
   });
 
   return s('svg', {

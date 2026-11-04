@@ -39,16 +39,16 @@ def test_demo_shelters_record_then_replay(tmp_path):
     recorded = find_shelters(ROUTE_END, demo_profile(), household, recorder, in_sample_ring, NOW, replay=False)
 
     names = [m.shelter.name for m in recorded.matches]
-    assert names == ["Sample Shelter A", "Sample Shelter C", "Sample Shelter B"]
+    assert names == ["Sample Shelter A", "Sample Shelter B", "Sample Shelter C"]
     assert recorded.excluded == {"not_open": 1, "in_hazard_area": 1, "hazard_check_failed": 0,
                                  "not_wheelchair_accessible": 1}
     assert all(m.walk_method == "route" for m in recorded.matches)
     assert all(not in_sample_ring((m.shelter.lon, m.shelter.lat)) for m in recorded.matches)
     walk = [m.walk_min for m in recorded.matches]
-    assert walk[0] < walk[2] < walk[1], "B is nearer than C but nearly full, so it ranks last"
+    assert walk == sorted(walk), "A reports room; B (nearly full) and C (unreported) follow by walking time"
     assert recorded.provenance == "sample"
-    assert "Nearly full: about 85% of capacity." in recorded.matches[2].notes
-    assert "Capacity not reported." in recorded.matches[1].notes
+    assert "Nearly full: about 85% of capacity, so shelters with more room rank first." in recorded.matches[1].notes
+    assert "Capacity not reported, so shelters that report room rank first." in recorded.matches[2].notes
     assert all("Listed as wheelchair accessible." in m.notes for m in recorded.matches)
     assert all(m.shelter.name.startswith("Sample") for m in recorded.matches)
 

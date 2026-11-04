@@ -58,15 +58,21 @@ NO_CHECKED_ROUTE = (
     "Walk inland and uphill, away from the water, and follow tsunami evacuation signs."
 )
 STAY_AWAY = "Waves can keep arriving for 8 hours or longer. Return only when officials say it is safe."
+# CGS: outside the hazard zone, stay where you are; on a beach or in a harbor, move at once; and the natural
+# warning signs (water receding unusually far, a loud ocean roar) mean a tsunami may be coming wherever you are.
+# The map is not the limit of a tsunami, so the signs are named here too, not only inside the zone.
 NOT_IN_ZONE = (
-    "Your home address is outside the mapped tsunami hazard area. If you are there, stay unless the building "
-    "is damaged or officials tell you to leave. If you are on a beach or in a harbor, go inland or to high ground now."
+    "This address is outside the mapped tsunami hazard area. If you are there, stay unless the building "
+    "is damaged or officials tell you to leave. If you are on a beach or in a harbor, go inland or to high ground now. "
+    "A tsunami can reach beyond the map: if the water pulls back unusually far, you hear a loud ocean roar, "
+    "or officials order it, go inland or uphill now."
 )
 
 DISCLAIMERS = [
     "SafeZone shows hazards it can see in your photos and flags from official public data. "
     "It is not a structural assessment and it does not have your building's plans.",
-    "Routes are planning aids computed from California's tsunami hazard map. They are not official evacuation routes.",
+    "Routes are planning aids computed from California's tsunami hazard map. They are not official evacuation routes, "
+    "and a real tsunami can go beyond the mapped area.",
     "Shelter listings come from FEMA data that can lag behind reality. Call ahead and confirm with local officials.",
     "Official instructions and local evacuation signs always override this app.",
 ]

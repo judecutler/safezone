@@ -179,6 +179,11 @@ async function demoFlow(browser) {
   check(await visible(page.locator('.em-shaking')), 'simulate opens shaking');
   const shakeAt = Date.now();
   await shot('shaking');
+  const hidden = await page.evaluate(() => {
+    const dockTop = document.querySelector('.em-dock').getBoundingClientRect().top;
+    return [...document.querySelectorAll('.em-spot, .em-steps li, .em-special')].filter((el) => el.getBoundingClientRect().bottom > dockTop).map((el) => el.textContent.slice(0, 30));
+  });
+  check(hidden.length === 0, `nothing on the shaking screen sits behind the bar at 390x844 (${JSON.stringify(hidden)})`);
   await page.locator('.em-dch').click();
   await sleep(300);
   check(await page.locator('.em-shaking').count() === 1, 'a tap in the first 3 s does not leave shaking');
@@ -233,6 +238,12 @@ async function demoFlow(browser) {
   await shot('after-arrived', true);
   await btn(page, 'Shelters that fit your household').click();
   check(await visible(page.locator('.em-shelters .shelter')), 'shelters screen lists shelters');
+  const shelterOrder = await page.locator('.em-shelters .shelter h4').allInnerTexts();
+  check(JSON.stringify(shelterOrder) === JSON.stringify(demo.plan.shelters.matches.map((m) => m.shelter.name)), `shelters in the plan's order (${shelterOrder.join(', ')})`);
+  const shelterWalk = demo.plan.shelters.matches.map((m) => m.walk_min);
+  const roomFirst = demo.plan.shelters.matches.map((m) => (m.fill_ratio != null && m.fill_ratio < 0.8 ? 0 : 1));
+  check(roomFirst.every((g, i) => i === 0 || g > roomFirst[i - 1] || (g === roomFirst[i - 1] && shelterWalk[i] >= shelterWalk[i - 1])), 'shelters that report room first, then by walking time');
+  check((await text(page, '.em-shelters')).includes('rank first'), 'a demoted shelter card says why it ranks lower');
   await shot('shelters', true);
   await btn(page, 'Leave emergency mode').click();
   check(await visible(page.locator('.places')), 'leaving the emergency returns to places');
@@ -256,6 +267,11 @@ async function demoFlow(browser) {
   check(jpText.includes(jpGuidance.go_now), 'Kamakura after shows the Japan go-now line');
   check(jpText.includes('Sample site A (hill)') && /designated evacuation site/i.test(jpText), 'Kamakura after shows the designated evacuation site');
   check(voice.some((v) => v.text.includes(jpGuidance.go_now)), 'Kamakura after speaks the Japan go-now line');
+  const jpDemo = await (await fetch(`${BASE}/api/demo?region=jp`)).json();
+  const jpFirst = `${jpDemo.plan.route.steps[0].instruction}.`;
+  check(await waitFor(page, (t) => performance.now() > 0 && [...document.querySelectorAll('.em-next')].some((el) => el.textContent.length > 0), null, 5000)
+    && voice.some((v) => v.text === jpFirst), `Kamakura after speaks the first turn of the site route (${JSON.stringify(jpFirst)})`);
+  check(!voice.some((v) => /outside the mapped tsunami hazard area/.test(v.text)), 'Kamakura never claims to be outside a hazard area it has no polygons for');
   await shot('kamakura-after', true);
   await btn(page, 'Leave emergency mode').click();
   await visible(page.locator('.places'));

@@ -144040,30 +144040,6 @@
     },
     {
      "shelter": {
-      "id": "900003",
-      "name": "Sample Shelter C",
-      "address": "Sample address, San Francisco, CA, 94121",
-      "lon": -122.46454,
-      "lat": 37.77266,
-      "status": "OPEN",
-      "capacity": null,
-      "residents": 12,
-      "ada": true,
-      "wheelchair": true,
-      "pets_code": null,
-      "source_url": "https://gis.fema.gov/arcgis/rest/services/NSS/OpenShelters/FeatureServer/0/query"
-     },
-     "walk_min": 82.26166666666667,
-     "walk_method": "route",
-     "fill_ratio": null,
-     "notes": [
-      "Capacity not reported.",
-      "No pet information. Call ahead about pets.",
-      "Listed as wheelchair accessible."
-     ]
-    },
-    {
-     "shelter": {
       "id": "900002",
       "name": "Sample Shelter B",
       "address": "Sample address, San Francisco, CA, 94121",
@@ -144081,7 +144057,31 @@
      "walk_method": "route",
      "fill_ratio": 0.85,
      "notes": [
-      "Nearly full: about 85% of capacity.",
+      "Nearly full: about 85% of capacity, so shelters with more room rank first.",
+      "No pet information. Call ahead about pets.",
+      "Listed as wheelchair accessible."
+     ]
+    },
+    {
+     "shelter": {
+      "id": "900003",
+      "name": "Sample Shelter C",
+      "address": "Sample address, San Francisco, CA, 94121",
+      "lon": -122.46454,
+      "lat": 37.77266,
+      "status": "OPEN",
+      "capacity": null,
+      "residents": 12,
+      "ada": true,
+      "wheelchair": true,
+      "pets_code": null,
+      "source_url": "https://gis.fema.gov/arcgis/rest/services/NSS/OpenShelters/FeatureServer/0/query"
+     },
+     "walk_min": 82.26166666666667,
+     "walk_method": "route",
+     "fill_ratio": null,
+     "notes": [
+      "Capacity not reported, so shelters that report room rank first.",
       "No pet information. Call ahead about pets.",
       "Listed as wheelchair accessible."
      ]
@@ -144095,6 +144095,7 @@
    },
    "fetched_at": "2026-11-04T17:00:00Z",
    "replay": true,
+   "ranking": "Shelters that report room come first, then by walking time.",
    "provenance": "sample"
   },
   "generated_at": "2026-11-04T07:24:29.029289Z"
