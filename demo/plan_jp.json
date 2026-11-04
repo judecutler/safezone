@@ -1,22 +1,43 @@
 {
  "plan": {
   "building": {
-   "address": "18-10 御成町, 鎌倉市, 248-8686",
-   "display_name": "鎌倉市役所, 18-10, 御成町, 鎌倉市, 神奈川県, 248-8686, 日本",
-   "lon": 139.5466,
-   "lat": 35.3192,
+   "address": "国道134号, 鎌倉市, 248-0016",
+   "display_name": "江ノ電デハ107, 国道134号, 由比ガ浜四丁目, 長谷, 鎌倉市, 神奈川県, 248-0016, 日本",
+   "lon": 139.5426,
+   "lat": 35.3108,
    "city": "鎌倉市",
-   "footprint": null,
+   "footprint": [
+    [
+     139.5428567,
+     35.3107877
+    ],
+    [
+     139.5430445,
+     35.3107582
+    ],
+    [
+     139.5430255,
+     35.3106778
+    ],
+    [
+     139.5428377,
+     35.3107074
+    ],
+    [
+     139.5428567,
+     35.3107877
+    ]
+   ],
    "flags": [
     {
      "kind": "tsunami_zone",
      "tone": "alert",
-     "value": "In the tsunami inundation area (under 0.3 m)",
+     "value": "In the tsunami inundation area (1 m to 3 m)",
      "detail": "The prefecture's tsunami inundation assumption reaches this address. After strong or long shaking, go on foot to high ground or a designated evacuation site right away.",
      "status": null,
      "source_name": "ハザードマップポータルサイト: オープンデータ (Hazard Map Portal: open data tiles)",
      "source_url": "https://disaportaldata.gsi.go.jp/hazardmap/copyright/opendata.html",
-     "provenance": "sample"
+     "provenance": "recorded"
     }
    ],
    "hazard_area": {
@@ -27,7 +48,7 @@
     "map_url": "https://disaportal.gsi.go.jp/",
     "source_url": "https://disaportaldata.gsi.go.jp/raster/04_tsunami_newlegend_data/{z}/{x}/{y}.png"
    },
-   "provenance": "sample"
+   "provenance": "recorded"
   },
   "household": {
    "children": true,
@@ -37,75 +58,23 @@
   },
   "rooms": [],
   "route": {
-   "kind": "site_route",
-   "origin": [
-    139.5466,
-    35.3192
-   ],
-   "destination": [
-    139.548,
-    35.3262
-   ],
-   "site": {
-    "name": "Sample site A (hill)",
-    "address": "Sample address, Kamakura",
-    "lon": 139.548,
-    "lat": 35.3262,
-    "kind": "high_ground",
-    "instruction": "Designated site outside the mapped inundation area.",
-    "depth": "no mapped inundation",
-    "remarks": "SAMPLE: not from the city's list.",
-    "source_name": "国土地理院: 指定緊急避難場所・指定避難所データ (GSI: designated evacuation sites)",
-    "source_url": "https://cyberjapandata.gsi.go.jp/xyz/skhb05/10/908/404.geojson",
-    "provenance": "sample"
-   },
-   "path": [
-    [
-     139.5466,
-     35.3192
-    ],
-    [
-     139.5466,
-     35.3262
-    ],
-    [
-     139.548,
-     35.3262
-    ]
-   ],
-   "steps": [
-    {
-     "instruction": "Head north on Sample street 1",
-     "distance_m": 778.4
-    },
-    {
-     "instruction": "Turn right onto Sample street 2",
-     "distance_m": 127.0
-    },
-    {
-     "instruction": "Arrive",
-     "distance_m": 0.0
-    }
-   ],
-   "distance_m": 905.4,
-   "walk_min": 15.09,
-   "home_depth": "under 0.3 m",
-   "computed_at": "2026-11-04T17:00:00Z",
-   "provenance": "sample"
+   "kind": "no_checked_route",
+   "reason": "SafeZone could not check a route to a designated tsunami evacuation site from here. Move inland and to higher ground on foot, and follow local tsunami evacuation signs.",
+   "map_url": "https://disaportal.gsi.go.jp/"
   },
   "shelters": {
    "origin": [
-    139.5466,
-    35.3192
+    139.5426,
+    35.3108
    ],
    "matches": [
     {
      "shelter": {
-      "id": "139.548000,35.326200",
-      "name": "Sample site A (hill)",
-      "address": "Sample address, Kamakura",
-      "lon": 139.548,
-      "lat": 35.3262,
+      "id": "139.556824,35.300458",
+      "name": "イリオス公園",
+      "address": "神奈川県逗子市小坪6-140-8",
+      "lon": 139.556824,
+      "lat": 35.300458,
       "status": "Designated emergency evacuation site (tsunami)",
       "capacity": null,
       "residents": null,
@@ -114,22 +83,21 @@
       "pets_code": null,
       "source_url": "https://cyberjapandata.gsi.go.jp/xyz/skhb05/10/908/404.geojson"
      },
-     "walk_min": 17.08833333333333,
+     "walk_min": 38.22666666666667,
      "walk_method": "route",
      "fill_ratio": null,
      "notes": [
       "An evacuation site, not a place to stay. Ask the city which shelter (指定避難所) opens after.",
-      "Municipal note: SAMPLE: not from the city's list.",
       "No pet information. Ask the city about pets."
      ]
     },
     {
      "shelter": {
-      "id": "139.535500,35.324800",
-      "name": "Sample site C (temple grounds)",
-      "address": "Sample address, Kamakura",
-      "lon": 139.5355,
-      "lat": 35.3248,
+      "id": "139.559678,35.297324",
+      "name": "披露山児童公園",
+      "address": "神奈川県逗子市小坪3-658-1",
+      "lon": 139.559678,
+      "lat": 35.297324,
       "status": "Designated emergency evacuation site (tsunami)",
       "capacity": null,
       "residents": null,
@@ -138,7 +106,191 @@
       "pets_code": null,
       "source_url": "https://cyberjapandata.gsi.go.jp/xyz/skhb05/10/908/404.geojson"
      },
-     "walk_min": 25.653333333333332,
+     "walk_min": 48.76,
+     "walk_method": "route",
+     "fill_ratio": null,
+     "notes": [
+      "An evacuation site, not a place to stay. Ask the city which shelter (指定避難所) opens after.",
+      "No pet information. Ask the city about pets."
+     ]
+    },
+    {
+     "shelter": {
+      "id": "139.561027,35.300041",
+      "name": "大谷戸公園",
+      "address": "神奈川県逗子市小坪3-960-13",
+      "lon": 139.561027,
+      "lat": 35.300041,
+      "status": "Designated emergency evacuation site (tsunami)",
+      "capacity": null,
+      "residents": null,
+      "ada": null,
+      "wheelchair": null,
+      "pets_code": null,
+      "source_url": "https://cyberjapandata.gsi.go.jp/xyz/skhb05/10/908/404.geojson"
+     },
+     "walk_min": 48.91166666666666,
+     "walk_method": "route",
+     "fill_ratio": null,
+     "notes": [
+      "An evacuation site, not a place to stay. Ask the city which shelter (指定避難所) opens after.",
+      "No pet information. Ask the city about pets."
+     ]
+    },
+    {
+     "shelter": {
+      "id": "139.560353,35.302397",
+      "name": "たきが谷公園",
+      "address": "神奈川県逗子市小坪2-1048-34",
+      "lon": 139.560353,
+      "lat": 35.302397,
+      "status": "Designated emergency evacuation site (tsunami)",
+      "capacity": null,
+      "residents": null,
+      "ada": null,
+      "wheelchair": null,
+      "pets_code": null,
+      "source_url": "https://cyberjapandata.gsi.go.jp/xyz/skhb05/10/908/404.geojson"
+     },
+     "walk_min": 50.10166666666667,
+     "walk_method": "route",
+     "fill_ratio": null,
+     "notes": [
+      "An evacuation site, not a place to stay. Ask the city which shelter (指定避難所) opens after.",
+      "No pet information. Ask the city about pets."
+     ]
+    },
+    {
+     "shelter": {
+      "id": "139.564339,35.299855",
+      "name": "小坪大谷戸会館",
+      "address": "神奈川県逗子市新宿4-15-26",
+      "lon": 139.564339,
+      "lat": 35.299855,
+      "status": "Designated emergency evacuation site (tsunami)",
+      "capacity": null,
+      "residents": null,
+      "ada": null,
+      "wheelchair": null,
+      "pets_code": null,
+      "source_url": "https://cyberjapandata.gsi.go.jp/xyz/skhb05/10/908/404.geojson"
+     },
+     "walk_min": 53.875,
+     "walk_method": "route",
+     "fill_ratio": null,
+     "notes": [
+      "An evacuation site, not a place to stay. Ask the city which shelter (指定避難所) opens after.",
+      "No pet information. Ask the city about pets."
+     ]
+    },
+    {
+     "shelter": {
+      "id": "139.559393,35.293711",
+      "name": "大崎公園",
+      "address": "神奈川県逗子市小坪4-739",
+      "lon": 139.559393,
+      "lat": 35.293711,
+      "status": "Designated emergency evacuation site (tsunami)",
+      "capacity": null,
+      "residents": null,
+      "ada": null,
+      "wheelchair": null,
+      "pets_code": null,
+      "source_url": "https://cyberjapandata.gsi.go.jp/xyz/skhb05/10/908/404.geojson"
+     },
+     "walk_min": 54.355000000000004,
+     "walk_method": "route",
+     "fill_ratio": null,
+     "notes": [
+      "An evacuation site, not a place to stay. Ask the city which shelter (指定避難所) opens after.",
+      "No pet information. Ask the city about pets."
+     ]
+    },
+    {
+     "shelter": {
+      "id": "139.565967,35.300481",
+      "name": "一の沢公園",
+      "address": "神奈川県逗子市小坪1-1541-5",
+      "lon": 139.565967,
+      "lat": 35.300481,
+      "status": "Designated emergency evacuation site (tsunami)",
+      "capacity": null,
+      "residents": null,
+      "ada": null,
+      "wheelchair": null,
+      "pets_code": null,
+      "source_url": "https://cyberjapandata.gsi.go.jp/xyz/skhb05/10/908/404.geojson"
+     },
+     "walk_min": 56.733333333333334,
+     "walk_method": "route",
+     "fill_ratio": null,
+     "notes": [
+      "An evacuation site, not a place to stay. Ask the city which shelter (指定避難所) opens after.",
+      "No pet information. Ask the city about pets."
+     ]
+    },
+    {
+     "shelter": {
+      "id": "139.566235,35.299690",
+      "name": "けやきの広場",
+      "address": "神奈川県逗子市新宿4-1537-7",
+      "lon": 139.566235,
+      "lat": 35.29969,
+      "status": "Designated emergency evacuation site (tsunami)",
+      "capacity": null,
+      "residents": null,
+      "ada": null,
+      "wheelchair": null,
+      "pets_code": null,
+      "source_url": "https://cyberjapandata.gsi.go.jp/xyz/skhb05/10/908/404.geojson"
+     },
+     "walk_min": 56.85166666666667,
+     "walk_method": "route",
+     "fill_ratio": null,
+     "notes": [
+      "An evacuation site, not a place to stay. Ask the city which shelter (指定避難所) opens after.",
+      "No pet information. Ask the city about pets."
+     ]
+    },
+    {
+     "shelter": {
+      "id": "139.571097,35.305431",
+      "name": "なかよし公園",
+      "address": "神奈川県逗子市久木5-1620-26",
+      "lon": 139.571097,
+      "lat": 35.305431,
+      "status": "Designated emergency evacuation site (tsunami)",
+      "capacity": null,
+      "residents": null,
+      "ada": null,
+      "wheelchair": null,
+      "pets_code": null,
+      "source_url": "https://cyberjapandata.gsi.go.jp/xyz/skhb05/10/909/404.geojson"
+     },
+     "walk_min": 57.059999999999995,
+     "walk_method": "route",
+     "fill_ratio": null,
+     "notes": [
+      "An evacuation site, not a place to stay. Ask the city which shelter (指定避難所) opens after.",
+      "No pet information. Ask the city about pets."
+     ]
+    },
+    {
+     "shelter": {
+      "id": "139.564476,35.296237",
+      "name": "披露山公園",
+      "address": "神奈川県逗子市新宿5-1851",
+      "lon": 139.564476,
+      "lat": 35.296237,
+      "status": "Designated emergency evacuation site (tsunami)",
+      "capacity": null,
+      "residents": null,
+      "ada": null,
+      "wheelchair": null,
+      "pets_code": null,
+      "source_url": "https://cyberjapandata.gsi.go.jp/xyz/skhb05/10/908/404.geojson"
+     },
+     "walk_min": 64.29666666666667,
      "walk_method": "route",
      "fill_ratio": null,
      "notes": [
@@ -149,16 +301,16 @@
    ],
    "excluded": {
     "not_open": 0,
-    "in_hazard_area": 1,
+    "in_hazard_area": 6,
     "hazard_check_failed": 0,
     "not_wheelchair_accessible": 0
    },
-   "fetched_at": "2026-11-04T17:00:00Z",
+   "fetched_at": "2026-11-04T22:12:14.576039Z",
    "replay": false,
    "ranking": "Designated tsunami evacuation sites, nearest walk first.",
-   "provenance": "sample"
+   "provenance": "recorded"
   },
-  "generated_at": "2026-11-04T17:00:00Z"
+  "generated_at": "2026-11-04T22:12:14.576039Z"
  },
  "images": {},
  "note": "Sample household: no room was scanned for this address, so the room section is empty. The room scan demo is the Bay Area household.",

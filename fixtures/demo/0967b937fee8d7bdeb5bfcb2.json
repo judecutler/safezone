@@ -1,0 +1,10 @@
+{
+ "request": {
+  "method": "POST",
+  "url": "https://api.meta.ai/v1/chat/completions",
+  "params": {}
+ },
+ "status": 200,
+ "provenance": "recorded",
+ "text": "{\"id\":\"chatcmpl-01a1a89f-851c-771e-970b-11c04e872081\",\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"{\\\"items\\\": [{\\\"id\\\": \\\"water\\\", \\\"note\\\": \\\"\\\", \\\"seen\\\": false}, {\\\"id\\\": \\\"food\\\", \\\"note\\\": \\\"jar of peanut butter cups\\\", \\\"seen\\\": true}, {\\\"id\\\": \\\"radio\\\", \\\"note\\\": \\\"\\\", \\\"seen\\\": false}, {\\\"id\\\": \\\"flashlight\\\", \\\"note\\\": \\\"\\\", \\\"seen\\\": false}, {\\\"id\\\": \\\"first_aid\\\", \\\"note\\\": \\\"red Dorm+Doc College Medical Kit pouch\\\", \\\"seen\\\": true}, {\\\"id\\\": \\\"batteries\\\", \\\"note\\\": \\\"\\\", \\\"seen\\\": false}, {\\\"id\\\": \\\"whistle\\\", \\\"note\\\": \\\"\\\", \\\"seen\\\": false}, {\\\"id\\\": \\\"dust_mask\\\", \\\"note\\\": \\\"\\\", \\\"seen\\\": false}, {\\\"id\\\": \\\"sheeting_tape\\\", \\\"note\\\": \\\"\\\", \\\"seen\\\": false}, {\\\"id\\\": \\\"sanitation\\\", \\\"note\\\": \\\"\\\", \\\"seen\\\": false}, {\\\"id\\\": \\\"wrench\\\", \\\"note\\\": \\\"\\\", \\\"seen\\\": false}, {\\\"id\\\": \\\"can_opener\\\", \\\"note\\\": \\\"\\\", \\\"seen\\\": false}, {\\\"id\\\": \\\"maps\\\", \\\"note\\\": \\\"\\\", \\\"seen\\\": false}, {\\\"id\\\": \\\"phone_power\\\", \\\"note\\\": \\\"\\\", \\\"seen\\\": false}]}\",\"refusal\":null,\"role\":\"assistant\"},\"logprobs\":null}],\"created\":1793830388,\"model\":\"muse-spark-1.3\",\"service_tier\":\"default\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":639,\"prompt_tokens\":2308,\"total_tokens\":2947,\"completion_tokens_details\":{\"reasoning_tokens\":387},\"prompt_tokens_details\":{\"cached_tokens\":0}}}"
+}

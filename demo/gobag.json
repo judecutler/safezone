@@ -3,16 +3,16 @@
   {
    "id": "water",
    "label": "Water",
-   "seen": true,
-   "status": "Seen in the photo",
-   "note": "two 1-litre water bottles"
+   "seen": false,
+   "status": "Not seen",
+   "note": null
   },
   {
    "id": "food",
    "label": "Non-perishable food",
-   "seen": false,
-   "status": "Not seen",
-   "note": null
+   "seen": true,
+   "status": "Seen in the photo",
+   "note": "jar of peanut butter cups"
   },
   {
    "id": "radio",
@@ -24,30 +24,30 @@
   {
    "id": "flashlight",
    "label": "Flashlight",
-   "seen": true,
-   "status": "Seen in the photo",
-   "note": "a small flashlight"
+   "seen": false,
+   "status": "Not seen",
+   "note": null
   },
   {
    "id": "first_aid",
    "label": "First aid kit",
    "seen": true,
    "status": "Seen in the photo",
-   "note": "a red first aid pouch"
+   "note": "red Dorm+Doc College Medical Kit pouch"
   },
   {
    "id": "batteries",
    "label": "Extra batteries",
-   "seen": true,
-   "status": "Seen in the photo",
-   "note": "a pack of AA batteries"
+   "seen": false,
+   "status": "Not seen",
+   "note": null
   },
   {
    "id": "whistle",
    "label": "Whistle",
-   "seen": true,
-   "status": "Seen in the photo",
-   "note": "a whistle on a cord"
+   "seen": false,
+   "status": "Not seen",
+   "note": null
   },
   {
    "id": "dust_mask",
@@ -94,16 +94,16 @@
   {
    "id": "phone_power",
    "label": "Phone charger and backup battery",
-   "seen": true,
-   "status": "Seen in the photo",
-   "note": "a charging cable and a power bank"
+   "seen": false,
+   "status": "Not seen",
+   "note": null
   }
  ],
- "seen_count": 6,
+ "seen_count": 2,
  "total": 14,
  "model": "muse-spark-1.3",
  "caveat": "This lists what the photo shows. It cannot tell whether your kit is enough for your household: items can be hidden, packed or out of frame. Check the full list at Ready.gov.",
  "source_name": "Ready.gov: Build a Kit",
  "source_url": "https://www.ready.gov/kit",
- "provenance": "sample"
+ "provenance": "recorded"
 }

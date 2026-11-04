@@ -1,0 +1,16 @@
+{
+ "request": {
+  "method": "GET",
+  "url": "https://nominatim.openstreetmap.org/reverse",
+  "params": {
+   "addressdetails": "1",
+   "format": "jsonv2",
+   "lat": "35.310800",
+   "lon": "139.542600",
+   "zoom": "18"
+  }
+ },
+ "status": 200,
+ "provenance": "recorded",
+ "text": "{\"place_id\":264368236,\"licence\":\"Data \u00a9 OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright\",\"osm_type\":\"way\",\"osm_id\":704524206,\"lat\":\"35.3103776\",\"lon\":\"139.5425675\",\"category\":\"historic\",\"type\":\"locomotive\",\"place_rank\":30,\"importance\":6.288166628514561e-05,\"addresstype\":\"historic\",\"name\":\"\u6c5f\u30ce\u96fb\u30c7\u30cf107\",\"display_name\":\"\u6c5f\u30ce\u96fb\u30c7\u30cf107, \u56fd\u9053134\u53f7, \u7531\u6bd4\u30ac\u6d5c\u56db\u4e01\u76ee, \u9577\u8c37, \u938c\u5009\u5e02, \u795e\u5948\u5ddd\u770c, 248-0016, \u65e5\u672c\",\"address\":{\"historic\":\"\u6c5f\u30ce\u96fb\u30c7\u30cf107\",\"road\":\"\u56fd\u9053134\u53f7\",\"neighbourhood\":\"\u7531\u6bd4\u30ac\u6d5c\u56db\u4e01\u76ee\",\"quarter\":\"\u9577\u8c37\",\"city\":\"\u938c\u5009\u5e02\",\"province\":\"\u795e\u5948\u5ddd\u770c\",\"ISO3166-2-lvl4\":\"JP-14\",\"postcode\":\"248-0016\",\"country\":\"\u65e5\u672c\",\"country_code\":\"jp\"},\"boundingbox\":[\"35.3103601\",\"35.3103951\",\"139.5425060\",\"139.5426289\"]}"
+}

@@ -1,0 +1,16 @@
+{
+ "request": {
+  "method": "GET",
+  "url": "https://nominatim.openstreetmap.org/reverse",
+  "params": {
+   "addressdetails": "1",
+   "format": "jsonv2",
+   "lat": "35.319200",
+   "lon": "139.546600",
+   "zoom": "18"
+  }
+ },
+ "status": 200,
+ "provenance": "recorded",
+ "text": "{\"place_id\":264662652,\"licence\":\"Data \u00a9 OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright\",\"osm_type\":\"way\",\"osm_id\":176112805,\"lat\":\"35.3182218\",\"lon\":\"139.5469796\",\"category\":\"amenity\",\"type\":\"school\",\"place_rank\":30,\"importance\":0.24632300460320036,\"addresstype\":\"amenity\",\"name\":\"\u938c\u5009\u5e02\u7acb\u5fa1\u6210\u5c0f\u5b66\u6821\",\"display_name\":\"\u938c\u5009\u5e02\u7acb\u5fa1\u6210\u5c0f\u5b66\u6821, 1, \u5fa1\u6210\u753a, \u938c\u5009\u5e02, \u795e\u5948\u5ddd\u770c, 248-0012, \u65e5\u672c\",\"address\":{\"amenity\":\"\u938c\u5009\u5e02\u7acb\u5fa1\u6210\u5c0f\u5b66\u6821\",\"house_number\":\"1\",\"neighbourhood\":\"\u5fa1\u6210\u753a\",\"city\":\"\u938c\u5009\u5e02\",\"province\":\"\u795e\u5948\u5ddd\u770c\",\"ISO3166-2-lvl4\":\"JP-14\",\"postcode\":\"248-0012\",\"country\":\"\u65e5\u672c\",\"country_code\":\"jp\"},\"boundingbox\":[\"35.3176011\",\"35.3190352\",\"139.5458906\",\"139.5481691\"]}"
+}
