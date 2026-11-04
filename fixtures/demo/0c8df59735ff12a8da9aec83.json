@@ -1,0 +1,16 @@
+{
+ "request": {
+  "method": "GET",
+  "url": "https://nominatim.openstreetmap.org/search",
+  "params": {
+   "addressdetails": "1",
+   "countrycodes": "us",
+   "format": "jsonv2",
+   "limit": "1",
+   "q": "1000 Great Highway, San Francisco, CA 94121"
+  }
+ },
+ "status": 200,
+ "provenance": "sample",
+ "text": "[{\"place_id\": 1, \"lat\": \"37.76966\", \"lon\": \"-122.51005\", \"display_name\": \"Beach Chalet, 1000 Great Highway, Outer Richmond, San Francisco, California, 94121, United States\", \"category\": \"amenity\", \"type\": \"building\", \"address\": {\"amenity\": \"Beach Chalet\", \"house_number\": \"1000\", \"road\": \"Great Highway\", \"suburb\": \"Outer Richmond\", \"city\": \"San Francisco\", \"county\": \"San Francisco\", \"state\": \"California\", \"postcode\": \"94121\", \"country\": \"United States\", \"country_code\": \"us\"}}]"
+}

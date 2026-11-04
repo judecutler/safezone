@@ -1,0 +1,14 @@
+{
+ "request": {
+  "method": "GET",
+  "url": "https://routing.openstreetmap.de/routed-foot/route/v1/foot/-122.510050,37.769660;-122.507265,37.769553",
+  "params": {
+   "geometries": "geojson",
+   "overview": "full",
+   "steps": "true"
+  }
+ },
+ "status": 200,
+ "provenance": "sample",
+ "text": "{\"code\": \"Ok\", \"routes\": [{\"geometry\": {\"type\": \"LineString\", \"coordinates\": [[-122.51005, 37.76966], [-122.51005, 37.7716], [-122.507265, 37.7716], [-122.507265, 37.769553]]}, \"legs\": [{\"steps\": [{\"maneuver\": {\"type\": \"depart\", \"bearing_after\": 0.0, \"location\": [-122.51005, 37.76966]}, \"name\": \"48th Avenue\", \"mode\": \"walking\", \"distance\": 215.7}, {\"maneuver\": {\"type\": \"turn\", \"modifier\": \"right\", \"bearing_after\": 89.99914707241146, \"location\": [-122.51005, 37.7716]}, \"name\": \"Fulton Street\", \"mode\": \"walking\", \"distance\": 244.8}, {\"maneuver\": {\"type\": \"turn\", \"modifier\": \"right\", \"bearing_after\": 180.0, \"location\": [-122.507265, 37.7716]}, \"name\": \"46th Avenue\", \"mode\": \"walking\", \"distance\": 227.6}, {\"maneuver\": {\"type\": \"arrive\", \"bearing_after\": 0, \"location\": [-122.507265, 37.769553]}, \"name\": \"46th Avenue\", \"mode\": \"walking\", \"distance\": 0.0}], \"distance\": 688.1, \"duration\": 573.4166666666667}], \"distance\": 688.1, \"duration\": 573.4166666666667, \"weight_name\": \"routability\"}], \"waypoints\": [{\"name\": \"48th Avenue\", \"location\": [-122.51005, 37.76966], \"distance\": 0.0}, {\"name\": \"46th Avenue\", \"location\": [-122.507265, 37.769553], \"distance\": 0.0}]}"
+}

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "index.py": {
+      "maxDuration": 120,
+      "excludeFiles": "{tests/**,docs/**,tools/**,fixtures/demo.recording/**,**/__pycache__/**}"
+    }
+  }
+}

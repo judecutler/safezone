@@ -1,16 +1,18 @@
-# Secrets: never commit these
 .env
+__pycache__/
+*.pyc
+.pytest_cache/
+.cache/
+node_modules/
+/scratch/
+tools/probe_out.json
+# Secrets: never commit these
 .env.*
 !.env.example
 *.pem
 *.key
 
 # Local caches and build output
-.cache/
-__pycache__/
-*.pyc
 .venv/
 venv/
-.pytest_cache/
-node_modules/
 .DS_Store

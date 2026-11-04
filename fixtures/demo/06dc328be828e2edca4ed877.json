@@ -1,0 +1,18 @@
+{
+ "request": {
+  "method": "GET",
+  "url": "https://gis.conservation.ca.gov/server/rest/services/CGS/IW_Tsunami_Hazard_Area/FeatureServer/0/query",
+  "params": {
+   "f": "json",
+   "geometry": "-122.51005,37.76966",
+   "geometryType": "esriGeometryPoint",
+   "inSR": "4326",
+   "outFields": "Evacuate,County,Map_Link",
+   "returnGeometry": "false",
+   "spatialRel": "esriSpatialRelIntersects"
+  }
+ },
+ "status": 200,
+ "provenance": "sample",
+ "text": "{\"objectIdFieldName\": \"OBJECTID\", \"features\": [{\"attributes\": {\"Evacuate\": \"Yes, Tsunami Hazard Area\", \"County\": \"San Francisco\", \"Map_Link\": null}}]}"
+}

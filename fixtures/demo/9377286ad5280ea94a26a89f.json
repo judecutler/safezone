@@ -1,0 +1,10 @@
+{
+ "request": {
+  "method": "POST",
+  "url": "https://api.meta.ai/v1/responses",
+  "params": {}
+ },
+ "status": 200,
+ "provenance": "sample",
+ "text": "event: response.created\ndata: {\"type\": \"response.created\", \"response\": {\"status\": \"in_progress\"}}\n\nevent: response.output_text.delta\ndata: {\"type\": \"response.output_text.delta\", \"delta\": \"<0f>0<|box;x1=0;y1=552;x2=543;y2=899;w=1600;h=900;c=0.93|>\"}\n\nevent: response.output_text.delta\ndata: {\"type\": \"response.output_text.delta\", \"delta\": \",1<|box;x1=1040;y1=512;x2=1599;y2=899;w=1600;h=900;c=0.92|>\"}\n\nevent: response.completed\ndata: {\"type\": \"response.completed\", \"response\": {\"status\": \"completed\", \"output\": [{\"type\": \"message\", \"content\": [{\"type\": \"output_text\", \"text\": \"<0f>0<|box;x1=0;y1=552;x2=543;y2=899;w=1600;h=900;c=0.93|>,1<|box;x1=1040;y1=512;x2=1599;y2=899;w=1600;h=900;c=0.92|>\"}]}]}}\n\n"
+}

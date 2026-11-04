@@ -1,34 +1,37 @@
+"""Settings read once from the environment, with a `.env` file in the repo root as a fallback."""
+from __future__ import annotations
+
 import os
+from dataclasses import dataclass
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-ENV_PATH = ROOT / ".env"
-DEFAULT_BASE_URL = "https://api.meta.ai/v1"
 
 
-def load_env(path: Path = ENV_PATH) -> None:
-    """Read KEY=value lines from .env without overriding real environment variables."""
+def _load_dotenv(path: Path) -> None:
     if not path.exists():
         return
     for line in path.read_text(encoding="utf-8-sig").splitlines():
         line = line.strip()
         if not line or line.startswith("#") or "=" not in line:
             continue
-        name, value = line.split("=", 1)
-        os.environ.setdefault(name.strip(), value.strip().strip('"').strip("'"))
+        key, value = line.split("=", 1)
+        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
 
 
-def api_key() -> str:
-    load_env()
-    key = os.environ.get("MODEL_API_KEY", "")
-    if not key:
-        raise RuntimeError(
-            f"MODEL_API_KEY is not set. Looked for a file named exactly '.env' at {ENV_PATH} "
-            f"(exists: {ENV_PATH.exists()}). It must contain a line MODEL_API_KEY=yourkey"
-        )
-    return key
+@dataclass(frozen=True)
+class Settings:
+    meta_api_key: str | None
+    meta_api_base: str
+    vision_model: str
+    segment_model: str
 
 
-def base_url() -> str:
-    load_env()
-    return os.environ.get("META_API_BASE", DEFAULT_BASE_URL).rstrip("/")
+def load_settings() -> Settings:
+    _load_dotenv(ROOT / ".env")
+    return Settings(
+        meta_api_key=os.environ.get("MODEL_API_KEY") or os.environ.get("META_API_KEY") or None,
+        meta_api_base=os.environ.get("META_API_BASE", "https://api.meta.ai/v1").rstrip("/"),
+        vision_model=os.environ.get("META_VISION_MODEL", "muse-spark-1.3"),
+        segment_model=os.environ.get("META_SEGMENT_MODEL", "sam-3.1"),
+    )

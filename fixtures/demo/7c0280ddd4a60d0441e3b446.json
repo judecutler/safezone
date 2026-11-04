@@ -1,0 +1,10 @@
+{
+ "request": {
+  "method": "POST",
+  "url": "https://api.meta.ai/v1/responses",
+  "params": {}
+ },
+ "status": 200,
+ "provenance": "sample",
+ "text": "event: response.created\ndata: {\"type\": \"response.created\", \"response\": {\"status\": \"in_progress\"}}\n\nevent: response.output_text.delta\ndata: {\"type\": \"response.output_text.delta\", \"delta\": \"<0f>0<|box;x1=884;y1=232;x2=11\"}\n\nevent: response.output_text.delta\ndata: {\"type\": \"response.output_text.delta\", \"delta\": \"07;y2=743;w=1600;h=900;c=0.88|>\"}\n\nevent: response.completed\ndata: {\"type\": \"response.completed\", \"response\": {\"status\": \"completed\", \"output\": [{\"type\": \"message\", \"content\": [{\"type\": \"output_text\", \"text\": \"<0f>0<|box;x1=884;y1=232;x2=1107;y2=743;w=1600;h=900;c=0.88|>\"}]}]}}\n\n"
+}

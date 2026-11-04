@@ -1,0 +1,12 @@
+{
+ "request": {
+  "method": "GET",
+  "url": "https://overpass-api.de/api/interpreter",
+  "params": {
+   "data": "[out:json][timeout:20];way(around:25,37.77929,-122.41925)[\"building\"];out tags geom;"
+  }
+ },
+ "status": 200,
+ "provenance": "sample",
+ "text": "{\"version\": 0.6, \"elements\": []}"
+}
