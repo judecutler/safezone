@@ -5,9 +5,9 @@ from PIL import Image
 
 from run import SampleResponder, render
 from safezone.config import ROOT, Settings
-from safezone.meta import MetaClient
+from safezone.meta import MetaClient, MetaUnavailable
 from safezone.room.classify import FloorProposal
-from safezone.room.pipeline import SEGMENTATION_UNAVAILABLE, prepare_image, scan_room
+from safezone.room.pipeline import prepare_image, scan_room
 from safezone.room.score import floor_rejection
 from safezone.transport import RecordingTransport, ReplayTransport
 from tools.samples import room as samples
@@ -60,11 +60,9 @@ def test_a_best_spot_inside_a_demo_wardrobe_is_rejected(demo_scans):
     assert floor_rejection(inside, scan.classified, scan.image_size) == "it is on or inside the wardrobe"
 
 
-def test_no_api_answer_still_gives_guidance(tmp_path):
-    scan = scan_room(DEMO.read_bytes(), "Room", MetaClient(ReplayTransport(tmp_path), SETTINGS))
-    assert scan.notes[0] == SEGMENTATION_UNAVAILABLE
-    assert [s.kind for s in scan.spots] == ["no_cover"] and scan.classified == [] and scan.fixes == []
-    assert scan.models.classifier is None
+def test_no_api_answer_is_a_failed_scan_not_an_empty_room(tmp_path):
+    with pytest.raises(MetaUnavailable):
+        scan_room(DEMO.read_bytes(), "Room", MetaClient(ReplayTransport(tmp_path), SETTINGS))
 
 
 def jpeg(size, exif_orientation=None):

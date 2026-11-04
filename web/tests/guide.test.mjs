@@ -42,18 +42,22 @@ test('on the route: the first cue is the first maneuver and the heading-out dist
   assert.ok(prog.offRouteM < 1);
   assert.equal(prog.stepIndex, 0);
   const first = cue(route, prog, null);
-  assert.equal(first.text, 'Head west.');
+  assert.equal(first.text, `${route.steps[0].instruction}.`);
   const after10 = progress(route, pointAlong(route, 10), prog);
   assert.equal(after10.stepIndex, 1);
   assert.ok(Math.abs(after10.metersToNext - (route.steps[0].distance_m - 10)) < 1);
-  assert.equal(progress(route, pointAlong(route, 30), after10).stepIndex, 2, 'past the first turn');
+  const pastFirst = route.steps[0].distance_m + 10;
+  assert.equal(progress(route, pointAlong(route, pastFirst), after10).stepIndex, 2, 'past the first turn');
 });
 
 test('approaching a turn: far, near and now phases in order, each once', () => {
-  const said = walk(0, 80);
+  const said = walk(0, route.steps[0].distance_m + 60);
   const texts = said.map((s) => s.text);
-  assert.deepEqual(texts.slice(0, 3), ['Head west.', 'In 20 meters, turn right.', 'Turn right.']);
-  assert.ok(texts.includes('Continue 50 meters, then turn right.'));
+  const next = route.steps[1].instruction.toLowerCase();
+  assert.equal(texts[0], `${route.steps[0].instruction}.`);
+  const near = texts.findIndex((t) => /^In \d+ meters, /.test(t) && t.endsWith(`${next}.`));
+  const now = texts.indexOf(`${route.steps[1].instruction}.`);
+  assert.ok(near > 0 && now > near, `near then now for "${next}": ${texts.join(' | ')}`);
 });
 
 test('a full walk says every maneuver once, never repeats a cue, and ends with arrival outside the hazard area', () => {

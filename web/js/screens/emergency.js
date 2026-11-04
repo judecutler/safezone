@@ -89,7 +89,7 @@ function shaking(state, act) {
     plan?.rooms?.length ? h('section', { class: 'em-spots' },
       h('h2', { class: 'em-label' }, `Your spots at ${em.place?.name ?? 'home'}`),
       plan.rooms.map((r) => h('div', { class: 'em-spot' }, h('h3', null, r.name), h('p', null, r.spots[0]?.instruction))))
-      : h('p', { class: 'em-muted' }, 'No saved place on this device.'),
+      : h('p', { class: 'em-muted' }, plan ? `No room photographed at ${em.place?.name ?? 'this place'}.` : 'No saved place on this device.'),
     guidance ? h('ol', { class: 'em-steps' }, guidance.during.map((t) => h('li', null, t))) : null,
     duringSpecials(plan, guidance).map((t) => h('p', { class: 'em-special' }, t)),
     h('div', { class: 'em-dock' },
@@ -121,7 +121,9 @@ function walkerSource(route, onFix) {
     onFix(pointAlong(route, m), `Demo walker, ${formatDistance(m)} of ${formatDistance(total)}, ${run.demoSpeed}x`);
     if (m >= total) clearInterval(id);
   };
-  const id = setInterval(tick, 1000);
+  // Ticks scale with the speed-up so each simulated fix stays about 1.4 m apart: at 8x a one-second tick
+  // moved 11 m and stepped over the 12 m "turn now" window, so a turn went unannounced.
+  const id = setInterval(tick, 1000 / Math.max(...DEMO_SPEEDS));
   tick();
   return () => clearInterval(id);
 }

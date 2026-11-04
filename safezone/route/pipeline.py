@@ -32,11 +32,12 @@ CANDIDATE_SPACING_M = 150.0
 END_CLEARANCE_M = 50.0
 """OSRM snaps the destination to the nearest road, which may land back inside; the snapped end must still clear the boundary by this."""
 DEEPER_SLACK_M = 75.0
-"""Inside the hazard area the path may be at most this much farther from the boundary than home is."""
+"""Inside the hazard area the path may be at most this much farther from mapped outside land than home is.
+Measured from land, not from the nearest hazard edge: a shoreline edge is also an edge, and walking toward it
+would otherwise count as getting shallower."""
 AWAY_SLACK_M = 75.0
-"""Inside the hazard area the path may travel at most this far backward along the home-to-exit axis.
-Distance to the nearest boundary edge cannot see a seaward leg when the polygon's seaward edge is the shoreline,
-because walking toward the water shrinks that distance. This check does."""
+"""Inside the hazard area the path may travel at most this far backward along the home-to-exit axis. A detour
+that stays within DEEPER_SLACK_M of home's depth but walks back the way it came still fails here."""
 REENTRY_LIMIT_M = 100.0
 INSIDE_LENGTH_FACTOR = 2.0
 INSIDE_LENGTH_SLACK_M = 250.0

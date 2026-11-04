@@ -72,11 +72,12 @@ function shotCard(shot, state, act) {
   return reference(shot, state);
 }
 
+// A kind chip names the place after itself until the person types their own name.
 function nameCard(session, act) {
   return h('section', { class: 'card stack' },
     h('p', { class: 'label' }, 'Save it as'),
     h('div', { class: 'chips' }, KINDS.map(([kind, text]) =>
-      h('button', { class: 'chip', 'aria-pressed': String(session.kind === kind), onclick: () => act.setPlaceName(session.name || text, kind) }, text))),
+      h('button', { class: 'chip', 'aria-pressed': String(session.kind === kind), onclick: () => act.setPlaceName(!session.name || KINDS.some(([, t]) => t === session.name) ? text : session.name, kind) }, text))),
     h('input', { class: 'input', type: 'text', value: session.name ?? '', placeholder: 'Name, like Home or Grandma\'s', 'aria-label': 'Place name',
       onchange: (e) => act.setPlaceName(e.target.value, session.kind ?? 'other') }));
 }

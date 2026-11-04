@@ -130,3 +130,32 @@ def test_candidate_requires_room_to_push_outward():
         x, y = FRAME.to_xy(c)
         assert not (150 < x < 210 and abs(y) < 2000)
         assert geo.distance_to_boundary_m(c, sandwiched) >= pipeline.CLEARANCE_M - 0.01
+
+
+def test_an_opening_loop_around_the_start_reads_as_one_walk_to_the_path():
+    from safezone.route.osrm import FOLDED_START, parse_route
+    start = (-122.50998, 37.76947)
+    def step(kind, loc, dist, modifier=None, bearing=0):
+        return {"maneuver": {"type": kind, "location": list(loc), "modifier": modifier, "bearing_after": bearing},
+                "distance": dist, "name": ""}
+    data = {"code": "Ok", "routes": [{"distance": 300, "geometry": {"coordinates": [list(start), [-122.5095, 37.772]]},
+            "legs": [{"steps": [
+                step("depart", (-122.51003, 37.76930), 25, bearing=270),
+                step("turn", (-122.51031, 37.76928), 48, "right"),
+                step("turn", (-122.51033, 37.76972), 48, "right", bearing=20),
+                step("turn", (-122.50985, 37.76968), 180, "left", bearing=0),
+                step("arrive", (-122.5095, 37.772), 0)]}]}]}
+    route = parse_route(data)
+    assert [s.instruction for s in route.steps] == [FOLDED_START, "Head north", "Arrive"]
+    assert route.steps[0].distance_m == 121
+
+
+def test_a_route_that_starts_by_walking_away_keeps_its_steps():
+    from safezone.route.osrm import parse_route
+    start = (-122.50998, 37.76947)
+    data = {"code": "Ok", "routes": [{"distance": 300, "geometry": {"coordinates": [list(start), [-122.505, 37.769]]},
+            "legs": [{"steps": [
+                {"maneuver": {"type": "depart", "location": list(start), "bearing_after": 90}, "distance": 150, "name": ""},
+                {"maneuver": {"type": "turn", "location": [-122.5083, 37.7695], "modifier": "left"}, "distance": 150, "name": ""},
+                {"maneuver": {"type": "arrive", "location": [-122.505, 37.769]}, "distance": 0, "name": ""}]}]}]}
+    assert [s.instruction for s in parse_route(data).steps] == ["Head east", "Turn left", "Arrive"]

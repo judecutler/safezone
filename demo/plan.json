@@ -143980,19 +143980,11 @@
    ],
    "steps": [
     {
-     "instruction": "Head west",
-     "distance_m": 24.7
+     "instruction": "Walk to the nearby path",
+     "distance_m": 121.0
     },
     {
-     "instruction": "Turn right",
-     "distance_m": 48.5
-    },
-    {
-     "instruction": "Turn right",
-     "distance_m": 47.8
-    },
-    {
-     "instruction": "Turn left",
+     "instruction": "Head north",
      "distance_m": 183.1
     },
     {

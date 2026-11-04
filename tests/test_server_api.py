@@ -116,6 +116,11 @@ def test_scan_replays_the_recorded_demo_photo():
     assert not any(n.startswith("Could not segment") for n in body["notes"])
 
 
+def test_scan_with_no_model_answer_is_502_not_an_empty_room(tmp_path):
+    r = call(create_app(services(ReplayTransport(tmp_path))), "POST", "/api/scan?name=Bedroom", jpeg(), "image/jpeg")
+    assert (r.status, r.json()["error"]) == (502, "meta_unavailable")
+
+
 class Overlap:
     """Every SAM request waits until all phrases are in flight, so a capped pool deadlocks into a timeout."""
 

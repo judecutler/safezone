@@ -72,7 +72,9 @@ export function stopAll() {
   synth()?.cancel();
 }
 
+// Browsers refuse vibration before the first tap and log an error, so a cold start from the emergency link skips it.
 export function vibrate(pattern) {
+  if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return;
   try { navigator.vibrate?.(pattern); } catch { /* not supported */ }
 }
 
