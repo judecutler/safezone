@@ -4,7 +4,7 @@ Every line below matches what the redesigned app shows or says. Facts in the voi
 
 ## Before filming
 
-- Use the live link on a phone, added to the home screen. Sound on, volume up: the app's own voice is half of Act 2.
+- Film on a phone (the landing and the emergency look best there), with the live link added to the home screen. Sound on, volume up: the app's own voice is half of Act 2.
 - If a previous take left demo places, tap "Exit demo" first. The landing page should be the first screen.
 - Use a second phone, or screen recording plus a short shot of a hand holding the phone.
 - Check the labels on the shelter cards. SAMPLE DATA is expected, because FEMA listed no open shelters on the night we recorded. Never call those cards live or real.
@@ -23,18 +23,19 @@ Every line below matches what the redesigned app shows or says. Facts in the voi
 | Time | Screen | Voice-over |
 |---|---|---|
 | 0:20 | Tap "Run the demo"; the permissions screen | "Setup asks for the camera and your location, and gets to work right away." |
-| 0:26 | Capture screen: the chip "Checking the tsunami map for this spot..." changes to red "In the tsunami hazard area" | "While you take photos, it checks your location against California's official tsunami hazard map. This home is inside it." |
+| 0:26 | Capture screen: the location chip reads red "In the tsunami hazard area" (in the demo it turns red within two seconds) | "While you take photos, it checks your location against California's official tsunami hazard map. This home is inside it." |
 | 0:36 | The quality ring fills; "Stand in the doorway and fit the whole room in"; tap the shutter | "One wide photo per room. The meter coaches the shot: light, focus, steady, level." |
 | 0:44 | "Bedroom saved", then Next; skip through The way out, Go bag, Gas shutoff (or show the go-bag card if recorded) | "Then the things people forget: the way out, the go bag, the gas shutoff. Muse Spark ticks off which basic-kit items it can see in the go-bag photo, and never tells you the kit is enough. Skip anything, come back to anything." |
 | 0:58 | Review: the room result with outlined, numbered hazards | "SAM 3.1 outlines everything that could fall. Two tall wardrobes that can tip, wardrobe doors that can swing open, a box stored up high." |
 | 1:06 | "What Muse Spark noticed" and the spot card with the set-aside line | "Muse Spark reasons about the room. The left bed is in the wardrobes' tipping zone; the box sits above the other bed. It suggested a spot on the floor, and SafeZone's own checks set it aside: it's in a doorway. The model proposes; code decides." |
 | 1:18 | The fixes list; tap "Save this place" | "The fixes come from a fixed table, never from the model. Save it, and this is a mapped place." |
+| 1:22 | Optional cut: "How it works", the outlined photo and "Why both models" | (Only if you are under time.) "SAM gives the shapes, Muse Spark the judgment, and code checks one against the other." |
 
 ## Act 2. When it happens (1:25 to 2:30). The app speaks; keep the voice-over short.
 
 | Time | Screen | Voice-over |
 |---|---|---|
-| 1:25 | My places: "Standing by", Demo: Ocean Beach and Demo: Kamakura | "SafeZone stands by on your saved places. It works for the Bay Area and Japan, with each country's own maps and guidance." |
+| 1:25 | My places: "Standing by", Demo: Ocean Beach and Demo: Kamakura | "SafeZone stands by on your saved places. It works in California and Japan, each with its own official maps and guidance." |
 | 1:33 | Tap "Simulate an earthquake"; the screen shakes and goes dark | (Let the app speak: "This is a demo." "Drop, cover and hold on. No table nearby: get next to an interior wall, away from windows, and cover your head and neck.") |
 | 1:45 | The shaking screen, hands off the phone | "In an emergency you can't be tapping a phone. During shaking it says one thing, and nothing on this screen tells you to move." |
 | 1:53 | Tap "Shaking has stopped" | (Let the app speak the go-now line: "You are in a tsunami hazard area. Strong shaking, or shaking that lasts 20 seconds or more, means a tsunami may be coming. Go now, on foot...") |
