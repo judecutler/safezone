@@ -10,6 +10,7 @@ import { renderLanding } from './screens/landing.js';
 import { renderPermissions } from './screens/permissions.js';
 import { renderPlace, renderPlaces } from './screens/places.js';
 import { renderReview } from './screens/review.js';
+import { WIDE, isWide, mountSetup } from './screens/setupmap.js';
 import { simulateQuake as shakeScreen, stopStandby } from './standby.js';
 
 // `places` are the committed plans; the emergency screens read them from IndexedDB only.
@@ -51,9 +52,14 @@ function render() {
     document.documentElement.dataset.mode = emergency ? 'emergency' : 'prepare';
     document.documentElement.dataset.demo = String(state.demo);
     document.querySelector('meta[name=theme-color]').content = emergency ? '#0E0D0A' : '#FBF8F1';
-    root.replaceChildren(SCREENS[state.screen](state, actions));
+    const screen = SCREENS[state.screen](state, actions);
+    if (SETUP_SCREENS.has(state.screen) && state.session && isWide()) mountSetup(root, state, screen);
+    else root.replaceChildren(screen);
   });
 }
+
+const SETUP_SCREENS = new Set(['permissions', 'capture', 'review']);
+window.matchMedia?.(WIDE).addEventListener?.('change', () => render());
 
 const SCREENS = {
   landing: renderLanding,
@@ -231,7 +237,7 @@ function startEvac() {
   const session = state.session;
   const household = { ...session.household };
   session.evac = { status: 'working', household };
-  const job = session.demo
+  const job = session.demo && !session.location.real
     ? sleep(800).then(() => ({ route: demoData.plan.route, shelters: demoData.plan.shelters, shelters_error: null }))
     : api.getEvac(session.location.building, household);
   evacJobs.set(session.id, job);
@@ -250,7 +256,8 @@ const actions = {
   startLocate() {
     const session = state.session;
     if (!session || session.location.status === 'locating' || session.location.status === 'found') return;
-    if (session.demo) return locateWith(async () => { await sleep(1500); return demoData.plan.building; });
+    // The demo shows the lookup as a step of its own, then the recorded address.
+    if (session.demo) return locateWith(async () => { await sleep(2000); return demoData.plan.building; });
     if (!('geolocation' in navigator)) { session.location = { status: 'failed', error: 'Location is not available here. Type the address instead.' }; return render(); }
     session.location = { status: 'locating' };
     render();
@@ -258,6 +265,29 @@ const actions = {
       (p) => locateWith(() => api.getProfileAt(p.coords.longitude, p.coords.latitude)),
       () => { session.location = { status: 'failed', error: 'Location is off. Type the address instead.' }; persist().then(render); },
       { enableHighAccuracy: true, maximumAge: 30000, timeout: 20000 });
+  },
+
+  // Demo only: swap the demo address for a real GPS lookup. A failure keeps the demo address and says so.
+  useRealLocation() {
+    const session = state.session;
+    if (!session?.demo || state.ui.realLoc === 'asking') return;
+    const fail = (text) => { if (state.session === session) setUi({ realLoc: text }); };
+    if (!('geolocation' in navigator)) return fail('Location is not available here. The demo address stays.');
+    setUi({ realLoc: 'asking' });
+    navigator.geolocation.getCurrentPosition(async (p) => {
+      try {
+        const building = await api.getProfileAt(p.coords.longitude, p.coords.latitude);
+        if (state.session !== session) return;
+        session.location = { status: 'found', coords: [building.lon, building.lat], building, real: true };
+        if (session.name === 'Demo: Ocean Beach') session.name = 'Demo: my location';
+        state.ui.realLoc = null;
+        startEvac();
+        await persist();
+        render();
+      } catch (e) {
+        fail(`${errorText(e, 'The location lookup did not finish.')} The demo address stays.`);
+      }
+    }, () => fail('Location is off. The demo address stays.'), { enableHighAccuracy: true, maximumAge: 30000, timeout: 20000 });
   },
 
   lookupAddress(address) {
@@ -379,7 +409,7 @@ const actions = {
   },
 
   async startDemo() {
-    setUi({ busy: 'demo', error: null });
+    setUi({ busy: 'demo', error: null, realLoc: null });
     try {
       demoData ??= await api.getDemo();
       const blob = await api.fetchBlob(demoData.images[demoData.plan.rooms[0].id]);

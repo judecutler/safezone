@@ -1,5 +1,6 @@
 import { h, icon, localTime, sampleTag } from '../dom.js';
 import { formatDistance } from '../geometry.js';
+import { hazardExit, liveMap } from '../livemap.js';
 import { compassArrow, routeMap } from '../routemap.js';
 
 export const NEEDS = [
@@ -25,7 +26,8 @@ export function duringSpecials(plan, guidance) {
   return [plan?.household?.wheelchair && special.wheelchair, special.in_bed].filter(Boolean);
 }
 
-export function routeView(route, building, { onMap } = {}) {
+// `shelters` is plan.shelters (drawn as places), `walker` adds the live position to the legend, `fitTo` frames the map.
+export function routeView(route, building, { onMap, shelters = null, walker = false, fitTo = 'all' } = {}) {
   if (route.kind === 'no_checked_route') {
     return h('div', { class: 'route route-direction' },
       h('p', { class: 'route-reason' }, route.reason),
@@ -39,7 +41,8 @@ export function routeView(route, building, { onMap } = {}) {
       h('p', { class: 'route-reason' }, route.reason),
       h('p', { class: 'fine mono' }, `Computed ${localTime(route.computed_at)}`, ' ', sampleTag(route)));
   }
-  const map = routeMap(route, building?.hazard_area?.polygons);
+  const region = regionOf(building);
+  const map = mapView(route, building, region, { shelters, walker, fitTo });
   onMap?.(map);
   const site = route.kind === 'site_route' ? route.site : null;
   return h('div', { class: 'route route-walk' },
@@ -51,15 +54,79 @@ export function routeView(route, building, { onMap } = {}) {
       h('p', { class: 'route-site-name' }, site.name, h('span', { class: 'jp' }, ' 指定緊急避難場所')),
       h('p', null, site.instruction),
       h('p', { class: 'fine mono' }, h('a', { href: site.source_url, target: '_blank', rel: 'noopener' }, site.source_name), ' ', sampleTag(site))) : null,
-    h('figure', { class: 'route-map' }, map.svg,
-      h('figcaption', { class: 'map-key' },
-        h('span', { class: 'key key-hazard' }, 'Tsunami hazard area'),
-        h('span', { class: 'key key-path' }, 'Walking route'),
-        h('span', { class: 'key key-pos' }, 'You'))),
+    h('figure', { class: 'route-map' }, map.element, mapLegend(route, building, region, { shelters, walker })),
     h('ol', { class: 'turns' }, route.steps.map((st) =>
       h('li', null, h('span', { class: 'turn-text' }, st.instruction),
         st.distance_m > 0 ? h('span', { class: 'turn-dist mono' }, formatDistance(st.distance_m)) : null))),
     h('p', { class: 'fine mono' }, `Computed ${localTime(route.computed_at)}`, ' ', sampleTag(route)));
+}
+
+const regionOf = (building) => (/gsi\.go\.jp/.test(building?.hazard_area?.source_url ?? '') ? 'jp' : 'us-ca');
+
+function mapPlaces(shelters, route, region) {
+  const end = route.destination;
+  return (shelters?.matches ?? [])
+    .filter(({ shelter: sh }) => sh.lon != null && sh.lat != null)
+    // A designated site that is the route's own destination is already labelled there.
+    .filter(({ shelter: sh }) => !(route.kind === 'site_route' && Math.abs(sh.lon - end[0]) < 3e-4 && Math.abs(sh.lat - end[1]) < 3e-4))
+    .map((m) => ({ lon: m.shelter.lon, lat: m.shelter.lat, label: `${m.shelter.name} · ${walkMinutes(m.walk_min)}`, kind: region === 'jp' ? 'site' : 'shelter' }));
+}
+
+// The live map with the offline SVG behind it: the SVG shows when Leaflet cannot load. The returned
+// showPosition(lonlat, note) moves the live position on whichever map is up and returns false only when the
+// SVG map cannot show that point.
+function mapView(route, building, region, { shelters, fitTo }) {
+  const fallback = routeMap(route, building?.hazard_area?.polygons);
+  const holder = h('div', { class: 'lm-holder', role: 'img', 'aria-label': fallback.svg.getAttribute('aria-label') });
+  let live = null, failed = false, last = null;
+  const mount = () => liveMap(holder, { region }).then((c) => {
+    if (!holder.isConnected) { c.destroy(); return; }
+    live = c;
+    c.setHazard(building?.hazard_area);
+    c.setRoute(route);
+    c.setHome(route.origin);
+    c.setPlaces(mapPlaces(shelters, route, region));
+    c.fit(fitTo);
+    if (last) c.setWalker(last.lonlat, { note: last.note });
+    const watch = setInterval(() => { if (!holder.isConnected) { clearInterval(watch); c.destroy(); live = null; } }, 3000);
+  }).catch(() => {
+    failed = true;
+    holder.replaceWith(fallback.svg);
+    if (last) fallback.showPosition(last.lonlat);
+  });
+  // Leaflet needs its container in the page with a size, and the caller attaches this view after it returns.
+  let tries = 0;
+  const wait = () => (holder.isConnected ? mount() : ++tries < 300 ? requestAnimationFrame(wait) : null);
+  requestAnimationFrame(wait);
+  return {
+    element: holder,
+    showPosition(lonlat, note = null) {
+      last = { lonlat, note };
+      if (failed) return fallback.showPosition(lonlat);
+      live?.setWalker(lonlat, { note });
+      return true;
+    },
+  };
+}
+
+function mapLegend(route, building, region, { shelters, walker }) {
+  const area = building?.hazard_area;
+  const jp = region === 'jp';
+  const site = route.kind === 'site_route' ? route.site : null;
+  const exit = hazardExit(route, area);
+  const link = (href, text) => (href ? h('a', { href, target: '_blank', rel: 'noopener' }, text) : text);
+  const row = (sw, name, src) => h('li', null, h('span', { class: `lm-sw lm-sw-${sw}` }), h('span', null, name), h('span', { class: 'lm-src' }, src));
+  const places = mapPlaces(shelters, route, region);
+  return h('figcaption', null, h('ul', { class: 'lm-legend' },
+    jp ? row('hazard-jp', 'Tsunami inundation, expected depth', ['Hazard Map Portal, GSI (', h('span', { class: 'jp' }, 'ハザードマップポータルサイト'), ')'])
+      : row('hazard', 'Tsunami hazard area', link(area?.source_url, 'California Geological Survey')),
+    row('route', 'Walking route with numbered turns', ['OSRM on OpenStreetMap streets ', sampleTag(route)]),
+    exit ? row('exit', 'Leaving the hazard area', 'Where the route crosses the CGS hazard line') : null,
+    row('home', 'Home', building?.address ?? 'Saved place'),
+    row('dest', site ? site.name : 'Outside the hazard area', site ? [site.source_name, ' ', sampleTag(site)] : 'End of the route, on mapped land beyond the hazard area'),
+    places.length ? row('place', jp ? 'Other designated evacuation sites' : 'Open shelters',
+      [jp ? 'GSI designated evacuation sites' : 'FEMA National Shelter System', ' ', sampleTag(shelters)]) : null,
+    walker ? row('walker', 'You', 'GPS position, or the demo walker in demo mode') : null));
 }
 
 export function shelterSection(plan, sheltersError) {

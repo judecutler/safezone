@@ -1,0 +1,73 @@
+/* Live map (web/js/livemap.js). Leaflet sets the structure; this sets the look in the app's tokens. */
+.livemap { position: relative; background: var(--paper-2); font-family: var(--f-body, inherit); }
+.livemap.leaflet-container { background: var(--paper-2); }
+.lm-holder { height: 360px; width: 100%; }
+@media (min-width: 720px) { .lm-holder { height: 460px; } }
+@media (min-width: 1100px) { .lm-holder { height: 520px; } }
+
+.lm-tiles { filter: saturate(0.6); }
+.lm-hazard { fill: var(--sev-3); fill-opacity: 0.22; stroke: var(--sev-3); stroke-width: 2px; stroke-opacity: 0.9; }
+.lm-route-casing { stroke: var(--ink); stroke-linecap: round; stroke-linejoin: round; }
+.lm-route-line { stroke: var(--accent); stroke-linecap: round; stroke-linejoin: round; }
+.lm-route-bearing { stroke: var(--ink); }
+
+.lm-home span, .lm-dest span, .lm-turn span, .lm-place span, .lm-exit, .lm-arrow span { display: grid; place-items: center; box-sizing: border-box; }
+.lm-home span { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); border: 3px solid var(--ink); box-shadow: 0 0 0 2px var(--paper); }
+.lm-dest span { width: 20px; height: 20px; background: var(--ink); border: 2px solid var(--paper); box-shadow: 0 0 0 1.5px var(--ink); }
+.lm-turn span {
+  width: 22px; height: 22px; border-radius: 50%; background: var(--paper); border: 2.5px solid var(--ink);
+  font: 800 12px/1 var(--f-mono); color: var(--ink);
+}
+.lm-place span { width: 20px; height: 20px; border-radius: 4px; background: var(--sign-green); border: 2px solid #fff; box-shadow: 0 0 0 1.5px var(--sign-green); }
+.lm-place span::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+.lm-exit { width: 14px; height: 14px; border-radius: 50%; background: var(--paper); border: 3px solid var(--sev-3); }
+.lm-arrow span { width: 26px; height: 26px; clip-path: polygon(50% 0, 100% 100%, 50% 74%, 0 100%); background: var(--ink); }
+
+.lm-walker { pointer-events: none; }
+.lm-walker-halo, .lm-walker-dot { position: absolute; border-radius: 50%; }
+.lm-walker-halo { inset: 0; background: var(--accent); opacity: 0.45; animation: lm-pulse 1.8s ease-out infinite; }
+.lm-walker-dot { inset: 7px; background: var(--accent); border: 3px solid var(--ink); }
+@keyframes lm-pulse { 0% { transform: scale(0.6); opacity: 0.6; } 100% { transform: scale(1.6); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .lm-walker-halo { animation: none; } }
+
+.leaflet-tooltip.lm-label {
+  background: var(--paper); color: var(--ink); border: 1.5px solid var(--ink); border-radius: 4px; box-shadow: none;
+  padding: 3px 7px; font: 800 12px/1.25 var(--f-cond, inherit); font-stretch: condensed; letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.leaflet-tooltip.lm-label::before { display: none; }
+.leaflet-tooltip.lm-label-dest { background: var(--ink); color: var(--paper); font-size: 13px; }
+.leaflet-tooltip.lm-label-exit { border-color: var(--sev-3); color: var(--sev-3-text); }
+.leaflet-tooltip.lm-label-place { border-color: var(--sign-green); }
+.leaflet-tooltip.lm-callout {
+  background: var(--accent); color: var(--accent-ink); border: 2px solid var(--ink); font-size: 14px; max-width: 220px;
+  white-space: normal; padding: 5px 9px;
+}
+
+.lm-card {
+  position: absolute; z-index: 1000; left: 10px; right: 10px; top: 10px; max-width: 320px;
+  background: var(--paper); color: var(--ink); border: var(--stroke, 2px) solid var(--ink); border-radius: var(--radius-sm, 6px);
+  padding: 8px 10px; font-weight: 700; font-size: 0.9375rem;
+}
+.lm-card[hidden] { display: none; }
+
+.livemap .leaflet-control-attribution { font-size: 10px; background: color-mix(in srgb, var(--paper) 85%, transparent); color: var(--muted, inherit); }
+.livemap .leaflet-control-attribution a { color: inherit; }
+.livemap .leaflet-control-scale-line { border-color: var(--ink); color: var(--ink); background: color-mix(in srgb, var(--paper) 80%, transparent); font: 700 10px var(--f-mono); }
+.livemap .leaflet-bar a { color: var(--ink); background: var(--paper); border-color: var(--hair, #ccc); }
+
+/* Legend under the map: one row per layer, with its source. */
+.lm-legend { display: grid; gap: 6px; padding: 10px 12px; margin: 0; border-top: 1px solid var(--hair); font-size: 0.8125rem; list-style: none; }
+.lm-legend li { display: grid; grid-template-columns: 22px 1fr; gap: 2px 8px; align-items: center; }
+.lm-legend .lm-src { grid-column: 2; color: var(--muted); font: 600 0.6875rem/1.3 var(--f-mono); }
+.lm-legend .lm-src a { color: inherit; }
+.lm-sw { width: 18px; height: 12px; box-sizing: border-box; }
+.lm-sw-hazard { background: color-mix(in srgb, var(--sev-3) 25%, transparent); border: 2px solid var(--sev-3); }
+.lm-sw-hazard-jp { background: linear-gradient(90deg, #ffffb3, #f8e1a6, #ffd8c0, #ffb7b7, #ff9191, #f285c9, #dc7adc); }
+.lm-sw-route { height: 7px; background: var(--accent); border: 2px solid var(--ink); border-radius: 4px; }
+.lm-sw-home { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); border: 2.5px solid var(--ink); }
+.lm-sw-dest { width: 12px; height: 12px; background: var(--ink); }
+.lm-sw-place { width: 14px; height: 14px; border-radius: 3px; background: var(--sign-green); }
+.lm-sw-exit { width: 12px; height: 12px; border-radius: 50%; border: 3px solid var(--sev-3); }
+.lm-sw-turn { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--ink); font: 800 9px/12px var(--f-mono); text-align: center; }
+.lm-sw-walker { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); border: 2.5px solid var(--ink); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 45%, transparent); }

@@ -1,5 +1,6 @@
 import { declineCamera, requestCamera } from '../camera.js';
 import { h, icon } from '../dom.js';
+import { demoBannerText } from './setupmap.js';
 
 // One screen before the first prompt: why SafeZone wants each permission, one button that asks for
 // all of them, and what each answer was. Permission answers live here, not in the session, because
@@ -79,9 +80,15 @@ const MOTION_TEXT = {
   not_needed: 'Allowed',
 };
 
+const shortAddress = (b) => (b?.address ?? '').split(',').slice(0, 2).join(',').trim();
+
 function locationText(state) {
   const loc = state.session?.location;
-  if (state.demo && loc?.status !== 'idle') return loc?.status === 'found' ? 'Demo address: 1000 Great Highway, San Francisco' : 'Using the demo address...';
+  if (state.demo) {
+    if (state.ui?.realLoc === 'asking') return 'Finding your real location…';
+    if (loc?.status === 'found') return `Found: ${shortAddress(loc.building)}${loc.real ? ' (your real location)' : ' (demo address)'}`;
+    return 'Finding your location…';
+  }
   switch (loc?.status) {
     case 'locating': return 'Finding this place...';
     case 'found': return 'Found';
@@ -93,7 +100,7 @@ function locationText(state) {
 const TONE = { granted: 'ok', found: 'ok', not_needed: 'ok', demo: 'ok', denied: 'off', unavailable: 'off', declined: 'off', failed: 'off', asking: 'busy', locating: 'busy' };
 const MARK = { ok: 'check', off: 'info', busy: null };
 
-function row({ id, title, why, status, text }) {
+function row({ id, title, why, status, text, extra }) {
   const tone = TONE[status] ?? 'ask';
   return h('li', { class: `perm-row perm-${tone}`, 'data-perm': id },
     h('span', { class: 'perm-icon' }, icon(id === 'camera' ? 'camera' : id === 'location' ? 'target' : 'alert', 'icon')),
@@ -101,17 +108,33 @@ function row({ id, title, why, status, text }) {
       h('p', { class: 'perm-title' }, title),
       h('p', { class: 'perm-why' }, why),
       text ? h('p', { class: 'perm-result', 'aria-live': 'polite' },
-        MARK[tone] ? icon(MARK[tone], 'icon-inline') : h('span', { class: 'pulse-dot' }), text) : null));
+        MARK[tone] ? icon(MARK[tone], 'icon-inline') : h('span', { class: 'pulse-dot' }), text) : null,
+      extra));
+}
+
+// Demo only. The real lookup replaces the demo address; if it fails, the demo address and its labels stay.
+function realLocationControl(state, act) {
+  const loc = state.session?.location;
+  const note = state.ui?.realLoc;
+  if (loc?.real) return null;
+  return [
+    note && note !== 'asking' ? h('p', { class: 'perm-result perm-note', role: 'status' }, icon('info', 'icon-inline'), note) : null,
+    note === 'asking' ? null : h('button', { class: 'btn-text perm-real', onclick: () => act.useRealLocation() }, 'Use my real location instead'),
+  ];
 }
 
 export function renderPermissions(state, act) {
   if (!state.demo && perm.camera === 'demo') Object.assign(perm, { camera: 'ask', motion: 'ask' });
   const loc = state.session?.location?.status ?? 'idle';
+  if (state.demo && loc === 'idle') queueMicrotask(() => act.startLocate());
   const rows = [
     { id: 'camera', title: 'Camera', status: perm.camera, text: CAMERA_TEXT[perm.camera],
       why: 'To photograph each room, the way out, your go bag and the gas shutoff. Photos stay on this phone; each one is sent once to be checked.' },
-    { id: 'location', title: 'Location', status: loc, text: locationText(state),
-      why: "To check the official tsunami map and building records for where you are, while you take photos. Or type the address at the end." },
+    { id: 'location', title: 'Location', status: state.demo && state.ui?.realLoc === 'asking' ? 'locating' : state.demo && loc === 'idle' ? 'locating' : loc, text: locationText(state),
+      why: state.demo
+        ? 'The demo finds you at its recorded address, then checks the official tsunami map, a walking route and shelters there.'
+        : 'To check the official tsunami map and building records for where you are, while you take photos. Or type the address at the end.',
+      extra: state.demo ? realLocationControl(state, act) : null },
   ];
   if (motionNeedsAsking()) {
     rows.push({ id: 'motion', title: 'Motion', status: perm.motion, text: MOTION_TEXT[perm.motion],
@@ -125,7 +148,7 @@ export function renderPermissions(state, act) {
       : h('button', { class: 'btn', onclick: () => allow(state, act) }, state.demo ? 'Continue' : 'Allow camera and location');
 
   const root = h('div', { class: 'screen permissions' },
-    state.demo ? h('div', { class: 'demo-banner', role: 'status' }, 'DEMO: recorded real data for 1000 Great Highway') : null,
+    state.demo ? h('div', { class: 'demo-banner', role: 'status' }, demoBannerText(state, 'DEMO: recorded real data for 1000 Great Highway')) : null,
     h('header', { class: 'perm-head' },
       h('button', { class: 'btn-text', onclick: () => act.go('back') }, '‹ Back'),
       h('h1', { class: 'title' }, 'Map this place in a few photos'),

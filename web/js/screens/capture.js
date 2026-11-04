@@ -3,6 +3,7 @@ import { h, icon, s } from '../dom.js';
 import { roomOverlay } from '../overlay.js';
 import { frameStats, motion, shotQuality, tiltFromOrientation } from '../quality.js';
 import { SHOTS, firstOpenStep, stepSummary } from '../shots.js';
+import { demoBannerText } from './setupmap.js';
 
 // The guided shot list. The live preview and the quality loop outlive app renders: they sit in
 // `live` and are moved into each new render's tree, and the meter is updated in place about ten
@@ -302,10 +303,13 @@ function locationChip(state) {
   const loc = state.session.location;
   const flag = loc.building?.flags?.find((f) => f.kind === 'tsunami_zone');
   const where = loc.building?.address?.split(',')[0];
+  const demo = state.session.demo;
   const [tone, text] = {
-    idle: ['idle', 'No location yet. Type the address at the end.'],
-    locating: ['busy', 'Checking the tsunami map for this spot...'],
-    found: [flag?.tone === 'alert' ? 'alert' : 'ok', flag ? `${where}: ${flag.value}` : `${where}: checked`],
+    idle: demo ? ['busy', 'Finding your location…'] : ['idle', 'No location yet. Type the address at the end.'],
+    locating: ['busy', demo ? 'Finding your location…' : 'Checking the tsunami map for this spot...'],
+    found: [flag?.tone === 'alert' ? 'alert' : 'ok', demo
+      ? `Found: ${loc.building?.address?.split(',').slice(0, 2).join(',')}${flag ? `. ${flag.value}` : ''}`
+      : flag ? `${where}: ${flag.value}` : `${where}: checked`],
     failed: ['off', 'Location not found. Type the address at the end.'],
   }[loc.status] ?? ['idle', ''];
   return h('p', { class: `cap-loc is-${tone}`, role: 'status', 'aria-live': 'polite' },
@@ -419,7 +423,7 @@ export function renderCapture(state, act) {
 
   const showsResult = ui.justTook && state.session.shots.some((x) => x.id === ui.justTook && x.kind === 'room' && x.status === 'done');
   const root = h('div', { class: `capture${state.demo ? ' is-demo' : ''}${showsResult ? ' shows-result' : ''}` },
-    state.demo ? h('div', { class: 'demo-banner', role: 'status' }, DEMO_BANNER) : null,
+    state.demo ? h('div', { class: 'demo-banner', role: 'status' }, demoBannerText(state, DEMO_BANNER)) : null,
     h('header', { class: 'cap-top' },
       h('div', { class: 'cap-nav' },
         h('button', { class: 'cap-back', 'aria-label': ui.step > 0 && !ui.justTook ? `Back to ${SHOTS[ui.step - 1].title}` : 'Back', onclick: () => back(act) }, '‹'),

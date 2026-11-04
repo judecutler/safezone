@@ -1,6 +1,7 @@
 import { h, icon, sampleTag } from '../dom.js';
 import { NEEDS, flagList } from './parts.js';
 import { roomResult } from './prepare.js';
+import { demoBannerText, findingsCard, isWide } from './setupmap.js';
 
 // The last setup step: what was found about the place, who lives here, what each photo showed, and a name.
 
@@ -91,11 +92,12 @@ export function renderReview(state, act) {
   const working = session.shots.some((s) => s.status === 'queued' || s.status === 'working');
   const blocker = !ready ? 'Add the address to save this place.' : working ? 'You can save now; photos still being read are added when they finish.' : null;
   return h('div', { class: 'screen review' },
-    state.demo ? h('div', { class: 'demo-banner', role: 'status' }, 'DEMO: recorded real data for 1000 Great Highway') : null,
+    state.demo ? h('div', { class: 'demo-banner', role: 'status' }, demoBannerText(state, 'DEMO: recorded real data for 1000 Great Highway')) : null,
     h('header', { class: 'review-head' },
       h('button', { class: 'btn-text', onclick: () => act.go('back') }, '‹ Back to photos'),
       h('h1', null, 'Your plan for this place')),
     h('main', { class: 'stack' },
+      isWide() ? null : findingsCard(state),
       shotsOf(session, 'room').map((shot) => shotCard(shot, state, act)),
       locationCard(session, act),
       household(session, act),

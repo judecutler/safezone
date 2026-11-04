@@ -45,6 +45,24 @@ const SHELL = [
 ];
 
 const FONT_HOSTS = new Set(['fonts.googleapis.com', 'fonts.gstatic.com']);
+const TILES = `${VERSION}-tiles`;
+const TILE_MAX = 300;
+const isTileHost = (host) => host.endsWith('.basemaps.cartocdn.com') || host === 'disaportaldata.gsi.go.jp';
+
+// Map tiles are cached as they are viewed, so a plan looked at online shows its map offline. Cache keys keep
+// insertion order, so the first keys are the oldest.
+async function tile(request) {
+  const cache = await caches.open(TILES);
+  const hit = await cache.match(request);
+  if (hit) return hit;
+  const res = await fetch(request);
+  if (res.ok || res.type === 'opaque') {
+    await cache.put(request, res.clone());
+    const keys = await cache.keys();
+    await Promise.all(keys.slice(0, Math.max(0, keys.length - TILE_MAX)).map((k) => cache.delete(k)));
+  }
+  return res;
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -53,7 +71,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== VERSION && k !== `${VERSION}-fonts`).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k !== VERSION && k !== `${VERSION}-fonts` && k !== TILES).map((k) => caches.delete(k))))
       .then(() => self.clients.claim()));
 });
 
@@ -68,6 +86,7 @@ self.addEventListener('fetch', (event) => {
     }))));
     return;
   }
+  if (isTileHost(url.hostname)) { event.respondWith(tile(event.request)); return; }
   if (url.origin !== location.origin) return;
   // The plan lives in IndexedDB, so API calls are never served stale from a cache.
   if (url.pathname.startsWith('/api/')) return;

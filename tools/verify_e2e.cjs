@@ -34,7 +34,7 @@ async function open(browser, name, opts = {}, { expectFailedApi = false } = {}) 
     if (t.startsWith('[voice')) voice.push({ at: Date.now(), text: t.replace(/^\[voice[^\]]*\] /, '') });
     const where = m.location()?.url ?? '';
     if (expectFailedApi && /Failed to load resource/.test(t) && EXPECTED_FAILS.test(where)) { expectedFails.push(where); return; }
-    if (m.type() === 'error' && !/fonts\.(googleapis|gstatic)|ERR_INTERNET_DISCONNECTED/.test(t + where)) {
+    if (m.type() === 'error' && !/fonts\.(googleapis|gstatic)|basemaps\.cartocdn\.com|disaportaldata\.gsi\.go\.jp|ERR_INTERNET_DISCONNECTED/.test(t + where)) {
       failures.push(`${name} console error: ${t}`);
       console.log('FAIL', `${name} console error: ${t}`);
     }
@@ -193,7 +193,14 @@ async function demoFlow(browser) {
 
   await rows.nth(0).click();
   check(await visible(page.locator('.place .room .overlay')), 'place shows the room overlay');
-  check(await page.locator('.place .routemap').count() === 1, 'place shows the route map');
+  check(await visible(page.locator('.place .lm-holder.leaflet-container')), 'place shows the live route map');
+  check(await waitFor(page, () => document.querySelectorAll('.place .lm-hazard').length > 0 && document.querySelector('.place .lm-route-line')
+    && document.querySelectorAll('.place .lm-turn').length > 0 && document.querySelector('.place .lm-home') && document.querySelector('.place .lm-dest')),
+    'place map draws the hazard area, route, numbered turns, home and destination (with or without tiles)');
+  check(/Outside the hazard area · 10 min walk/.test(await text(page, '.place .lm-holder')), 'place map labels the destination with its walk time');
+  check((await text(page, '.place .lm-holder')).includes('Leaving the hazard area'), 'place map marks where the route leaves the hazard area');
+  check(await page.locator('.place .lm-place').count() === demo.plan.shelters.matches.length, 'place map shows each shelter');
+  check((await text(page, '.place .lm-legend')).includes('California Geological Survey'), 'place map legend names its sources');
   check(await page.locator('.place .shelter').count() === demo.plan.shelters.matches.length, 'place lists the shelters');
   await shot('place', true);
   await btn(page, /My places/).first().click();
@@ -226,7 +233,9 @@ async function demoFlow(browser) {
   const leaveAt = Date.now();
   await page.locator('.em-dch').click();
   check(await visible(page.locator('.em-after')), 'after 3 s a tap leaves shaking for after');
-  check(await page.locator('.em-after .routemap').count() === 1, 'after shows the route map');
+  check(await visible(page.locator('.em-after .lm-holder.leaflet-container')), 'after shows the live route map');
+  check(await waitFor(page, () => document.querySelector('.em-after .lm-walker') && document.querySelector('.em-after .lm-callout')?.textContent.length > 0, null, 5000),
+    'after map shows the demo walker with the next turn beside it');
   check(await btn(page, /Walker speed 1x/).count() === 1, 'demo walker starts at 8x; the button offers 1x');
   await shot('after');
   const goNow = usGuidance.go_now;
@@ -388,8 +397,8 @@ async function realFlow(browser) {
   await shot('offline-shaking');
   await sleep(3200);
   await btn(page, 'Shaking has stopped').click();
-  check(await visible(page.locator('.em-after .routemap')), 'offline: route view renders');
-  check(await waitFor(page, () => document.querySelector('.rm-pos')?.getAttribute('visibility') === 'visible', null, 10000), 'offline: live GPS position shows on the map');
+  check(await visible(page.locator('.em-after .lm-holder.leaflet-container, .em-after .routemap')), 'offline: route view renders');
+  check(await waitFor(page, () => document.querySelector('.em-after .lm-walker') || document.querySelector('.rm-pos')?.getAttribute('visibility') === 'visible', null, 10000), 'offline: live GPS position shows on the map');
   await shot('offline-after', true);
   await btn(page, 'Leave emergency mode').click();
   check(await visible(page.locator('.places')), 'offline: leaving returns to places');
@@ -408,7 +417,7 @@ async function noPlaces(browser) {
   await btn(page, 'Shaking has stopped').click();
   check(await visible(page.locator('.em-after')), 'empty: after opens');
   check((await text(page, '.em-after')).includes('No saved place on this device'), 'empty: after says no place is saved');
-  check(await page.locator('.routemap, .turns, .em-turn').count() === 0, 'empty: no route drawn');
+  check(await page.locator('.routemap, .lm-holder, .turns, .em-turn').count() === 0, 'empty: no route drawn');
   await sleep(1500);
   check(!voice.some((v) => /^(Continue|In \d+ meters|Turn)/.test(v.text)), 'empty: no turn cues spoken');
   await shot('after', true);
@@ -439,7 +448,7 @@ async function migration(browser) {
   await page.reload();
   check(await visible(page.locator('.places .place-row')) && await page.locator('.place-row').count() === 1, 'migration: survives a reload without duplicating');
   await page.locator('.place-row').click();
-  check(await visible(page.locator('.place .routemap')), 'migration: migrated place opens with its route');
+  check(await visible(page.locator('.place .route-map')), 'migration: migrated place opens with its route');
   await ctx.close();
 }
 

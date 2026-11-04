@@ -1,0 +1,64 @@
+/* Setup beside its live map (web/js/screens/setupmap.js). From 1024 px the map fills the left at full height and
+   the setup screen sits on the right, like the landing. Below that, the review screen shows the map as a card. */
+
+.setup-map { display: flex; flex-direction: column; background: var(--paper); }
+.sf-map { position: relative; flex: 1 1 auto; min-height: 0; background: var(--paper-2); }
+.sf-map-inner { position: absolute; inset: 0; }
+.sf-map.is-empty::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 500;
+  background: color-mix(in srgb, var(--paper-2) 55%, transparent);
+}
+
+.sf-panel { flex: none; display: grid; gap: 8px; padding: 14px 16px 16px; border-top: 1px solid var(--hair); }
+.sf-head { margin: 0; color: var(--muted); }
+.sf-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.sf-item {
+  display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 10px; align-items: start;
+  animation: sf-in 360ms ease-out both;
+}
+.sf-mark { width: 12px; height: 12px; margin-top: 5px; border-radius: 50%; background: var(--accent); border: 2px solid var(--ink); }
+.sf-item[data-finding='hazard'] .sf-mark { border-radius: 2px; transform: rotate(45deg); }
+.sf-item.sev-1 .sf-mark { background: var(--sev-1); }
+.sf-item.sev-2 .sf-mark { background: var(--sev-2); }
+.sf-item.sev-3 .sf-mark { background: var(--sev-3); }
+.sf-item.sev-4 .sf-mark { background: var(--sev-4); }
+.sf-item[data-finding='places'] .sf-mark { background: #2F8F5B; }
+.sf-body { display: grid; gap: 3px; min-width: 0; }
+.sf-body > * { margin: 0; }
+.sf-title { font-weight: 700; line-height: 1.3; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.sf-source { color: var(--muted); font-size: 0.75rem; line-height: 1.35; }
+.sf-sev { display: inline-grid; grid-template-columns: repeat(4, 22px); gap: 3px; }
+.sf-sev > span { height: 5px; border-radius: 2px; background: var(--hair); }
+.sf-sev > span.on:nth-child(1) { background: var(--sev-1); }
+.sf-sev > span.on:nth-child(2) { background: var(--sev-2); }
+.sf-sev > span.on:nth-child(3) { background: var(--sev-3); }
+.sf-sev > span.on:nth-child(4) { background: var(--sev-4); }
+.sf-pending { margin: 0; display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 0.875rem; }
+.sf-pending[hidden] { display: none; }
+
+@keyframes sf-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .sf-item { animation: none; } }
+
+/* Narrow: a card at the top of the review screen. */
+.setup-map-card { border: 1px solid var(--hair); border-radius: var(--radius, 14px); overflow: hidden; }
+.setup-map-card .sf-map { flex: none; height: 240px; }
+
+.setup-map .leaflet-top.leaflet-left { top: 56px; }
+
+.perm-real { justify-self: start; margin-top: 4px; font-size: 0.875rem; }
+.perm-note { color: var(--muted); }
+
+@media (min-width: 1024px) {
+  #app:has(> .setup-split) { max-width: none; border-inline: 0; box-shadow: none; background: var(--paper); }
+  .setup-split {
+    display: grid; grid-template-columns: minmax(0, 1fr) clamp(440px, 38vw, 560px);
+    height: 100vh; height: 100dvh; min-height: 600px;
+  }
+  .setup-map-side { min-height: 0; border-right: 1px solid var(--hair); }
+  .setup-map-side .sf-panel { padding: 16px 24px 20px; max-height: 42%; overflow-y: auto; }
+  .setup-main { position: relative; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .setup-main > .screen { max-width: 480px; margin: 0 auto; min-height: 100%; }
+  .setup-main > .screen > .demo-banner:first-child { margin-inline: calc(-1 * max(16px, env(safe-area-inset-left))); }
+  /* The capture screen is a fixed full-screen layer on phones; here it fills the right column. */
+  .setup-main > .capture { position: absolute; inset: 0; }
+}
