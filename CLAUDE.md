@@ -1,6 +1,6 @@
 # SafeZone: context for any new session
 
-Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last updated Nov 4, about 3:00 PM PT. Credit name: Jude Cutler (in README).
+Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last updated Nov 4, about 3:45 PM PT. Credit name: Jude Cutler (in README).
 
 ## Deadline and state
 
@@ -68,7 +68,7 @@ Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last upd
 
 - `README.md`, `docs/devpost.md`, `docs/judge_quickstart.md`: final. TODO blocks filled Nov 4 (recorded go bag and Kamakura, 237/37/150 test counts, live URL, credit Jude Cutler). The Devpost video link is the only item left, and it goes in Devpost's own field.
 - `docs/story.md`: verified disaster facts with sources (Dec 5, 2024 warning was 10:44 to 11:54 AM, not at night; Berkeley after-action survey; Kamaishi; furniture injuries; preparedness). Use only facts from it.
-- `docs/video_script.md`: final for the app on `main` (Act 2 rechecked Nov 4 against the browser run's screens and voice log).
+- Demo video: the user asked for a mostly animated video instead of filming the old script. `docs/video_script.md` is now the scene and narration table of that video, with the source of every number. Build code is in `video/` (`video/README.md`): Kokoro TTS (`af_heart`, model from the kokoro-onnx GitHub release; PyPI and Hugging Face are blocked in the sandbox, so `video/tts.py` phonemizes from misaki's dictionaries), an HTML stage rendered frame by frame with Playwright, and a numpy soundtrack. The two phone clips (Jude's reaction, and the live app on his phone) are not committed: they show his face. Decided with the user: no victim photos or names, no invented benefit percentages, Meta named in text without its logo.
 
 ## Still to do (Nov 4)
 
