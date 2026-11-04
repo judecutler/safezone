@@ -1,8 +1,6 @@
 import * as api from './api.js';
 import * as db from './db.js';
 import { EMERGENCY_SCREENS, initialScreen, next } from './machine.js';
-import { neighborhood } from './art/neighborhood.js';
-import { h } from './dom.js';
 import { toUploadJpeg } from './photo.js';
 import { loadPlaces, nearestPlace, placeFromSession, savePlaces } from './places.js';
 import { renderAbout } from './screens/about.js';
@@ -466,7 +464,6 @@ async function boot() {
   state.screen = initialScreen(location.search, { hasPlaces: state.places.length > 0 });
   if (EMERGENCY_SCREENS.has(state.screen)) await loadEmergency();
   history.replaceState({ screen: state.screen }, '');
-  document.body.prepend(h('div', { class: 'backdrop', 'aria-hidden': 'true' }, neighborhood({ animate: false })));
   render();
   refreshGuidance();
 }

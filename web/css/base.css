@@ -52,20 +52,14 @@ img { max-width: 100%; display: block; }
 }
 .dock > * { width: 100%; max-width: 640px; justify-self: center; }
 
-/* Laptop and desktop: the app stays a phone-width column over the neighborhood art, so nothing stretches.
+/* Laptop and desktop: the app stays a phone-width column on plain paper, so nothing stretches. The neighborhood
+   art appears only on the landing, where it is animated; a static copy behind the column read as a glitch.
    Fixed layers inset by --frame-x to line up with the column. */
 :root { --frame-w: 430px; --frame-x: 0px; }
 .backdrop { display: none; }
 @media (min-width: 720px) {
   :root { --frame-x: calc((100% - var(--frame-w)) / 2); }
   body { background: var(--paper-2); }
-  /* The art behind the column is ambience, not content: faded, softened and washed toward the edges. */
-  .backdrop {
-    display: block; position: fixed; inset: -24px; z-index: 0; pointer-events: none;
-    opacity: 0.22; filter: blur(6px) saturate(0.7);
-  }
-  .backdrop > .nb { width: 100%; height: 100%; display: block; }
-  body:has(.landing) .backdrop { display: none; }
   #app {
     position: relative; z-index: 1;
     max-width: var(--frame-w); min-height: 100vh; min-height: 100dvh; margin: 0 auto;

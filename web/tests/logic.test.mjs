@@ -79,3 +79,11 @@ test('the service worker precaches every shell file, so the app opens offline', 
   for (const p of needed) assert.ok(shell.has(p), `${p} missing from SHELL in sw.js`);
   for (const p of shell) if (p !== '/') assert.ok(needed.includes(p), `${p} in SHELL but not on disk`);
 });
+
+test('room result names repeated objects by count and calls cabinet-door hits cabinet doors', async () => {
+  const { countedNames, hazardName } = await import('../js/screens/prepare.js');
+  assert.equal(countedNames(['cabinet', 'bed', 'bed', 'door', 'door']), '1 cabinet, 2 beds, 2 doors');
+  assert.equal(countedNames(['box', 'box']), '2 boxes');
+  assert.equal(hazardName({ hazard_kind: 'cabinet_doors', segment: { label: 'door' } }), 'cabinet door');
+  assert.equal(hazardName({ hazard_kind: 'tall_furniture', segment: { label: 'wardrobe' } }), 'wardrobe');
+});

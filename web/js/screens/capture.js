@@ -1,5 +1,6 @@
 import { cameraDeclined, openCamera, pickPhoto } from '../camera.js';
 import { h, icon, s } from '../dom.js';
+import { roomOverlay } from '../overlay.js';
 import { frameStats, motion, shotQuality, tiltFromOrientation } from '../quality.js';
 import { SHOTS, firstOpenStep, stepSummary } from '../shots.js';
 
@@ -13,7 +14,7 @@ const STABLE_FRAMES = 4;
 const RING_R = 44;
 const RING_C = 2 * Math.PI * RING_R;
 const ROOM_NAMES = ['Living room', 'Bedroom', 'Kitchen', "Kid's room"];
-const DEMO_PHOTO = '/demo/living_room.jpg';
+const DEMO_ROOM_PHOTO = '/demo/living_room.jpg';
 const DEMO_BANNER = 'DEMO: recorded photo and data for 1000 Great Highway';
 
 let live = null;
@@ -35,15 +36,11 @@ function startLive(state) {
   live = {
     stage, video, still, fallback, flash, guide, canvas, ctx: canvas.getContext('2d', { willReadFrequently: true }),
     demo: Boolean(state.demo), source: 'starting', cam: null, raf: 0, last: 0, prev: null, seen: false,
-    tilt: null, smooth: 0, okRun: 0, badRun: 0, ok: false, hint: null, pendingHint: null, hintRun: 0, kind: null,
+    tilt: null, smooth: 0, okRun: 0, badRun: 0, ok: false, hint: null, pendingHint: null, hintRun: 0, kind: null, photo: null,
     onTilt: (e) => { live.tilt = e.beta == null ? null : { beta: e.beta, gamma: e.gamma }; },
   };
   window.addEventListener('deviceorientation', live.onTilt);
-  if (live.demo) {
-    live.source = 'demo';
-    live.still.src = DEMO_PHOTO;
-    showSource();
-  } else connectCamera(live);
+  if (!live.demo) connectCamera(live);
   live.raf = requestAnimationFrame(tick);
 }
 
@@ -71,10 +68,21 @@ function stopLive() {
   meter = {};
 }
 
+// The demo shows the photo recorded for each step, and never one step's photo on another step.
+function demoPhotoFor(act, kind) {
+  return kind === 'room' ? DEMO_ROOM_PHOTO : act.demoExtras?.()[kind] ?? null;
+}
+
 // A new step starts the meter from empty.
-function setKind(kind) {
+function setKind(kind, act) {
   if (!live || live.kind === kind) return;
   live.kind = kind;
+  if (live.demo) {
+    live.photo = demoPhotoFor(act, kind);
+    live.source = live.photo ? 'demo' : 'demo-none';
+    if (live.photo) live.still.src = live.photo;
+    showSource();
+  }
   live.prev = null;
   live.smooth = 0;
   live.okRun = live.badRun = 0;
@@ -86,6 +94,7 @@ const FALLBACK_TEXT = {
   denied: 'The camera is blocked for this site. Choose a photo instead, or allow the camera in your browser settings.',
   declined: 'Camera is off. Choose a photo from your library or take one with the camera app.',
   unavailable: 'No camera here. Choose a photo instead.',
+  'demo-none': 'Demo: no photo recorded for this step. Tap the shutter to continue, or Skip.',
 };
 
 function showSource() {
@@ -95,11 +104,13 @@ function showSource() {
   const text = FALLBACK_TEXT[source];
   fallback.hidden = !text;
   live.stage.classList.toggle('is-fallback', Boolean(text));
+  const none = source === 'demo-none';
+  fallback.classList.toggle('is-demo-none', none);
   if (text) {
     fallback.replaceChildren(
-      icon('camera', 'cap-fallback-icon'),
+      icon(none ? 'info' : 'camera', 'cap-fallback-icon'),
       h('p', null, text),
-      h('button', { class: 'btn-ghost cap-pick', onclick: () => ui?.pick?.() }, 'Choose a photo'));
+      none ? null : h('button', { class: 'btn-ghost cap-pick', onclick: () => ui?.pick?.() }, 'Choose a photo'));
   }
   guide.hidden = Boolean(text);
 }
@@ -152,7 +163,7 @@ function liveHint() {
 
 function repaintMeter() {
   const { ring, hint, shutter, pill } = meter;
-  if (!live || !ring?.isConnected) return;
+  if (!live || !ring?.isConnected || live.source === 'demo-none') return;
   const measuring = live.source === 'camera' || live.source === 'demo';
   const score = measuring ? live.smooth : 0;
   ring.style.strokeDashoffset = String(RING_C * (1 - score));
@@ -168,7 +179,7 @@ function repaintMeter() {
 // --- Actions ------------------------------------------------------------------------------------
 
 async function demoBlob() {
-  const res = await fetch(DEMO_PHOTO);
+  const res = await fetch(live.photo);
   if (!res.ok) throw new Error('demo photo missing');
   return res.blob();
 }
@@ -196,6 +207,7 @@ async function store(state, act, blob) {
 
 async function shoot(state, act) {
   if (!ui || ui.busy) return;
+  if (live?.source === 'demo-none') return skip(state, act);
   let blob = null;
   if (live?.source === 'camera') {
     flash();
@@ -329,6 +341,10 @@ function controls(state, act, spec, sum) {
   const hint = h('span', { class: 'cap-hint-text' });
   const pill = h('p', { class: 'cap-hint', 'aria-live': 'polite' }, h('span', { class: 'cap-hint-dot', 'aria-hidden': 'true' }), hint);
   meter = { ring, hint, shutter, pill };
+  const noPhoto = live?.source === 'demo-none';
+  pill.hidden = noPhoto;
+  shutter.classList.toggle('is-no-meter', noPhoto);
+  if (noPhoto) shutter.setAttribute('aria-label', 'Continue without a photo');
   const forward = sum.count
     ? h('button', { class: 'cap-side cap-next', onclick: () => next(act) }, last ? 'Finish' : 'Next', h('span', { 'aria-hidden': 'true' }, ' ›'))
     : h('button', { class: 'cap-side cap-skip', onclick: () => skip(state, act) }, 'Skip');
@@ -350,10 +366,22 @@ function shotStatusLine(shot, act) {
   }
   const spec = SHOTS.find((x) => x.kind === shot.kind);
   const text = shot.status === 'done'
-    ? (spec.vision ? 'Checked. The results are on the next screen.' : 'Saved to your plan.')
+    ? (spec.vision === 'scan' ? 'Checked. The full plan for this room is on the review screen at the end.'
+      : spec.vision ? 'Checked. The results are on the review screen at the end.' : 'Saved to your plan.')
     : spec.vision === 'scan' ? 'SAM 3.1 and Muse Spark are reading it. Keep going.' : 'Muse Spark is checking it. Keep going.';
   return h('p', { class: `cap-took-status is-${shot.status}`, 'aria-live': 'polite' },
     shot.status === 'done' ? icon('check', 'icon-inline') : h('span', { class: 'pulse-dot' }), text);
+}
+
+function roomFinding(room, url) {
+  const objects = room.classified.length;
+  const hazards = room.classified.filter((c) => c.role === 'hazard').length;
+  const risks = room.relations?.length ?? 0;
+  return h('figure', { class: 'cap-result' },
+    roomOverlay(room, url),
+    h('figcaption', { class: 'cap-result-line' },
+      `SAM 3.1 outlined ${objects} object${objects === 1 ? '' : 's'}. `,
+      `Muse Spark flagged ${hazards} that can tip, fall or swing, and ${risks} risk${risks === 1 ? '' : 's'} between them.`));
 }
 
 function tookPanel(state, act, spec) {
@@ -361,7 +389,9 @@ function tookPanel(state, act, spec) {
   const last = ui.step === SHOTS.length - 1;
   const nextTitle = last ? 'Finish' : `Next: ${SHOTS[ui.step + 1].title}`;
   const url = shot && state.images?.[shot.image_id];
-  return h('section', { class: 'cap-took card', 'aria-label': 'Photo saved' },
+  const result = shot?.kind === 'room' && shot.status === 'done' && shot.result?.classified ? shot.result : null;
+  return h('section', { class: `cap-took card${result ? ' has-result' : ''}`, 'aria-label': 'Photo saved' },
+    result ? roomFinding(result, url) : null,
     h('div', { class: 'cap-took-head' },
       url ? h('img', { class: 'cap-thumb', src: url, alt: '' }) : h('span', { class: 'cap-thumb' }),
       h('div', { class: 'stack-tight' },
@@ -384,9 +414,10 @@ export function renderCapture(state, act) {
 
   const spec = SHOTS[ui.step];
   const sum = stepSummary(state.session.shots, spec.kind);
-  setKind(spec.kind);
+  setKind(spec.kind, act);
 
-  const root = h('div', { class: `capture${state.demo ? ' is-demo' : ''}` },
+  const showsResult = ui.justTook && state.session.shots.some((x) => x.id === ui.justTook && x.kind === 'room' && x.status === 'done');
+  const root = h('div', { class: `capture${state.demo ? ' is-demo' : ''}${showsResult ? ' shows-result' : ''}` },
     state.demo ? h('div', { class: 'demo-banner', role: 'status' }, DEMO_BANNER) : null,
     h('header', { class: 'cap-top' },
       h('div', { class: 'cap-nav' },

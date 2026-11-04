@@ -59,8 +59,22 @@ async function landing(browser) {
   check(await page.locator('svg.nb.nb-animate').count() === 1, 'landing animates by default');
   for (const name of ['Map my home', 'Run the demo']) check(await btn(page, name).isVisible(), `landing shows "${name}"`);
   check(await btn(page, /My places/).count() === 0, 'landing hides My places with nothing saved');
+  check(/Meta SAM 3\.1 and Muse Spark/.test(await text(page, '.landing-built')), 'landing names the Meta models');
   await shot('default');
   await ctx.close();
+
+  for (const [width, height] of [[1440, 900], [1366, 768]]) {
+    const l = await open(browser, `landing-${width}`, { viewport: { width, height }, deviceScaleFactor: 1, reducedMotion: 'reduce' });
+    await l.page.goto(BASE + '/');
+    await visible(l.page.locator('.landing svg.nb'));
+    const below = await l.page.evaluate((h) => [...document.querySelectorAll('.landing button')]
+      .filter((b) => b.getBoundingClientRect().bottom > h).map((b) => b.textContent), height);
+    check(below.length === 0, `${width}x${height}: every landing button above the fold (${below.join(', ') || 'all fit'})`);
+    const drawn = await l.page.evaluate(() => [...document.querySelectorAll('svg.nb')].filter((s) => s.getClientRects().length).length);
+    check(drawn === 1, `${width}x${height}: one neighborhood drawn, no static copy behind it (${drawn})`);
+    await l.shot('laptop');
+    await l.ctx.close();
+  }
 
   const r = await open(browser, 'landing-reduced', { reducedMotion: 'reduce' });
   await r.page.goto(BASE + '/');
@@ -98,6 +112,9 @@ async function demoFlow(browser) {
   check(await visible(page.locator('.cap-step.is-working, .cap-step.is-queued, .cap-step.is-done').first()), 'demo: step strip shows the room status');
   await shot('room-taken-working');
   check(await visible(page.locator('.cap-took-status.is-done'), 10000), 'demo: background scan finishes');
+  const finding = `SAM 3.1 outlined ${room.classified.length} objects. Muse Spark flagged ${hazards} that can tip, fall or swing, and ${room.relations.length} risks between them.`;
+  check(await visible(page.locator('.cap-result .overlay')) && (await page.locator('.cap-result-line').textContent()) === finding, `demo: checked room shows the overlay and "${finding}"`);
+  check(!/next screen/.test(await page.locator('.cap-took').textContent()), 'demo: took panel does not point to a next screen');
   await shot('room-checked');
   await btn(page, 'Add another room').click();
   check(await visible(page.locator('.cap-shutter')), '"Add another room" returns to the shutter on the room step');
@@ -108,8 +125,12 @@ async function demoFlow(browser) {
   check(await visible(page.locator('.cap-step.is-current', { hasText: 'Rooms' })), 'Back returns to the room step');
   await shot('after-back');
   await page.locator('.cap-next').click();
-  for (const title of ['The way out', 'Go bag', 'Gas shutoff']) {
+  for (const [kind, title] of [['exit', 'The way out'], ['gobag', 'Go bag'], ['gas', 'Gas shutoff']]) {
     check(await visible(page.locator('.cap-step.is-current', { hasText: title })), `capture reaches "${title}"`);
+    const still = await page.locator('.cap-still').evaluate((el) => (el.hidden ? null : new URL(el.src).pathname));
+    check(demo.extras[kind] ? still === demo.extras[kind] : still === null && await page.locator('.cap-fallback.is-demo-none').isVisible() && !(await page.locator('.cap-hint').isVisible()),
+      `demo "${title}" shows ${demo.extras[kind] ?? 'the no-photo card and no meter'}, never the room photo`);
+    if (kind === 'exit') await shot('exit-step');
     await page.locator('.cap-skip').click();
   }
   check(await visible(page.locator('.review')), 'skipping the last step goes to review');
@@ -118,11 +139,16 @@ async function demoFlow(browser) {
   check(await page.locator('.cap-step.is-skipped', { hasText: 'Go bag' }).count() === 1, 'go bag shows as skipped');
   await page.locator('.cap-step', { hasText: 'Go bag' }).click();
   await page.locator('.cap-shutter').click();
-  check(await visible(page.locator('.cap-took')), 'go bag photo taken over the skip');
-  check(await page.locator('.cap-step.is-skipped', { hasText: 'Go bag' }).count() === 0, 'taking the go bag photo undoes its skip');
-  check(await visible(page.locator('.cap-took-status.is-done'), 10000), 'go bag check finishes');
-  await shot('gobag-checked');
-  await btn(page, /Next: Gas shutoff/).click();
+  if (demo.extras.gobag) {
+    check(await visible(page.locator('.cap-took')), 'go bag photo taken over the skip');
+    check(await page.locator('.cap-step.is-skipped', { hasText: 'Go bag' }).count() === 0, 'taking the go bag photo undoes its skip');
+    check(await visible(page.locator('.cap-took-status.is-done'), 10000), 'go bag check finishes');
+    await shot('gobag-checked');
+    await btn(page, /Next: Gas shutoff/).click();
+  } else {
+    check(await visible(page.locator('.cap-step.is-current', { hasText: 'Gas shutoff' })), 'demo: shutter with no go bag photo moves on to "Gas shutoff"');
+    check(await page.locator('.cap-step.is-skipped', { hasText: 'Go bag' }).count() === 1, 'demo: go bag with no photo stays skipped');
+  }
   await page.locator('.cap-skip').click();
 
   check(await visible(page.locator('.review')), 'demo: review opens');
@@ -140,7 +166,7 @@ async function demoFlow(browser) {
   check(await page.locator('.review .room .ov-balloon').count() === hazards, `review room marks ${hazards} hazards`);
   check((await page.locator('.review .room .room-name').textContent()).trim() === 'Bedroom', 'review room keeps the chosen name');
   const gobag = page.locator('.review section', { has: page.locator('h2', { hasText: 'Go bag' }) });
-  if (demo.gobag) {
+  if (demo.gobag && demo.extras.gobag) {
     check(await gobag.count() === 1, 'review shows the go bag card');
     check(await gobag.locator('.tag-sample').count() === (demo.gobag.provenance === 'sample' ? 1 : 0), 'go bag card is labelled sample when it is sample');
   }
