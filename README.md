@@ -4,7 +4,9 @@ Prepare once for a coastal earthquake, then follow the plan.
 
 On the coast, an earthquake gives you two jobs: survive the shaking, then get out of the water's way. Almost nobody has worked out either in advance. SafeZone builds that plan in a few minutes from a photo of each room and your address. The plan lives on your phone and works offline. When the shaking stops, the same app becomes a one-screen guide to your walking route out of the tsunami hazard area and to shelters that fit your household.
 
-Built for the Meta Global Developer Hackathon (indie track, Build for Your World).
+Built for the Meta Global AI Developer Hackathon (indie track, Build for Your World problem statement).
+
+**Built during the hackathon.** Everything in this repository was written during the hackathon's building period (Oct 27 to Nov 4, 2026). The git history shows every step. Nothing was carried over from an earlier project. Third-party pieces are only the Python packages in `requirements.txt` and the public data services listed under Data sources.
 
 ## What it does
 
