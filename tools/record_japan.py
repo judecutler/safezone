@@ -96,7 +96,7 @@ def main() -> None:
     if log.failures or result["route"] is None:
         print("Kept the SAMPLE Kamakura demo (demo/plan_jp.json): the recording is incomplete. Paste this output to Claude.")
         return
-    write_plan_jp(build_plan_jp(ReplayTransport(FIXTURES), now))
+    write_plan_jp(build_plan_jp(ReplayTransport(FIXTURES), now, place))
 
 
 if __name__ == "__main__":

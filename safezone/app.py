@@ -183,13 +183,13 @@ def create_app(services: Services | None = None) -> Starlette:
         if request.query_params.get("region") == "jp":
             if not svc.demo_plan_jp.exists():
                 return error(404, "no_demo")
-            return JSONResponse({**json.loads(svc.demo_plan_jp.read_text()), "region": "jp", "gobag": None,
+            return JSONResponse({**json.loads(svc.demo_plan_jp.read_text(encoding="utf-8")), "region": "jp", "gobag": None,
                                  "extras": {}})
         if not svc.demo_plan.exists():
             return error(404, "no_demo")
-        payload = json.loads(svc.demo_plan.read_text())
+        payload = json.loads(svc.demo_plan.read_text(encoding="utf-8"))
         gobag_path = svc.demo_dir / "gobag.json"
-        payload["gobag"] = json.loads(gobag_path.read_text()) if gobag_path.exists() else None
+        payload["gobag"] = json.loads(gobag_path.read_text(encoding="utf-8")) if gobag_path.exists() else None
         payload["extras"] = {kind: f"/demo/{kind}.jpg" for kind in DEMO_EXTRAS
                              if (svc.demo_dir / f"{kind}.jpg").exists()}
         payload["region"] = "us-ca"
