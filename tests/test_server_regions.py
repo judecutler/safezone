@@ -136,18 +136,22 @@ def test_jp_guidance_adds_the_official_quotes():
     assert all({"ja", "en", "source_url"} <= q.keys() for q in body["quotes"]["during"])
 
 
-def test_jp_demo_is_the_labelled_sample_kamakura_plan_without_a_room():
+def test_jp_demo_is_the_labelled_recorded_kamakura_plan_without_a_room():
     body = get(NoCalls(), "/api/demo?region=jp").json()
     plan = Plan.model_validate(body["plan"])
     assert body["region"] == "jp" and plan.rooms == [] and "no room was scanned" in body["note"]
-    assert plan.building.provenance == plan.route.provenance == "sample"
-    assert plan.route.kind == "site_route" and plan.shelters.matches
-    assert plan.shelters.provenance == "sample"
+    assert plan.building.provenance == plan.shelters.provenance == "recorded"
+    assert plan.route.kind in ("site_route", "no_checked_route") and plan.shelters.matches
+    if plan.route.kind == "site_route":
+        assert plan.route.provenance == "recorded"
 
 
-def test_the_shipped_jp_demo_matches_a_fresh_build_from_the_samples():
-    shipped = json.loads((ROOT / "demo" / "plan_jp.json").read_text())
-    assert shipped == json.loads(json.dumps(build_plan_jp(jp_sample.SampleTransport(), NOW)))
+def test_the_shipped_jp_demo_matches_a_replay_of_its_recording():
+    shipped = json.loads((ROOT / "demo" / "plan_jp.json").read_text(encoding="utf-8"))
+    building = shipped["plan"]["building"]
+    now = datetime.fromisoformat(shipped["plan"]["generated_at"].replace("Z", "+00:00"))
+    replayed = build_plan_jp(ReplayTransport(ROOT / "fixtures" / "demo"), now, (building["lon"], building["lat"]))
+    assert shipped == json.loads(json.dumps(replayed))
 
 
 def test_a_saved_plan_with_a_site_route_validates():

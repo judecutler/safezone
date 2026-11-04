@@ -234,3 +234,12 @@ def test_shelter_notes_explain_the_rank():
     assert any("rank first" in n for n in shelter_notes(sh, None, Household()))
     assert any("rank first" in n for n in shelter_notes(sh, 0.9, Household()))
     assert "walking time" in RANKING
+
+
+def test_no_app_screen_says_safest_safe_route_or_guarantee():
+    """The prepare screens said 'the safest spot' until Nov 4; every word a person reads is held to the same rule."""
+    from safezone.config import ROOT
+    for path in (ROOT / "web" / "js").rglob("*.js"):
+        text = path.read_text(encoding="utf-8").lower()
+        for word in ("safest", "safe route", "guarantee"):
+            assert word not in text, f"{path.relative_to(ROOT)}: {word}"

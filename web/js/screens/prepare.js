@@ -56,7 +56,7 @@ function startScreen(state, act) {
   return sheet(state, act,
     h('section', { class: 'hero' },
       h('h1', { class: 'display' }, 'Get your home ready for the next big earthquake.'),
-      h('p', { class: 'lede' }, 'Photograph each room to find the safest spot and what could fall. When the shaking stops, SafeZone shows the way out of the tsunami zone, even with no signal.'),
+      h('p', { class: 'lede' }, 'Photograph each room to see what could fall and where to drop. When the shaking stops, SafeZone shows the way out of the tsunami zone, even with no signal.'),
       heroFigure(),
       h('div', { class: 'actions' },
         h('button', { class: 'btn btn-primary', onclick: () => act.go('begin') }, resuming ? 'Continue my plan' : 'Start my plan'),
@@ -123,7 +123,7 @@ function roomsScreen(state, act) {
   });
   return sheet(state, act,
     h('h1', { class: 'title' }, 'Photograph your rooms'),
-    h('p', { class: 'lede' }, 'One wide photo per room, taken from the doorway, works best. SafeZone marks what could fall or break and finds the safest place to drop.'),
+    h('p', { class: 'lede' }, 'One wide photo per room, taken from the doorway, works best. SafeZone marks what could fall or break and suggests where to drop.'),
     rooms.map((room) => roomResult(room, state, act, 'draft')),
     state.ui.scanning ? scanningCard(state.ui.scanning) : null,
     h('section', { class: 'card add-room' },
