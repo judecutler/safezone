@@ -127,6 +127,24 @@ def test_overpass_failure_drops_only_the_osm_flags():
     assert p.footprint is None
 
 
+def test_overpass_falls_through_both_busy_instances_to_the_last_mirror():
+    seen = []
+
+    def busy(req):
+        seen.append((req.url, req.timeout_s))
+        return Response(599, "Read timed out", "live")
+
+    def last(req):
+        seen.append((req.url, req.timeout_s))
+        return samples.SampleTransport().send(Request(req.method, osm.OVERPASS_URL, req.params))
+
+    p = build_profile(DEMO_ADDRESS, Patched({osm.OVERPASS_URL: busy, osm.OVERPASS_MIRRORS[0]: busy,
+                                             osm.OVERPASS_MIRRORS[1]: last}))
+    assert [u for u, _ in seen] == [osm.OVERPASS_URL, *osm.OVERPASS_MIRRORS]
+    assert all(t == 60 for _, t in seen)
+    assert p.footprint is not None
+
+
 def test_soft_story_match_reports_city_status_verbatim():
     rows = [{"property_address": "1000 GREAT HWY", "status": "Work Pending - Permit Issued"}]
     p = build_profile(DEMO_ADDRESS, Patched({softstory.SF_ENDPOINT: answer(rows)}))

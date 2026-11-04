@@ -21,7 +21,7 @@ Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last upd
 - `safezone/rules.py`: every piece of safety wording, with sources (Ready.gov, ShakeOut, CGS, PG&E).
 - `web/`: vanilla JS PWA. Line-art white, black and red. Prepare flow, plan page, a two-page print fridge sheet, and a dark emergency mode that reads only IndexedDB. The service worker is versioned in `web/sw.js`; bump `VERSION` when web files change.
 - `index.py` and `vercel.json`: the Vercel entry point. `modal_app.py` also exists.
-- Tests: `python -m pytest -q` (142), `node --test web/tests/*.test.mjs`, and `node tools/verify_e2e.cjs <outdir> <base-url>` (drives every flow in a phone-sized Chromium against a running server).
+- Tests: `python -m pytest -q` (146), `node --test web/tests/*.test.mjs`, and `node tools/verify_e2e.cjs <outdir> <base-url>` (drives every flow in a phone-sized Chromium against a running server).
 
 ## Real API facts (checked against real responses on Nov 3)
 
@@ -30,7 +30,7 @@ Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last upd
 - On the demo photo, real SAM found: wardrobes (one box spans the left and middle wardrobe), both beds, the boxes on the shelf, and several "door" hits that include wardrobe doors. It found no wire shelf ("bookshelf") and no ceiling light.
 - Models the key can call: muse-image-1.0, muse-spark-1.1, 1.2, 1.2-contributor, 1.3, 1.3-contributor, muse-voice-transcribe-1.0, muse-wonder-1.0, sam-3.1.
 - Muse Spark is called on `POST /chat/completions` with `response_format: json_schema` (strict, nullable fields as `anyOf` with null) and `reasoning_effort: low`. A tiny call took 10 s on `muse-spark-1.3`.
-- Overpass's main instance often answers 502 at capacity; `building/osm.py` falls back to `overpass.private.coffee`.
+- Overpass's main instance often answers 502 or times out; `building/osm.py` waits 60 s and tries `overpass.private.coffee`, then `overpass.kumi.systems`.
 - CGS: 1000 Great Highway (the demo address) is inside the official hazard area. Real CGS polygons near it: 24 hazard polygons (18k vertices) and 19 land polygons (17k vertices); the route checks run on them in about 2 s. DataSF rows can lack a street suffix or carry stray symbols, and San Francisco writes avenues as `AV`. OSRM foot routing works. FEMA is unverified: the user's probe hit a Windows certificate error.
 - The cloud sandbox cannot reach any of these services. Live calls run on the user's machine.
 
@@ -42,7 +42,7 @@ Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last upd
 
 ## Still to do (state at handoff)
 
-1. Recording real fixtures. Attempt 1 (commit d955d89) stopped after SAM; Muse Spark, OSRM and FEMA calls failed without saying why. Attempt 2 crashed decoding a real SAM mask (fixed in 0774842) and Overpass returned 502 (mirror added). Attempt 3 was copied before it finished (no 'failed calls' line); the recorder now prints one line per call so a long wait is visible. Attempt 4 is pending. Next: user runs `git pull` then `python tools/record_fixtures.py` and pastes the output. If it shows failed calls, fix each from the printed status and body. Unknowns it will answer: whether the Muse Spark classification call (180 s timeout, strict schema in `room/classify.py`) succeeds, whether OSRM foot routes succeed from the user's machine, and whether FEMA is reachable (it hit a Windows certificate error in the probe; certifi is current).
+1. Recording real fixtures. Attempt 1 (commit d955d89) stopped after SAM; Muse Spark, OSRM and FEMA calls failed without saying why. Attempt 2 crashed decoding a real SAM mask (fixed in 0774842) and Overpass returned 502 (mirror added). Attempt 3 finished: Muse Spark, OSRM and FEMA succeeded (FEMA listed 0 open shelters); only Overpass timed out on both servers, now 60 s with a third server. Attempt 3's recording is being pushed for review. Next: user runs `git pull` then `python tools/record_fixtures.py` and pastes the output. If it shows failed calls, fix each from the printed status and body. Unknowns it will answer: whether the Muse Spark classification call (180 s timeout, strict schema in `room/classify.py`) succeeds, whether OSRM foot routes succeed from the user's machine, and whether FEMA is reachable (it hit a Windows certificate error in the probe; certifi is current).
 2. After a clean recording: the user commits and pushes `fixtures/demo` and `demo/plan.json`. Check the demo plan in the browser (`node tools/verify_e2e.cjs`) because real SAM and Muse output will change the room screen, then review the screenshots.
 3. Deploy on Vercel: import the repo at vercel.com/new, add `MODEL_API_KEY`. Not yet done.
 4. Film from `docs/video_script.md` (2:45, limit 3:00). Update the script lines about the room if the real Muse Spark output differs from the sample. Submit by Nov 4, 6 PM PT.

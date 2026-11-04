@@ -12,8 +12,10 @@ from ..shapes import BuildingFlag, FlagKind, LonLat, Provenance, Ring
 from ..transport import HttpError, Transport, get_json
 
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
-OVERPASS_MIRROR = "https://overpass.private.coffee/api/interpreter"
-"""The main instance is often at capacity (502); this public worldwide mirror is the fallback."""
+OVERPASS_MIRRORS = ("https://overpass.private.coffee/api/interpreter", "https://overpass.kumi.systems/api/interpreter")
+"""The main instance is often at capacity (502) or slow; these public worldwide mirrors are tried in order."""
+OVERPASS_TIMEOUT_S = 60.0
+"""Busy instances queue the query before running it, so 30 s read timeouts hit on every instance."""
 RADIUS_M = 25.0
 OSM_CAVEAT = "From OpenStreetMap; volunteers map this and it can be wrong."
 LEVELS = re.compile(r"^\d+(\.\d+)?$")
@@ -92,8 +94,12 @@ def building_flags(building: Building, point: LonLat, provenance: Provenance) ->
 
 def fetch_building(transport: Transport, point: LonLat) -> tuple[Building | None, Provenance]:
     params = {"data": overpass_query(point)}
-    try:
-        data, provenance = get_json(transport, OVERPASS_URL, params)
-    except HttpError:
-        data, provenance = get_json(transport, OVERPASS_MIRROR, params)
+    *fallbacks, last = (OVERPASS_URL, *OVERPASS_MIRRORS)
+    for url in fallbacks:
+        try:
+            data, provenance = get_json(transport, url, params, timeout_s=OVERPASS_TIMEOUT_S)
+            return choose_building(parse_buildings(data), point), provenance
+        except HttpError:
+            pass
+    data, provenance = get_json(transport, last, params, timeout_s=OVERPASS_TIMEOUT_S)
     return choose_building(parse_buildings(data), point), provenance
