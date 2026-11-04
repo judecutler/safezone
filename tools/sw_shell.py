@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 
 WEB = Path(__file__).resolve().parent.parent / "web"
-SKIP = {"sw.js"}
+SKIP = {"sw.js", "og.png"}  # og.png is the link preview image; phones never need it offline
 
 
 def shell_files() -> list[str]:
