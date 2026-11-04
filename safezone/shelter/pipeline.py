@@ -13,7 +13,7 @@ from typing import Literal, get_args
 
 from .. import geo
 from ..route.osrm import fetch_table
-from ..shapes import (BuildingProfile, ExcludeReason, Household, LonLat, Polygon, Provenance, Shelter,
+from ..shapes import (BuildingProfile, ExcludeReason, Household, LonLat, Polygon, Shelter,
                       ShelterMatch, ShelterResult, weakest)
 from ..transport import Transport
 from .fema import fetch_shelters

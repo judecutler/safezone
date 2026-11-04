@@ -73,7 +73,8 @@ class Boundary:
         self.ax, self.ay = a[:, 0], a[:, 1]
         self.bx, self.by = b[:, 0], b[:, 1]
         self.dx, self.dy = self.bx - self.ax, self.by - self.ay
-        self.len2 = np.where(self.dx * self.dx + self.dy * self.dy == 0, 1.0, self.dx * self.dx + self.dy * self.dy)
+        len2 = self.dx * self.dx + self.dy * self.dy
+        self.len2 = np.where(len2 == 0, 1.0, len2)
         self.owner = np.array(owner, dtype=int)
         self.polygon_count = len(polygons)
 
