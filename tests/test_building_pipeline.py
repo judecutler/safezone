@@ -7,7 +7,7 @@ import pytest
 from safezone.building import cgs, osm, softstory
 from safezone.building.geocode import NOMINATIM_URL, GeocodeNotFound
 from safezone.building.pipeline import build_profile
-from safezone.transport import RecordingTransport, ReplayTransport, Request, Response
+from safezone.transport import HttpError, RecordingTransport, ReplayTransport, Request, Response
 from tools.samples import building as samples
 from tools.samples.geo import DEMO_ADDRESS, OUTSIDE_ADDRESS
 
@@ -141,8 +141,24 @@ def test_overpass_falls_through_both_busy_instances_to_the_last_mirror():
     p = build_profile(DEMO_ADDRESS, Patched({osm.OVERPASS_URL: busy, osm.OVERPASS_MIRRORS[0]: busy,
                                              osm.OVERPASS_MIRRORS[1]: last}))
     assert [u for u, _ in seen] == [osm.OVERPASS_URL, *osm.OVERPASS_MIRRORS]
-    assert all(t == 60 for _, t in seen)
+    assert all(t <= osm.OVERPASS_BUDGET_S for _, t in seen)
     assert p.footprint is not None
+
+
+def test_slow_overpass_instances_cannot_hold_the_address_lookup_past_the_budget():
+    now = [0.0]
+    seen = []
+
+    def hangs(req):
+        seen.append(req.timeout_s)
+        now[0] += req.timeout_s
+        return Response(599, "Read timed out", "live")
+
+    transport = Patched({osm.OVERPASS_URL: hangs, osm.OVERPASS_MIRRORS[0]: hangs, osm.OVERPASS_MIRRORS[1]: hangs})
+    with pytest.raises(HttpError):
+        osm.fetch_building(transport, (-122.50998, 37.76947), clock=lambda: now[0])
+    assert now[0] <= osm.OVERPASS_BUDGET_S
+    assert len(seen) == 1, "the first instance used the whole budget, so no second wait"
 
 
 def test_soft_story_match_reports_city_status_verbatim():
