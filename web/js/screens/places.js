@@ -101,6 +101,12 @@ function goBagCard(check) {
     h('p', { class: 'fine mono' }, `Checked by ${check.model}. List from Ready.gov.`));
 }
 
+// Bay Area demo data is recorded from the real services; the Japan demo is labelled sample data.
+function demoLine(place) {
+  const recorded = place.plan.building?.provenance === 'recorded';
+  return `DEMO: ${recorded ? 'recorded real data' : 'sample data'} for ${place.plan.building?.address ?? place.name}`;
+}
+
 export function renderPlace(state, act) {
   const place = state.places.find((p) => p.id === state.activePlaceId);
   if (!place) {
@@ -115,7 +121,7 @@ export function renderPlace(state, act) {
   const needs = NEEDS.filter(([k]) => plan.household?.[k]);
   const extras = plan.extras ?? {};
   return h('div', { class: 'screen place' },
-    state.demo || place.demo ? h('div', { class: 'demo-banner', role: 'status' }, 'DEMO: recorded real data for 1000 Great Highway') : null,
+    state.demo || place.demo ? h('div', { class: 'demo-banner', role: 'status' }, demoLine(place)) : null,
     h('header', { class: 'place-head' },
       h('button', { class: 'btn-text', onclick: () => act.go('back') }, '‹ My places'),
       h('div', { class: 'place-head-row' },
