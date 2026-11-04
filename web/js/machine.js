@@ -1,6 +1,7 @@
 // Every screen and the events that leave it. An event a screen does not list is a bug, so `next` throws.
 export const TRANSITIONS = {
-  landing: { begin: 'permissions', demo: 'permissions', open_places: 'places' },
+  landing: { begin: 'permissions', demo: 'permissions', open_places: 'places', about: 'about' },
+  about: { back: 'landing' },
   permissions: { done: 'capture', back: 'landing' },
   capture: { done: 'review', back: 'permissions' },
   review: { save: 'places', back: 'capture' },
