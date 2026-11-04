@@ -1,8 +1,8 @@
 """Print the building profile for an address.
 
-    python profile.py "<address>"                          live network
-    python profile.py "<address>" --fixtures fixtures/demo replay saved responses
-    python profile.py --record-samples fixtures/demo       save the SAMPLE answers for both demo addresses
+    python profile_address.py "<address>"                          live network
+    python profile_address.py "<address>" --fixtures fixtures/demo replay saved responses
+    python profile_address.py --record-samples fixtures/demo       save the SAMPLE answers for both demo addresses
 """
 from __future__ import annotations
 

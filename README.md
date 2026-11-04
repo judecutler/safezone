@@ -53,7 +53,7 @@ Command-line checks:
 
 ```sh
 python run.py demo/living_room.jpg --fixtures fixtures/demo
-python profile.py "1000 Great Highway, San Francisco, CA 94121" --fixtures fixtures/demo
+python profile_address.py "1000 Great Highway, San Francisco, CA 94121" --fixtures fixtures/demo
 python -m pytest -q
 ```
 
