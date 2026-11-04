@@ -3,6 +3,10 @@
 `python tools/demo.py samples` regenerates the hand-authored SAMPLE fixtures and
 rebuilds demo/plan.json from them. `python tools/demo.py replay` rebuilds the plan
 from whatever fixtures/demo holds (after tools/record_fixtures.py, real ones).
+`python tools/demo.py fill-samples` keeps every real recording, replaces FEMA's
+answer with SAMPLE shelters (the live layer is empty on quiet days), and records
+SAMPLE answers only for requests the recording lacks, such as the outside address.
+Overpass is never filled: a sample storeys count on the real building would be invented.
 """
 from __future__ import annotations
 
@@ -12,19 +16,24 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from safezone.building.cgs import in_hazard_area  # noqa: E402
+from safezone.building.osm import OVERPASS_URL  # noqa: E402
 from safezone.building.pipeline import build_profile  # noqa: E402
 from safezone.config import load_settings  # noqa: E402
 from safezone.meta import MetaClient  # noqa: E402
 from safezone.room.pipeline import prepare_image, scan_room  # noqa: E402
+from safezone.room.segment import MASKS_NOT_DECODED  # noqa: E402
 from safezone.route.pipeline import plan_route  # noqa: E402
 from safezone.shapes import DirectionOnly, Household, Plan, WalkingRoute  # noqa: E402
 from safezone.shelter.pipeline import find_shelters  # noqa: E402
-from safezone.transport import RecordingTransport, ReplayTransport, Request, Response, Transport  # noqa: E402
+from safezone.app import FEMA_HOST, HostSplit  # noqa: E402
+from safezone.transport import (NETWORK_FAILURE, RecordingTransport, ReplayTransport, Request,  # noqa: E402
+                                Response, Transport)
 from tools.samples import building, room, route, shelter  # noqa: E402
 from tools.samples.geo import DEMO_ADDRESS, OUTSIDE_ADDRESS  # noqa: E402
 
@@ -43,6 +52,17 @@ class SampleResponder:
             if answer is not None:
                 return answer
         return Response(599, f"no sample for {request.url}", "sample")
+
+
+@dataclass(frozen=True)
+class ReplayOrSample:
+    """Replays saved fixtures; a request with no fixture is answered and recorded from the samples."""
+    replay: Transport
+    sample: Transport
+
+    def send(self, request: Request) -> Response:
+        resp = self.replay.send(request)
+        return self.sample.send(request) if resp.status == NETWORK_FAILURE else resp
 
 
 def build_plan(transport: Transport, shelter_replay: bool, now: datetime) -> dict:
@@ -67,7 +87,11 @@ def exercise_outside_address(transport: Transport, now: datetime) -> None:
     assert evac_route is not None and evac_route.kind == "not_in_zone"
 
 
+
 def write_plan(payload: dict) -> None:
+    if any(note == MASKS_NOT_DECODED for room in payload["plan"]["rooms"] for note in room["notes"]):
+        raise SystemExit("Not writing demo/plan.json: masks did not decode here (pip install meta-sam-parser), "
+                         "so the room would show boxes instead of the recorded outlines.")
     PLAN.write_text(json.dumps(payload, indent=1))
     plan = payload["plan"]
     print(f"wrote {PLAN.relative_to(ROOT)}: {len(plan['rooms'][0]['classified'])} objects, "
@@ -82,8 +106,15 @@ def main(mode: str) -> None:
         recorder = RecordingTransport(SampleResponder(), FIXTURES, provenance="sample")
         build_plan(recorder, True, now)
         exercise_outside_address(recorder, now)
+    elif mode == "fill-samples":
+        sample = RecordingTransport(SampleResponder(), FIXTURES, provenance="sample")
+        replay = ReplayTransport(FIXTURES)
+        filled = HostSplit(urlsplit(OVERPASS_URL).hostname, replay, ReplayOrSample(replay, sample))
+        transport = HostSplit(FEMA_HOST, sample, filled)
+        build_plan(transport, True, now)
+        exercise_outside_address(transport, now)
     elif mode != "replay":
-        raise SystemExit("usage: python tools/demo.py samples|replay")
+        raise SystemExit("usage: python tools/demo.py samples|replay|fill-samples")
     write_plan(build_plan(ReplayTransport(FIXTURES), True, now))
 
 

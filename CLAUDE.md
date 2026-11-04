@@ -21,7 +21,7 @@ Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last upd
 - `safezone/rules.py`: every piece of safety wording, with sources (Ready.gov, ShakeOut, CGS, PG&E).
 - `web/`: vanilla JS PWA. Line-art white, black and red. Prepare flow, plan page, a two-page print fridge sheet, and a dark emergency mode that reads only IndexedDB. The service worker is versioned in `web/sw.js`; bump `VERSION` when web files change.
 - `index.py` and `vercel.json`: the Vercel entry point. `modal_app.py` also exists.
-- Tests: `python -m pytest -q` (146), `node --test web/tests/*.test.mjs`, and `node tools/verify_e2e.cjs <outdir> <base-url>` (drives every flow in a phone-sized Chromium against a running server).
+- Tests: `python -m pytest -q` (147), `node --test web/tests/*.test.mjs`, and `node tools/verify_e2e.cjs <outdir> <base-url>` (drives every flow in a phone-sized Chromium against a running server).
 
 ## Real API facts (checked against real responses on Nov 3)
 
@@ -36,15 +36,15 @@ Read this whole file first. Work in poteto mode (`pstack:poteto-mode`). Last upd
 
 ## Fixtures
 
-- `fixtures/demo/`: hand-authored SAMPLE responses, built by `python tools/demo.py samples`. `demo/plan.json` is the demo household, built from them.
+- `fixtures/demo/`: REAL responses recorded on the user's machine (attempt 3, Nov 3, 11:24 PM), except FEMA (real answer was 0 open shelters, replaced by labelled SAMPLE shelters) and the outside-zone address (SAMPLE), both added by `python tools/demo.py fill-samples`. Overpass timed out and is never filled, so the building has no storeys flag. `demo/plan.json` is the demo household built from them. `tools/demo.py` refuses to write the plan where `meta-sam-parser` is missing (this sandbox), because masks would fall back to boxes; build or rebuild the plan on the user's machine only.
 - `python tools/record_fixtures.py` (on the user's machine, with the key) replaces them with real recorded responses and rebuilds the demo plan. Do this before filming. It records into a fresh `fixtures/demo.recording-<time>/` folder (gitignored), prints every failed call with its status and body, prints the room notes (which include the Muse Spark error if classification failed), falls back to labelled SAMPLE shelters if FEMA fails, and then copies the files into `fixtures/demo/`.
 - `fixtures/probe/`: the earlier session's first real SAM and Muse responses (Responses API, non-streaming).
 
 ## Still to do (state at handoff)
 
-1. Recording real fixtures. Attempt 1 (commit d955d89) stopped after SAM; Muse Spark, OSRM and FEMA calls failed without saying why. Attempt 2 crashed decoding a real SAM mask (fixed in 0774842) and Overpass returned 502 (mirror added). Attempt 3 finished: Muse Spark, OSRM and FEMA succeeded (FEMA listed 0 open shelters); only Overpass timed out on both servers, now 60 s with a third server. Attempt 3's recording is being pushed for review. Next: user runs `git pull` then `python tools/record_fixtures.py` and pastes the output. If it shows failed calls, fix each from the printed status and body. Unknowns it will answer: whether the Muse Spark classification call (180 s timeout, strict schema in `room/classify.py`) succeeds, whether OSRM foot routes succeed from the user's machine, and whether FEMA is reachable (it hit a Windows certificate error in the probe; certifi is current).
-2. After a clean recording: the user commits and pushes `fixtures/demo` and `demo/plan.json`. Check the demo plan in the browser (`node tools/verify_e2e.cjs`) because real SAM and Muse output will change the room screen, then review the screenshots.
-3. Deploy on Vercel: import the repo at vercel.com/new, add `MODEL_API_KEY`. Not yet done.
+1. DONE: real fixtures recorded and pushed (dac8c44), sample shelters filled in. History: attempt 1 (commit d955d89) stopped after SAM; Muse Spark, OSRM and FEMA calls failed without saying why. Attempt 2 crashed decoding a real SAM mask (fixed in 0774842) and Overpass returned 502 (mirror added). Attempt 3 finished: Muse Spark, OSRM and FEMA succeeded (FEMA listed 0 open shelters); only Overpass timed out on both servers, now 60 s with a third server. Attempt 3's recording is being pushed for review. Next: user runs `git pull` then `python tools/record_fixtures.py` and pastes the output. If it shows failed calls, fix each from the printed status and body. Unknowns it will answer: whether the Muse Spark classification call (180 s timeout, strict schema in `room/classify.py`) succeeds, whether OSRM foot routes succeed from the user's machine, and whether FEMA is reachable (it hit a Windows certificate error in the probe; certifi is current).
+2. DONE: browser check passes all 23 checks on the real fixtures (`NODE_PATH=/opt/node22/lib/node_modules` in the sandbox). Real room: Muse Spark flags two wardrobes, the box up high and two wardrobe doors, puts the left bed in the tip zone and the right bed under the box, and its floor spot is rejected (doorway), so the spot is "no cover nearby". Real route: 10 min, 600 m. Open question for a route review: the turn list starts "Head west" (20 m, toward the sea) and runs about 250 m north before turning east.
+3. Vercel: deployed at https://safezone-alpha-one.vercel.app/ with `MODEL_API_KEY`; redeploys on every push to main. Live check pending.
 4. Film from `docs/video_script.md` (2:45, limit 3:00). Update the script lines about the room if the real Muse Spark output differs from the sample. Submit by Nov 4, 6 PM PT.
 5. Optional: `room.jpg` at the repo root is the user's dorm photo added by mistake; the demo uses `demo/living_room.jpg`. Offer to remove it.
 

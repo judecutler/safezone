@@ -1,0 +1,16 @@
+{
+ "request": {
+  "method": "GET",
+  "url": "https://nominatim.openstreetmap.org/search",
+  "params": {
+   "addressdetails": "1",
+   "countrycodes": "us",
+   "format": "jsonv2",
+   "limit": "1",
+   "q": "1 Dr Carlton B Goodlett Pl, San Francisco, CA 94102"
+  }
+ },
+ "status": 200,
+ "provenance": "sample",
+ "text": "[{\"place_id\": 1, \"lat\": \"37.77929\", \"lon\": \"-122.41925\", \"display_name\": \"San Francisco City Hall, 1 Dr Carlton B Goodlett Place, Civic Center, San Francisco, California, 94102, United States\", \"category\": \"amenity\", \"type\": \"building\", \"address\": {\"amenity\": \"San Francisco City Hall\", \"house_number\": \"1\", \"road\": \"Doctor Carlton B Goodlett Place\", \"suburb\": \"Civic Center\", \"city\": \"San Francisco\", \"county\": \"San Francisco\", \"state\": \"California\", \"postcode\": \"94102\", \"country\": \"United States\", \"country_code\": \"us\"}}]"
+}

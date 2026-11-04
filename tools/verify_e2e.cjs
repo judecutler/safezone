@@ -35,7 +35,8 @@ const check = (ok, msg) => { if (!ok) { errors.push(msg); console.log('FAIL', ms
   await page.click('button[type=submit]');
   await page.waitForSelector('.building');
   check(await page.locator('.flag.tone-alert').count() === 1, 'tsunami flag shows as alert');
-  check(await page.locator('.building .tag-sample').count() > 0, 'sample building is tagged');
+  const sampleBuilding = demo.plan.building.provenance === 'sample';
+  check((await page.locator('.building .tag-sample').count() > 0) === sampleBuilding, `building sample tag matches provenance (${demo.plan.building.provenance})`);
   await shot('02-address', true);
 
   await page.click('text=Next: household');

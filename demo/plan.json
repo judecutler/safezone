@@ -143680,7 +143680,7 @@
        "Tall furniture can tip. Stay clear of the cabinet.",
        "Tall furniture can tip. Stay clear of the wardrobe.",
        "Heavy items up high can fall. Stay clear of the box.",
-       "Doors can swing open. Stay clear of the door.",
+       "Doors can swing open. Stay clear of the cabinet door.",
        "In bed: stay there. Lie face down and cover your head and neck with a pillow.",
        "Doorways are not safer than the rest of the room."
       ]
@@ -143729,7 +143729,7 @@
      {
       "id": "fix-door-1",
       "target_id": "door-1",
-      "target_label": "door",
+      "target_label": "cabinet door",
       "hazard_kind": "cabinet_doors",
       "action": "Add latches so the doors stay shut in shaking.",
       "effort": "hour",
@@ -143742,7 +143742,7 @@
      {
       "id": "fix-door-3",
       "target_id": "door-3",
-      "target_label": "door",
+      "target_label": "cabinet door",
       "hazard_kind": "cabinet_doors",
       "action": "Add latches so the doors stay shut in shaking.",
       "effort": "hour",
@@ -144022,16 +144022,88 @@
     -122.507734,
     37.772346
    ],
-   "matches": [],
+   "matches": [
+    {
+     "shelter": {
+      "id": "900001",
+      "name": "Sample Shelter A",
+      "address": "Sample address, San Francisco, CA, 94121",
+      "lon": -122.4964,
+      "lat": 37.77166,
+      "status": "OPEN",
+      "capacity": 200,
+      "residents": 60,
+      "ada": true,
+      "wheelchair": true,
+      "pets_code": "PETS ACCEPTED",
+      "source_url": "https://gis.fema.gov/arcgis/rest/services/NSS/OpenShelters/FeatureServer/0/query"
+     },
+     "walk_min": 21.646666666666665,
+     "walk_method": "route",
+     "fill_ratio": 0.3,
+     "notes": [
+      "Pet accommodation code: PETS ACCEPTED. Call ahead about pets.",
+      "Listed as wheelchair accessible."
+     ]
+    },
+    {
+     "shelter": {
+      "id": "900003",
+      "name": "Sample Shelter C",
+      "address": "Sample address, San Francisco, CA, 94121",
+      "lon": -122.46454,
+      "lat": 37.77266,
+      "status": "OPEN",
+      "capacity": null,
+      "residents": 12,
+      "ada": true,
+      "wheelchair": true,
+      "pets_code": null,
+      "source_url": "https://gis.fema.gov/arcgis/rest/services/NSS/OpenShelters/FeatureServer/0/query"
+     },
+     "walk_min": 82.26166666666667,
+     "walk_method": "route",
+     "fill_ratio": null,
+     "notes": [
+      "Capacity not reported.",
+      "No pet information. Call ahead about pets.",
+      "Listed as wheelchair accessible."
+     ]
+    },
+    {
+     "shelter": {
+      "id": "900002",
+      "name": "Sample Shelter B",
+      "address": "Sample address, San Francisco, CA, 94121",
+      "lon": -122.48161,
+      "lat": 37.76816,
+      "status": "OPEN",
+      "capacity": 100,
+      "residents": 85,
+      "ada": true,
+      "wheelchair": true,
+      "pets_code": null,
+      "source_url": "https://gis.fema.gov/arcgis/rest/services/NSS/OpenShelters/FeatureServer/0/query"
+     },
+     "walk_min": 50.763333333333335,
+     "walk_method": "route",
+     "fill_ratio": 0.85,
+     "notes": [
+      "Nearly full: about 85% of capacity.",
+      "No pet information. Call ahead about pets.",
+      "Listed as wheelchair accessible."
+     ]
+    }
+   ],
    "excluded": {
-    "not_open": 0,
-    "in_hazard_area": 0,
+    "not_open": 1,
+    "in_hazard_area": 1,
     "hazard_check_failed": 0,
-    "not_wheelchair_accessible": 0
+    "not_wheelchair_accessible": 1
    },
-   "fetched_at": "2026-11-04T07:24:29.029289Z",
+   "fetched_at": "2026-11-04T17:00:00Z",
    "replay": true,
-   "provenance": "recorded"
+   "provenance": "sample"
   },
   "generated_at": "2026-11-04T07:24:29.029289Z"
  },

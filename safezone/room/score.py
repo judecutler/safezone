@@ -43,11 +43,16 @@ def _inside(p: ImagePoint, box: BBox) -> bool:
     return box[0] <= p[0] < box[2] and box[1] <= p[1] < box[3]
 
 
+def hazard_name(c: Classified) -> str:
+    """SAM's "door" phrase also hits wardrobe and cabinet doors; named "door" they read as the room's exit."""
+    return "cabinet door" if c.hazard_kind == "cabinet_doors" and c.segment.label == "door" else c.segment.label
+
+
 def hazard_caution(c: Classified) -> str | None:
     # A bed under a window is fixed by moving the bed; "stay clear of the bed" would contradict in-bed guidance.
     if c.hazard_kind is None or c.hazard_kind == "bed_under_window":
         return None
-    return f"{HAZARD_LABELS[c.hazard_kind]}. Stay clear of the {c.segment.label}."
+    return f"{HAZARD_LABELS[c.hazard_kind]}. Stay clear of the {hazard_name(c)}."
 
 
 def floor_rejection(floor: FloorProposal, classified: list[Classified], image_size: tuple[int, int]) -> str | None:
@@ -182,7 +187,7 @@ def fixes_for(classified: list[Classified]) -> list[Fix]:
         if c.hazard_kind is None:
             continue
         action, effort, cost = FIX_TABLE[c.hazard_kind]
-        fixes.append(Fix(id=f"fix-{c.segment.id}", target_id=c.segment.id, target_label=c.segment.label,
+        fixes.append(Fix(id=f"fix-{c.segment.id}", target_id=c.segment.id, target_label=hazard_name(c),
                          hazard_kind=c.hazard_kind, action=action, effort=effort, cost_usd=cost))
     return sorted(fixes, key=lambda f: (EFFORT_ORDER[f.effort], KIND_ORDER[f.hazard_kind]))
 

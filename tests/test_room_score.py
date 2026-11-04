@@ -100,3 +100,13 @@ def test_fixes_come_from_the_table_ordered_by_effort():
     assert [(f.id, f.effort) for f in fixes] == [
         ("fix-box-0", "minutes"), ("fix-tv-0", "minutes"), ("fix-wardrobe-0", "hour"), ("fix-light-0", "pro")]
     assert fixes[2].action == rules.FIX_TABLE["tall_furniture"][0]
+
+
+def test_a_wardrobe_door_hit_on_the_door_phrase_reads_as_a_cabinet_door():
+    wardrobe_door = item("door-1", "door", (533, 240, 676, 814), "hazard", "cabinet_doors")
+    room_door = item("door-2", "door", (1098, 226, 1182, 546))
+    [fix] = fixes_for([wardrobe_door, room_door])
+    assert fix.target_label == "cabinet door"
+    [spot], _ = rank_spots([wardrobe_door, room_door], None, (1600, 900))
+    assert "Stay clear of the cabinet door." in " ".join(spot.cautions)
+    assert "Stay clear of the door." not in " ".join(spot.cautions)

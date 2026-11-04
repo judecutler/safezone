@@ -1,0 +1,13 @@
+{
+ "request": {
+  "method": "GET",
+  "url": "https://routing.openstreetmap.de/routed-foot/table/v1/foot/-122.507734,37.772346;-122.496400,37.771660;-122.481610,37.768160;-122.464540,37.772660",
+  "params": {
+   "annotations": "distance",
+   "sources": "0"
+  }
+ },
+ "status": 200,
+ "provenance": "sample",
+ "text": "{\"code\": \"Ok\", \"distances\": [[0.0, 1298.8, 3045.8, 4935.7]]}"
+}
