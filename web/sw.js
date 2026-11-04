@@ -1,5 +1,5 @@
 // Bump VERSION whenever any file in SHELL changes, so phones pick up the new shell.
-const VERSION = 'safezone-v29';
+const VERSION = 'safezone-v30';
 const SHELL = [
   '/',
   '/app.css',
@@ -60,7 +60,7 @@ const SHELL = [
 const FONT_HOSTS = new Set(['fonts.googleapis.com', 'fonts.gstatic.com']);
 const TILES = `${VERSION}-tiles`;
 const TILE_MAX = 300;
-const isTileHost = (host) => host.endsWith('.basemaps.cartocdn.com') || host === 'disaportaldata.gsi.go.jp';
+const isTileHost = (host) => host === 'tile.openstreetmap.org' || host === 'disaportaldata.gsi.go.jp';
 
 // Map tiles are cached as they are viewed, so a plan looked at online shows its map offline. Cache keys keep
 // insertion order, so the first keys are the oldest.

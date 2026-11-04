@@ -34,7 +34,7 @@ async function open(browser, name, opts = {}, { expectFailedApi = false } = {}) 
     if (t.startsWith('[voice')) voice.push({ at: Date.now(), text: t.replace(/^\[voice[^\]]*\] /, '') });
     const where = m.location()?.url ?? '';
     if (expectFailedApi && /Failed to load resource/.test(t) && EXPECTED_FAILS.test(where)) { expectedFails.push(where); return; }
-    if (m.type() === 'error' && !/fonts\.(googleapis|gstatic)|basemaps\.cartocdn\.com|disaportaldata\.gsi\.go\.jp|ERR_INTERNET_DISCONNECTED/.test(t + where)) {
+    if (m.type() === 'error' && !/fonts\.(googleapis|gstatic)|tile\.openstreetmap\.org|disaportaldata\.gsi\.go\.jp|ERR_INTERNET_DISCONNECTED/.test(t + where)) {
       failures.push(`${name} console error: ${t}`);
       console.log('FAIL', `${name} console error: ${t}`);
     }
