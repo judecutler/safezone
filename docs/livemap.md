@@ -26,8 +26,8 @@ MapController = {
 }
 ```
 
-Base tiles: CARTO light (`https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png`, attribution
-"© OpenStreetMap contributors © CARTO"). The service worker caches tiles as they are viewed (runtime cache, at most
+Base tiles: OpenStreetMap (`https://tile.openstreetmap.org/{z}/{x}/{y}.png`, greyed with CSS; CARTO's free tiles now require a key), attribution
+"© OpenStreetMap contributors"). The service worker caches tiles as they are viewed (runtime cache, at most
 about 300 tiles), so a plan viewed online shows its map offline. With no tiles at all, the overlays still draw on
 the paper background, so the hazard area, route and walker never depend on the network.
 

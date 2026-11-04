@@ -5,7 +5,7 @@ import { insideHazard, pointAlong, routeLength, stepPoints } from './guide.js';
 // The one module that draws a real map (contract: docs/livemap.md). Leaflet is vendored and loaded once.
 // Every overlay is vector or a DOM marker, so with no tiles at all the hazard area, route and walker still draw.
 
-const TILE_ATTR = '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>';
+const TILE_ATTR = '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors';
 const JP_TSUNAMI_URL = 'https://disaportaldata.gsi.go.jp/raster/04_tsunami_newlegend_data/{z}/{x}/{y}.png';
 const JP_ATTR = 'Tsunami: <a href="https://disaportal.gsi.go.jp/" target="_blank" rel="noopener">GSI Hazard Map Portal</a>';
 const LOAD_TIMEOUT_MS = 8000;
@@ -81,9 +81,10 @@ export async function liveMap(container, { region = 'us-ca', interactive = true 
   for (const [name, z] of [['lm-hazard', 405], ['lm-route', 420], ['lm-marks', 610], ['lm-walker', 640]]) {
     map.createPane(name).style.zIndex = z;
   }
-  const dark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
-  L.tileLayer(`https://{s}.basemaps.cartocdn.com/${dark ? 'dark_all' : 'light_all'}/{z}/{x}/{y}{r}.png`, {
-    subdomains: 'abcd', maxZoom: 19, attribution: TILE_ATTR, className: 'lm-tiles',
+  // OpenStreetMap's own tiles: no key, and its tile policy asks apps to cache what they show, which the service
+  // worker does. (CARTO's free tiles now stamp "API key required" on every tile.) CSS greys them to the app's look.
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: TILE_ATTR, className: 'lm-tiles',
     // CORS responses, so the service worker caches real-size tiles rather than padded opaque ones.
     crossOrigin: 'anonymous',
   }).addTo(map);
