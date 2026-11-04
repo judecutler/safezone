@@ -51,21 +51,23 @@ def find_shelters(origin: LonLat, profile: BuildingProfile, household: Household
 def filter_shelters(shelters: Sequence[Shelter], origin: LonLat, household: Household, hazard_check: HazardCheck,
                     polygons: Sequence[Polygon]) -> tuple[list[Shelter], dict[ExcludeReason, int]]:
     excluded: Counter[ExcludeReason] = Counter({reason: 0 for reason in get_args(ExcludeReason)})
-    open_shelters = []
+    # Fit filters that need no network run on every shelter, so the nearest-N cut (which bounds the
+    # per-shelter hazard point queries) never hides a fitting shelter behind nearer unfit ones.
+    fitting = []
     for shelter in shelters:
-        if shelter.status.strip().upper() == "OPEN":
-            open_shelters.append(shelter)
-        else:
+        if shelter.status.strip().upper() != "OPEN":
             excluded["not_open"] += 1
-    nearest = sorted(open_shelters, key=lambda s: geo.haversine_m(origin, (s.lon, s.lat)))[:NEAREST_N]
+        elif household.wheelchair and shelter.wheelchair is not True:
+            excluded["not_wheelchair_accessible"] += 1
+        else:
+            fitting.append(shelter)
+    nearest = sorted(fitting, key=lambda s: geo.haversine_m(origin, (s.lon, s.lat)))[:NEAREST_N]
 
     kept = []
     for shelter in nearest:
         verdict = hazard_verdict((shelter.lon, shelter.lat), polygons, hazard_check)
         if verdict != "ok":
             excluded[verdict] += 1
-        elif household.wheelchair and shelter.wheelchair is not True:
-            excluded["not_wheelchair_accessible"] += 1
         else:
             kept.append(shelter)
     return kept, dict(excluded)
