@@ -23,7 +23,7 @@ from .profile import EDGE_RADIUS_M
 from .sites import Site, fetch_sites
 from .tiles import Depth, InundationMap, TileUnavailable, depth_label
 
-MAX_SITES = 6
+MAX_SITES = 12
 SAMPLE_EVERY_M = 15.0
 END_SNAP_M = 80.0
 """OSRM snaps the destination to the nearest path; the route must still end this close to the site."""
