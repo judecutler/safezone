@@ -68,11 +68,13 @@ class SampleWhenDown:
         return resp
 
 
-def replace_files(target: Path, source: Path) -> None:
-    """Swap the fixture files one by one instead of renaming folders, which fails on locked Windows folders."""
+def merge_files(target: Path, source: Path) -> None:
+    """Copy new recordings over same-key fixtures and keep every other file.
+
+    fixtures/demo also holds the Japan recording, the go-bag check and labelled samples; a US rerun must not delete
+    them. Files are copied one by one because renaming folders fails on locked Windows folders.
+    """
     target.mkdir(parents=True, exist_ok=True)
-    for old in target.glob("*.json"):
-        old.unlink()
     for new in source.glob("*.json"):
         shutil.copy2(new, target / new.name)
 
@@ -134,7 +136,7 @@ def main() -> None:
     notes = payload["plan"]["rooms"][0]["notes"]
     if notes:
         print("room notes:", *notes, sep="\n  ")
-    replace_files(FIXTURES, staging)
+    merge_files(FIXTURES, staging)
     shutil.rmtree(staging, ignore_errors=True)
     write_plan(build_plan(ReplayTransport(FIXTURES), True, datetime.now(timezone.utc)))
 

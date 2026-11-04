@@ -19,10 +19,12 @@ const DEMO_SPEEDS = [1, 8];
 // `ui` holds the live elements of the current render; a re-render swaps them without restarting the phase.
 const run = { phase: null, stops: [], openedAt: 0, demoSpeed: 1, ui: null };
 
-function enterPhase(phase, start) {
-  if (run.phase === phase) return;
+// A re-render inside the same phase swaps the live elements and leaves speech and position sources alone.
+function enterPhase(phase, ui, start) {
+  if (run.phase === phase) { run.ui = ui; return; }
   leavePhase();
   run.phase = phase;
+  run.ui = ui;
   start();
 }
 
@@ -66,7 +68,7 @@ function shaking(state, act) {
   const em = state.emergency;
   const plan = planOf(em);
   const guidance = em?.guidance;
-  enterPhase('shaking', () => {
+  enterPhase('shaking', {}, () => {
     run.openedAt = Date.now();
     onStop(keepAwake());
     vibrate([300, 150, 300, 150, 300]);
@@ -132,12 +134,10 @@ function after(state, act) {
   const afterSteps = guidance ? h('ol', { class: 'em-steps em-steps-small' }, guidance.after.map((t) => h('li', null, t))) : null;
   const noPlanLine = 'No saved place on this device. Follow official instructions. If the shaking was strong or lasted a long time and you are near the coast, move inland and uphill now.';
 
-  const nextLine = h('p', { class: 'em-next', 'aria-live': 'assertive' }, run.ui?.nextLine.textContent ?? '');
+  const nextLine = h('p', { class: 'em-next', 'aria-live': 'assertive' }, run.ui?.nextLine?.textContent ?? '');
   const positionLine = h('p', { class: 'em-pos mono', 'aria-live': 'polite' },
-    run.ui?.positionLine.textContent ?? (moving && route.kind === 'walking_route' ? 'Finding your position' : ''));
-  run.ui = { nextLine, positionLine, map: null };
-
-  enterPhase('after', () => {
+    run.ui?.positionLine?.textContent ?? (moving && route.kind === 'walking_route' ? 'Finding your position' : ''));
+  enterPhase('after', { nextLine, positionLine, map: null }, () => {
     onStop(keepAwake());
     const prefix = demoPrefix(state);
     if (!plan) { say(prefix + noPlanLine, { interrupt: true }); return; }
