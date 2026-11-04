@@ -1,3 +1,4 @@
+from safezone import rules
 from safezone.room.classify import FloorProposal
 from safezone.room.score import fixes_for, floor_rejection, rank_spots
 from safezone.rules import DURING_SPECIAL
@@ -97,4 +98,4 @@ def test_fixes_come_from_the_table_ordered_by_effort():
     ])
     assert [(f.id, f.effort) for f in fixes] == [
         ("fix-box-0", "minutes"), ("fix-tv-0", "minutes"), ("fix-wardrobe-0", "hour"), ("fix-light-0", "pro")]
-    assert fixes[2].action == "Anchor it to a wall stud with furniture straps or L-brackets."
+    assert fixes[2].action == rules.FIX_TABLE["tall_furniture"][0]

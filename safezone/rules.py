@@ -21,7 +21,8 @@ SOURCES = {
 
 CLASSIFIER_RULES = """\
 Cover: a sturdy table or desk, away from windows and hanging objects. Nothing else counts as cover.
-Hazards: unsecured tall furniture; glass (windows, glass doors, mirrors, glass tables); overhead fixtures and hanging objects; heavy or breakable objects stored up high; a bed under a window; cabinet doors that can swing open and spill contents.
+Hazards: unsecured tall furniture; glass (windows, glass doors, mirrors, glass tables); hanging or heavy overhead fixtures (pendant lights, chandeliers, ceiling fans) and hanging objects; heavy or breakable objects stored up high; a bed under a window; cabinet doors that can swing open and spill contents.
+Not hazards: a small light fixture mounted flush to the ceiling, smoke detectors, soft items.
 Doorways are not safe spots in modern buildings.
 During shaking: Drop, Cover, Hold On. No movement.
 You report only what is visible. You never judge the building's structure."""
@@ -63,7 +64,7 @@ DISCLAIMERS = [
 
 # Hazard kind -> the one fix SafeZone suggests. The model picks the kind; it never writes the fix.
 FIX_TABLE: dict[HazardKind, tuple[str, Effort, tuple[int, int]]] = {
-    "tall_furniture": ("Anchor it to a wall stud with furniture straps or L-brackets.", "hour", (10, 30)),
+    "tall_furniture": ("Anchor it to a wall stud with furniture straps or L-brackets. Renting? Ask your landlord or housing office; most allow straps.", "hour", (10, 30)),
     "heavy_up_high": ("Move heavy or breakable items down to low shelves or the floor.", "minutes", (0, 0)),
     "tv": ("Strap the TV to the wall or its stand.", "minutes", (15, 40)),
     "glass": ("Apply safety film, or move beds and seating away from the glass.", "hour", (20, 60)),

@@ -50,7 +50,7 @@ SEGMENTS = [
     ("cabinet-0", "hazard", "heavy_up_high", "Open shelf above the wardrobes holds bottles and bags."),
     ("wardrobe-0", "hazard", "tall_furniture", "Tall wooden wardrobe, door open, no wall anchor visible."),
     ("wardrobe-1", "hazard", "tall_furniture", "Tall wooden wardrobe next to the door, no wall anchor visible."),
-    ("ceiling-light-0", "hazard", "overhead_fixture", "Ceiling light fixture with a wire cage."),
+    ("ceiling-light-0", "neutral", None, "Small light mounted flush to the ceiling; not a falling hazard."),
     ("bed-0", "neutral", None, "A bed is not cover."),
     ("bed-1", "neutral", None, "A bed is not cover."),
     ("box-0", "hazard", "heavy_up_high", "Large carton stored on top of the wire shelf."),
