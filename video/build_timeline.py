@@ -35,7 +35,7 @@ for scene, vo, pre, post, fixed in PLAN:
         for sent in re.findall(r".+?[.!?](?=\s|$)", text):
             a = pre + d * pos / len(text)
             pos += len(sent)
-            caps.append({"at": round(a, 3), "end": round(pre + d * pos / len(text), 3), "text": show(sent.strip())})
+            caps.append({"at": round(a, 3), "end": round(pre + d * pos / len(text), 3), "text": show(sent.strip().lstrip(",; "))})
         seg.update(dur=round(pre + d + post, 3), vo={"id": vo, "at": pre, "dur": d, "text": text, "caps": caps})
     else:
         seg.update(dur=fixed, vo=None)

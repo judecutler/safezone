@@ -54,6 +54,13 @@ function phone(src, imgW, x, y, w, scroll = 0, h = null, extra = '') {
 }
 function caption(t, seg) { return ''; }
 
+function debris(t, list, every = 3.2, op = .32) {
+  return list.map((src, i) => {
+    const a = i * every, o = i === list.length - 1 ? fin(t, a, .8) : fio(t, a, a + every + .8, .8);
+    const z = 1.04 + .06 * clamp((t - a) / (every + 1));
+    return `<div class="abs" style="inset:0;opacity:${(i === 0 ? Math.min(1, 1 - ease((t - every) / .8)) : o) * op};overflow:hidden"><img src="assets/${src}" style="width:100%;height:100%;object-fit:cover;transform:scale(${z});filter:grayscale(.35) contrast(1.05)"></div>`;
+  }).join('') + `<div class="abs" style="inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(14,13,10,.35),rgba(14,13,10,.85))"></div>`;
+}
 // Scenes ---------------------------------------------------------------------------------------------------
 const TOLLS = [
   ['1906', 'San Francisco', '3,000+', 'dead', 'USGS'],
@@ -73,13 +80,13 @@ const scenes = {
         <div class="disp" style="font-size:84px;color:${i === 3 ? 'var(--s4)' : 'var(--cream)'}">${r[2]}</div>
         <div><div style="font-size:28px;color:#C9C0AC">${r[3]}</div><div class="src">${r[4]}</div></div></div>`;
     }).join('');
-    return `<div class="abs dark" style="inset:0"></div>
+    return `<div class="abs dark" style="inset:0"></div>${debris(t, ['d1.jpg', 'd3.jpg', 'd4.jpg'], 3.0, .42)}
       <div class="abs" style="inset:0;box-shadow:inset 0 0 ${160 + pulse * 120}px rgba(232,50,43,${.18 + pulse * .22})"></div>
       <div class="abs" style="left:200px;top:120px;right:200px">${rows}</div>`;
   },
   dec5(t, seg) {
     const q = ['Am I in the zone?', 'Where do I go?', 'How long do I have?'];
-    return `<div class="abs dark" style="inset:0"></div>
+    return `<div class="abs dark" style="inset:0"></div>${debris(t, ['d2.jpg', 'd5.jpg'], 6.5, .3)}
       <div class="abs" style="left:200px;top:170px;${up(t, .1)}"><div class="kick" style="color:var(--accent)">Thursday, Dec 5, 2024 · 10:44 a.m. · Cape Mendocino M7.0</div></div>
       <div class="abs disp" style="left:200px;top:250px;font-size:200px;${up(t, cue(seg, 'Five') - .2)}">5,000,000</div>
       <div class="abs" style="left:205px;top:470px;font-size:46px;font-weight:600;${up(t, cue(seg, 'Californians'))}">Californians under a tsunami warning</div>
@@ -216,9 +223,10 @@ const scenes = {
   reenact(t, seg) {
     return `<div class="abs dark" style="inset:0"></div>
       <div class="abs" style="left:200px;top:160px;${up(t, .1)}"><span class="tag" style="background:var(--s4);color:#fff;border-color:var(--s4);font-size:28px">● Live reenactment</span></div>
-      <div class="abs disp" style="left:200px;top:260px;font-size:120px;max-width:1500px;${up(t, .4)}">For my family in Japan</div>
+      <div class="abs disp" style="left:200px;top:260px;font-size:86px;max-width:1060px;${up(t, .4)}">For my family in Japan</div>
       <div class="abs" style="left:205px;top:420px;font-family:'Noto Sans CJK JP';font-size:48px;color:#C9C0AC;${up(t, .9)}">日本の家族へ</div>
-      <div class="abs" style="left:205px;top:560px;font-size:40px;font-weight:600;max-width:1300px;line-height:1.35;${up(t, cue(seg, 'I know') - .2)}">My parents and brother have lived through more earthquakes than I can count. This is what that moment looks like with SafeZone.</div>`;
+      <div class="abs" style="left:1290px;top:110px;width:520px;height:780px;border:5px solid var(--cream);border-radius:22px;overflow:hidden;transform:rotate(2deg);${pop(t, .6, .6)}"><img src="assets/family.jpg" style="width:100%;height:100%;object-fit:cover;object-position:50% 70%"></div>
+      <div class="abs" style="left:205px;top:560px;font-size:40px;font-weight:600;max-width:1000px;line-height:1.35;${up(t, cue(seg, 'I know') - .2)}">My parents and brother have lived through more earthquakes than I can count. This is what that moment looks like with SafeZone.</div>`;
   },
   end(t, seg) {
     return `<div class="abs paper" style="inset:0"></div>
