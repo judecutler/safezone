@@ -6,7 +6,7 @@ Prepare once for a coastal earthquake. When it comes, the phone talks you throug
 
 **Live app:** https://safezone-alpha-one.vercel.app/ · **Repo:** https://github.com/judecutler/safezone
 
-Built for the Meta Global AI Developer Hackathon (indie track, Build for Your World). Everything here was written during the hackathon, and the git history shows each step.
+Built for the Meta Global AI Developer Hackathon (indie track, Build for Your World). Everything here was written during the hackathon, and the git history shows each step.**Note About Timing:** Sorry, I did everything so last minute, I had a bunch of midterms due over the past week and a half so I was sort of locked in. 
 
 ## The problem
 
