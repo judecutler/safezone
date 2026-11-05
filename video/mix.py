@@ -132,8 +132,7 @@ ph = read_wav(PHONE)
 c = seg["clip"]
 put(fade(ph[int(c["from"] * SR): int((c["from"] + c["dur"]) * SR)], .1, .2), c["start"], db(9))
 a = seg["after"]
-put(fade(ph[int(a["from"] * SR): int((a["from"] + 3.9) * SR)], .2, .2), a["start"], db(-6))
-put(fade(ph[int(22 * SR): int((22 + a["dur"] - 3.9) * SR)], .2, .4), a["start"] + 3.9, db(-6))
+put(fade(ph[int(a["from"] * SR): int(min(a["from"] + a["dur"], 25.6) * SR)], .2, .4), a["start"], db(-8))
 
 peak = np.abs(mix).max()
 mix = mix / peak * db(-1.5)
