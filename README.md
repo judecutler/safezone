@@ -196,4 +196,4 @@ To record fresh responses on your own machine, run `python tools/record_fixtures
 
 ## Credits
 
-Built by Jude Cutler with Claude Code. Meta's SAM 3.1 and Muse Spark do the vision work. Hazard data comes from the California Geological Survey, DataSF, FEMA, Japan's Hazard Map Portal, GSI and MLIT. Maps and routing come from OpenStreetMap contributors, Nominatim, Overpass and the FOSSGIS OSRM service. Guidance comes from Ready.gov, the Earthquake Country Alliance (ShakeOut), CGS, PG&E, Japan's Cabinet Office and JMA. Background facts and their sources are in `docs/story.md`.
+Built by Jude Cutler with Claude Code and Python. Meta's SAM 3.1 and Muse Spark do the vision work. Hazard data comes from the California Geological Survey, DataSF, FEMA, Japan's Hazard Map Portal, GSI and MLIT. Maps and routing come from OpenStreetMap contributors, Nominatim, Overpass and the FOSSGIS OSRM service. Guidance comes from Ready.gov, the Earthquake Country Alliance (ShakeOut), CGS, PG&E, Japan's Cabinet Office and JMA. Background facts and their sources are in `docs/story.md`.
