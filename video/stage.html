@@ -90,10 +90,10 @@ const scenes = {
   gap(t, seg) {
     const card = (big, line, src, a, color) => `<div class="dcard" style="width:700px;${up(t, a)}"><div class="disp" style="font-size:170px;color:${color}">${big}</div><div style="font-size:36px;font-weight:600;margin-top:18px;line-height:1.25">${line}</div><div class="src" style="margin-top:20px">${src}</div></div>`;
     return `<div class="abs dark" style="inset:0"></div>
-      <div class="abs" style="left:200px;top:130px;${up(t, .1)}"><div class="kick" style="color:var(--accent)">The preparation gap</div></div>
+      <div class="abs" style="left:200px;top:130px;${up(t, .1)}"><div class="kick" style="color:var(--accent)">01 · Before: preparation, where it counts most</div></div>
       <div class="abs" style="left:200px;top:220px;display:flex;gap:120px">
-        ${card('31%', 'of US households have learned their evacuation routes', 'FEMA National Household Survey, 2023', cue(seg, 'thirty-one') - .3, 'var(--accent)')}
-        ${card('30–50%', 'of earthquake injuries in Japan come from furniture tipping, falling or sliding', 'Tokyo Fire Department, 2024', cue(seg, 'half') - .3, 'var(--s3)')}
+        ${card('31%', 'of US households have learned their evacuation routes', 'FEMA National Household Survey, 2023', cue(seg, '31%') - .3, 'var(--accent)')}
+        ${card('−70%', 'projected deaths in Japan\'s next great tsunami (Nankai Trough) if everyone evacuates within 10 minutes', 'Cabinet Office of Japan, Mar 2025: about 215,000 → about 73,000', cue(seg, 'Japan') - .3, 'var(--accent)')}
       </div>`;
   },
   works(t, seg) {
@@ -113,8 +113,8 @@ const scenes = {
         <div class="src" style="margin-top:12px">Cabinet Office of Japan damage estimate, Mar 2025: about 215,000 → about 73,000</div></div>`;
   },
   title(t, seg) {
-    const steps = ['Prepare', 'Stand by', 'Shaking', 'Get out', 'Shelter'];
-    const a = cue(seg, 'gets');
+    const steps = ['Before · prepare', 'During · drop, cover, hold on', 'After · get out, find shelter'];
+    const a = cue(seg, 'before');
     const wipe = inout(t / .8);
     return `<div class="abs dark" style="inset:0"></div>
       <div class="abs paper" style="left:0;top:0;bottom:0;width:${wipe * 1920}px"></div>
@@ -124,17 +124,17 @@ const scenes = {
       <div class="abs" style="left:200px;top:430px;display:flex;align-items:center;gap:22px;${up(t, cue(seg, 'Meta') - .2)}">
         <div style="font-size:40px;font-weight:500">Built on</div><div class="chip" style="font-size:40px;background:var(--ink);color:#fff;border-color:var(--ink)"><span class="meta">Meta</span> SAM 3.1</div><div style="font-size:40px">+</div><div class="chip" style="font-size:40px;background:var(--ink);color:#fff;border-color:var(--ink)"><span class="meta">Meta</span> Muse Spark</div></div>
       <div class="abs" style="left:200px;top:640px;right:200px;display:flex;gap:0;align-items:center">${steps.map((s, i) => `
-        <div style="${pop(t, a + i * .35)};display:flex;align-items:center"><div style="width:260px;padding:26px 0;text-align:center;border:3px solid var(--ink);border-radius:18px;background:${i < 1 ? 'var(--accent)' : i < 2 ? '#fff' : i < 4 ? 'var(--night)' : '#fff'};color:${i >= 2 && i < 4 ? 'var(--cream)' : 'var(--ink)'}"><div class="mono" style="font-size:20px;opacity:.7">0${i + 1}</div><div style="font-size:34px;font-weight:800">${s}</div></div>${i < 4 ? '<div style="width:42px;height:4px;background:var(--ink)"></div>' : ''}</div>`).join('')}</div>`;
+        <div style="${pop(t, a + i * .35)};display:flex;align-items:center"><div style="width:440px;padding:26px 0;text-align:center;border:3px solid var(--ink);border-radius:18px;background:${i === 0 ? 'var(--accent)' : i === 1 ? 'var(--night)' : '#fff'};color:${i === 1 ? 'var(--cream)' : 'var(--ink)'}"><div class="mono" style="font-size:20px;opacity:.7">0${i + 1}</div><div style="font-size:32px;font-weight:800">${s}</div></div>${i < 2 ? '<div style="width:40px;height:4px;background:var(--ink)"></div>' : ''}</div>`).join('')}</div>`;
   },
   hazard(t, seg) {
     return `<div class="abs paper" style="inset:0"></div>
       ${phone('p-review.jpg', 1170, 1220, 70 - 0 * 20, 440, 230 + 400 * inout((t - 3) / 4))}
-      <div class="abs" style="left:200px;top:180px;${up(t, .1)}"><div class="kick">01 · Prepare</div></div>
+      <div class="abs" style="left:200px;top:180px;${up(t, .1)}"><div class="kick">Prepare · step 1</div></div>
       <div class="abs disp" style="left:200px;top:240px;font-size:110px;max-width:900px;${up(t, .3)}">Is this home in the zone?</div>
       <div class="abs card" style="left:200px;top:540px;width:860px;${up(t, cue(seg, 'official') - .2)}"><div class="kick" style="color:var(--muted);font-size:18px">Official hazard maps, not a guess</div>
         <div style="font-size:32px;font-weight:700;margin-top:12px">California Geological Survey tsunami hazard area</div>
         <div style="font-size:32px;font-weight:700;margin-top:8px">Japan: Hazard Map Portal + GSI evacuation sites</div></div>
-      <div class="abs" style="left:200px;top:820px;${pop(t, cue(seg, 'inside'))}"><span class="tag" style="color:var(--s4);font-size:26px;border-width:3px">⚠ Inside the tsunami hazard area</span></div>`;
+      <div class="abs" style="left:200px;top:820px;${pop(t, cue(seg, 'Now you know'))}"><span class="tag" style="color:var(--s4);font-size:26px;border-width:3px">⚠ Inside the tsunami hazard area</span></div>`;
   },
   sam(t, seg) { return roomScene(t, seg, 'sam'); },
   muse(t, seg) { return roomScene(t, seg, 'muse'); },
@@ -145,9 +145,9 @@ const scenes = {
       <div class="abs" style="left:150px;top:110px;${up(t, .1)}"><div class="kick">Code checks the model · room/score.py</div></div>
       <div class="abs card" style="left:150px;top:190px;width:640px;${up(t, a - .3)}"><div class="kick" style="font-size:18px;color:var(--muted)">Meta Muse Spark proposed</div><div style="font-size:34px;font-weight:700;margin-top:10px">A spot on the floor, in the doorway</div></div>
       <div class="abs" style="left:150px;top:420px;width:640px">${checks.map((c, i) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-bottom:2px solid var(--hair);font-size:28px;${up(t, a + .6 + i * .18, .3, 12)}"><span>${c}</span><span class="mono" style="font-weight:700;color:${i === 1 ? 'var(--s4)' : 'var(--green)'}">${i === 1 ? '✗ FAIL' : 'pass'}</span></div>`).join('')}</div>
-      <div class="abs" style="left:300px;top:334px;${pop(t, cue(seg, 'set aside'), .35)};transform-origin:center"><div style="border:5px solid var(--s4);color:var(--s4);font-weight:900;font-size:36px;padding:6px 20px;border-radius:10px;transform:rotate(-6deg);background:rgba(251,248,241,.95)">SET ASIDE · IN A DOORWAY</div></div>
-      <div class="abs disp" style="left:880px;top:200px;font-size:96px;${up(t, cue(seg, 'proposes') - .2)}">The model proposes.</div>
-      <div class="abs disp" style="left:880px;top:310px;font-size:96px;color:var(--s3);${up(t, cue(seg, 'Code decides') - .2)}">Code decides.</div>
+      <div class="abs" style="left:300px;top:334px;${pop(t, cue(seg, 'rejected'), .35)};transform-origin:center"><div style="border:5px solid var(--s4);color:var(--s4);font-weight:900;font-size:36px;padding:6px 20px;border-radius:10px;transform:rotate(-6deg);background:rgba(251,248,241,.95)">SET ASIDE · IN A DOORWAY</div></div>
+      <div class="abs disp" style="left:880px;top:200px;font-size:96px;${up(t, cue(seg, 'The AI suggests') - .2)}">The AI suggests.</div>
+      <div class="abs disp" style="left:880px;top:310px;font-size:96px;color:var(--s3);${up(t, cue(seg, 'The code decides') - .2)}">The code decides.</div>
       ${phone('p-review.jpg', 1170, 1300, 450, 380, 2532 + 640, 560, up(t, a + 1))}
       <div class="abs" style="left:880px;top:470px;width:380px;font-size:26px;line-height:1.4;color:var(--muted);${up(t, a + 1.4)}">Fixes come only from a fixed table, never from model text. The app shows the model's words as labelled context.</div>`;
   },
@@ -155,7 +155,7 @@ const scenes = {
     const n = clamp(Math.floor(t * 30) + 1, 1, 119);
     return `<div class="abs paper seig" style="inset:0"></div>
       <div class="abs" style="left:${960 - 281}px;top:40px;width:562px;height:1000px;border:6px solid var(--ink);border-radius:28px;overflow:hidden;${pop(t, 0, .3)}"><img src="assets/react/${pad(n)}.jpg" style="width:100%;height:100%;object-fit:cover"></div>
-      <div class="abs" style="left:1300px;top:820px;${up(t, .4)}"><span class="tag" style="background:#fff">The builder, seeing it work</span></div>`;
+      <div class="abs" style="left:1300px;top:820px;${up(t, .4)}"><span class="tag" style="background:var(--s4);color:#fff;border-color:var(--s4);font-size:26px">● Live reenactment</span></div>`;
   },
   gobag(t, seg) {
     const shown = BAG.slice(0, 14);
@@ -163,15 +163,15 @@ const scenes = {
       <div class="abs" style="left:150px;top:90px;${up(t, .1)}"><div class="kick">Go bag · Meta Muse Spark vs Ready.gov's 14-item kit</div></div>
       <div class="abs" style="left:150px;top:160px;width:480px;height:853px;border:4px solid var(--ink);border-radius:20px;overflow:hidden;${up(t, .2)}"><img src="assets/gobag.jpg" style="width:100%;height:100%;object-fit:cover"></div>
       <div class="abs" style="left:720px;top:160px;width:1050px;columns:2;column-gap:50px">${shown.map((it, i) => `<div style="break-inside:avoid;display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:2px solid var(--hair);${up(t, .6 + i * .12, .3, 10)}"><span style="font-size:26px;font-weight:${it.seen ? 800 : 500}">${it.seen ? '<span style="color:var(--green)">✓</span> ' : '<span style="color:var(--muted)">?</span> '}${it.label}</span><span class="mono" style="font-size:18px;white-space:nowrap;color:${it.seen ? 'var(--green)' : 'var(--muted)'}">${it.seen ? 'Seen' : 'Not seen'}</span></div>`).join('')}</div>
-      <div class="abs card" style="left:720px;top:820px;width:1050px;${up(t, cue(seg, 'never') - .2)}"><div style="font-size:30px;font-weight:700">2 of 14 seen. It never says the kit is enough.</div><div class="src" style="opacity:.8;margin-top:8px">Recorded Muse Spark answer · items out of view may still be packed</div></div>`;
+      <div class="abs card" style="left:720px;top:820px;width:1050px;${up(t, cue(seg, 'shows') - .2)}"><div style="font-size:30px;font-weight:700">2 of 14 seen. It never says the kit is enough.</div><div class="src" style="opacity:.8;margin-top:8px">Recorded Muse Spark answer · items out of view may still be packed</div></div>`;
   },
   route(t, seg) {
     const checks = ['Ends outside the official hazard area', 'Ends on mapped land, not the beach', 'Never goes deeper into the zone than home', 'Never doubles back toward the water', 'Walking pace 1.0 m/s, for children and elders', 'Stored on the phone for offline use'];
-    const a = cue(seg, 'Every');
+    const a = cue(seg, 'checked');
     return `<div class="abs paper" style="inset:0"></div>
       ${phone('p-place.jpg', 1170, 1250, 40, 460, 2532 + 1030 + 500 * inout((t - 7) / 5))}
       <div class="abs" style="left:150px;top:110px;${up(t, .1)}"><div class="kick">The route · OSRM on OpenStreetMap, checked in code</div></div>
-      <div class="abs" style="left:150px;top:190px;display:flex;gap:40px;align-items:baseline;${up(t, cue(seg, 'ten minutes') - .4)}"><div class="disp" style="font-size:150px">10 min</div><div class="disp" style="font-size:110px;color:var(--muted)">600 m</div></div>
+      <div class="abs" style="left:150px;top:190px;display:flex;gap:40px;align-items:baseline;${up(t, cue(seg, 'way out') - .2)}"><div class="disp" style="font-size:150px">10 min</div><div class="disp" style="font-size:110px;color:var(--muted)">600 m</div></div>
       <div class="abs" style="left:150px;top:400px;width:950px">${checks.map((c, i) => `<div style="display:flex;gap:20px;align-items:center;padding:16px 0;border-bottom:2px solid var(--hair);font-size:32px;font-weight:600;${up(t, a + .3 + i * .65, .35, 14)}"><span style="display:inline-grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--accent);border:3px solid var(--ink);font-size:24px">✓</span>${c}</div>`).join('')}</div>`;
   },
   japan(t, seg) {
@@ -183,7 +183,7 @@ const scenes = {
         <div style="font-family:'Noto Sans CJK JP';font-size:30px;font-weight:700">ハザードマップポータルサイト<span style="font-family:Inter;font-weight:500;color:var(--muted)"> · tsunami inundation, 1 m to 3 m</span></div>
         <div style="font-family:'Noto Sans CJK JP';font-size:30px;font-weight:700;margin-top:12px">指定緊急避難場所（国土地理院）<span style="font-family:Inter;font-weight:500;color:var(--muted)"> · designated sites</span></div>
         <div style="font-family:'Noto Sans CJK JP';font-size:30px;font-weight:700;margin-top:12px">内閣府 · 気象庁<span style="font-family:Inter;font-weight:500;color:var(--muted)"> · guidance quoted word for word</span></div></div>
-      <div class="abs card" style="left:150px;top:680px;width:980px;border-color:var(--s4);${up(t, cue(seg, 'Where') - .2)}"><div style="font-size:32px;font-weight:800">No route passed the checks here. So it says so.</div><div style="font-size:26px;color:var(--muted);margin-top:8px">Recorded Nov 4: it gives the official advice and lists the 10 nearest designated sites.</div></div>`;
+      <div class="abs card" style="left:150px;top:680px;width:980px;border-color:var(--s4);${up(t, cue(seg, 'official') + 1.2)}"><div style="font-size:32px;font-weight:800">No route passed the checks here. So it says so.</div><div style="font-size:26px;color:var(--muted);margin-top:8px">Recorded Nov 4: it gives the official advice and lists the 10 nearest designated sites.</div></div>`;
   },
   bench(t, seg) {
     const items = [['Knows whether home is in the zone', 'Berkeley residents didn\'t'], ['Has a checked evacuation route', 'only 31% of US households'], ['Found what can fall in each room', '30–50% of injuries'], ['Checked the go bag', 'Ready.gov kit'], ['All of it saved offline', 'no signal needed']];
@@ -195,30 +195,37 @@ const scenes = {
     const j = t < 4 ? Math.sin(t * 47) * 6 * (1 - t / 4) : 0;
     return `<div class="abs dark" style="inset:0"></div>
       <div class="abs" style="left:0;right:0;top:0;height:14px" class="hazard-stripes"></div>
-      <div class="abs" style="left:150px;top:150px;${up(t, .1)}"><div class="kick" style="color:var(--accent)">02 · When it happens</div></div>
+      <div class="abs" style="left:150px;top:150px;${up(t, .1)}"><div class="kick" style="color:var(--accent)">02 · During · live reenactment</div></div>
       <div class="abs disp" style="left:150px;top:230px;font-size:150px;transform:translateX(${j}px)">DROP.<br>COVER.<br><span style="color:var(--accent)">HOLD ON.</span></div>
       ${phone('shaking.png', 780, 1250, 40, 460, 0, null, `transform:translateX(${j}px)`)}
-      <div class="abs" style="left:150px;top:760px;width:950px">${['Says one thing, repeated every 15 s, with your saved spot', 'Nothing on this screen tells you to move', 'Taps in the first 3 s are ignored', 'One way forward: “Shaking has stopped”'].map((c, i) => `<div style="font-size:28px;padding:8px 0;color:#E9E1CC;${up(t, cue(seg, 'Nothing') - .6 + i * .5, .35, 10)}">— ${c}</div>`).join('')}</div>`;
+      <div class="abs" style="left:150px;top:760px;width:950px">${['Says one thing, repeated every 15 s, with your saved spot', 'Nothing on this screen tells you to move', 'Taps in the first 3 s are ignored', 'One way forward: “Shaking has stopped”'].map((c, i) => `<div style="font-size:28px;padding:8px 0;color:#E9E1CC;${up(t, cue(seg, 'never') - .6 + i * .5, .35, 10)}">— ${c}</div>`).join('')}</div>`;
   },
   clip(t, seg) { return clipScene(t, seg, seg.from); },
   after(t, seg) {
-    const src = t < 3.9 ? seg.from + t : 22 + (t - 3.9);
-    const chips = ['Go now, on foot', 'Turn-by-turn, spoken', 'Works with no signal', 'Shelters that fit: wheelchair · pets · medical'];
-    return clipScene(t, seg, src, false) + `<div class="abs" style="left:1180px;top:300px;width:620px">${chips.map((c, i) => `<div style="margin:0 0 22px;${pop(t, [cue(seg, 'go now'), cue(seg, 'turn by turn'), cue(seg, 'no signal'), cue(seg, 'shelters')][i] - .2)}"><span class="chip" style="background:${i === 0 ? 'var(--accent)' : 'var(--night2)'};color:${i === 0 ? 'var(--ink)' : 'var(--cream)'};border-color:${i === 0 ? 'var(--ink)' : '#4a4538'}">${c}</span></div>`).join('')}</div>`;
+    const src = Math.min(seg.from + t, 25.6);
+    const chips = ['03 · After: go now, on foot', 'Turn-by-turn, out of the zone', 'Shelters that fit your family', 'Wheelchair · pets · medical'];
+    return clipScene(t, seg, src, false) + `<div class="abs" style="left:1180px;top:300px;width:620px">${chips.map((c, i) => `<div style="margin:0 0 22px;${pop(t, [cue(seg, 'go now'), cue(seg, 'turn by turn'), cue(seg, 'shelter'), cue(seg, 'wheelchair')][i] - .2)}"><span class="chip" style="background:${i === 0 ? 'var(--accent)' : 'var(--night2)'};color:${i === 0 ? 'var(--ink)' : 'var(--cream)'};border-color:${i === 0 ? 'var(--ink)' : '#4a4538'}">${c}</span></div>`).join('')}</div>`;
   },
   close(t, seg) {
     return `<div class="abs dark" style="inset:0"></div>
-      <div class="abs" style="left:200px;top:110px;right:200px;opacity:${.35 * fio(t, 0, cue(seg, 'Getting'), .6)}">${TOLLS.map((r) => `<div style="display:flex;gap:30px;align-items:baseline;padding:10px 0"><span class="mono" style="font-size:26px;color:var(--accent)">${r[0]}</span><span style="font-size:32px">${r[1]}</span><span class="disp" style="font-size:60px">${r[2]}</span></div>`).join('')}</div>
-      <div class="abs disp" style="left:200px;top:300px;font-size:120px;${up(t, cue(seg, 'Getting') - .2)}">Get out early.</div>
-      <div class="abs disp" style="left:200px;top:430px;font-size:120px;color:var(--accent);${up(t, cue(seg, 'securing') - .2)}">Secure the room.</div>
-      <div class="abs" style="left:205px;top:640px;font-size:44px;font-weight:600;max-width:1400px;line-height:1.3;${up(t, cue(seg, 'Safe Zone') - .2)}">SafeZone puts that preparation in every home: prepare once, then follow the plan.</div>`;
+      <div class="abs" style="left:200px;top:110px;right:200px;opacity:${.3 * fio(t, 0, cue(seg, 'With SafeZone'), .6)}">${TOLLS.map((r) => `<div style="display:flex;gap:30px;align-items:baseline;padding:10px 0"><span class="mono" style="font-size:26px;color:var(--accent)">${r[0]}</span><span style="font-size:32px">${r[1]}</span><span class="disp" style="font-size:60px">${r[2]}</span></div>`).join('')}</div>
+      <div class="abs disp" style="left:200px;top:300px;font-size:120px;${up(t, cue(seg, 'every minute') - .2)}">Every minute counts.</div>
+      <div class="abs disp" style="left:200px;top:440px;font-size:96px;color:var(--accent);${up(t, cue(seg, 'With SafeZone') - .2)}">With SafeZone, you already<br>know what to do.</div>
+      <div class="abs" style="left:205px;top:720px;display:flex;gap:20px;${up(t, cue(seg, 'thanks') - .2)}"><span class="chip" style="font-size:34px;background:var(--night2);color:var(--cream);border-color:#4a4538"><span class="meta">Meta</span>&nbsp;Muse Spark</span><span class="chip" style="font-size:34px;background:var(--night2);color:var(--cream);border-color:#4a4538"><span class="meta">Meta</span>&nbsp;SAM 3.1</span></div>`;
+  },
+  reenact(t, seg) {
+    return `<div class="abs dark" style="inset:0"></div>
+      <div class="abs" style="left:200px;top:160px;${up(t, .1)}"><span class="tag" style="background:var(--s4);color:#fff;border-color:var(--s4);font-size:28px">● Live reenactment</span></div>
+      <div class="abs disp" style="left:200px;top:260px;font-size:120px;max-width:1500px;${up(t, .4)}">For my family in Japan</div>
+      <div class="abs" style="left:205px;top:420px;font-family:'Noto Sans CJK JP';font-size:48px;color:#C9C0AC;${up(t, .9)}">日本の家族へ</div>
+      <div class="abs" style="left:205px;top:560px;font-size:40px;font-weight:600;max-width:1300px;line-height:1.35;${up(t, cue(seg, 'I know') - .2)}">My parents and brother have lived through more earthquakes than I can count. This is what that moment looks like with SafeZone.</div>`;
   },
   end(t, seg) {
     return `<div class="abs paper" style="inset:0"></div>
       <div class="abs" style="left:0;right:0;top:170px;display:flex;justify-content:center;align-items:center;gap:40px;${pop(t, .1, .6)}"><img src="assets/icon.svg" style="width:190px;height:190px;border-radius:42px;border:4px solid var(--ink)"><div class="disp" style="font-size:170px">SafeZone</div></div>
       <div class="abs" style="left:0;right:0;top:440px;text-align:center;${up(t, cue(seg, 'Built'))}"><div style="display:inline-flex;gap:20px;align-items:center;font-size:40px">Built on <span class="chip" style="font-size:40px;background:var(--ink);color:#fff"><span class="meta">Meta</span> SAM 3.1</span> + <span class="chip" style="font-size:40px;background:var(--ink);color:#fff"><span class="meta">Meta</span> Muse Spark</span></div></div>
-      <div class="abs" style="left:0;right:0;top:600px;text-align:center;${up(t, cue(seg, 'Prepare'))}"><div class="disp" style="font-size:72px">Prepare once. Then follow the plan.</div></div>
-      <div class="abs mono" style="left:0;right:0;top:760px;text-align:center;font-size:34px;${up(t, cue(seg, 'Prepare') + .8)}">safezone-alpha-one.vercel.app<br><span style="font-size:26px;color:var(--muted)">github.com/judecutler/safezone · Jude Cutler · Meta Global AI Developer Hackathon</span></div>`;
+      <div class="abs" style="left:0;right:0;top:600px;text-align:center;${up(t, cue(seg, 'loved'))}"><div class="disp" style="font-size:72px">For your loved ones, when it matters most.</div></div>
+      <div class="abs mono" style="left:0;right:0;top:760px;text-align:center;font-size:34px;${up(t, cue(seg, 'loved') + .8)}">safezone-alpha-one.vercel.app<br><span style="font-size:26px;color:var(--muted)">github.com/judecutler/safezone · Jude Cutler · Meta Global AI Developer Hackathon</span></div>`;
   },
 };
 
@@ -226,7 +233,7 @@ function clipScene(t, seg, srcT, label = true) {
   const n = clamp(Math.floor(srcT * 30) + 1, 1, 772);
   return `<div class="abs dark" style="inset:0"></div>
     <div class="abs" style="left:${label ? 679 : 480}px;top:40px;width:562px;height:1000px;border-radius:28px;overflow:hidden;border:3px solid #3a362c"><img src="assets/phone/${pad(n)}.jpg" style="width:100%;height:100%"></div>
-    ${label ? `<div class="abs" style="left:1300px;top:480px;${up(t, .3)}"><span class="tag" style="color:var(--accent)">Live app on a real phone · demo mode</span><div style="color:#C9C0AC;font-size:28px;margin-top:20px;max-width:520px;line-height:1.35">The app speaks: “This is a demo. Drop, cover and hold on…”</div></div>` : ''}`;
+    ${label ? `<div class="abs" style="left:1300px;top:480px;${up(t, .3)}"><span class="tag" style="color:var(--accent)">● Live reenactment · real app, demo mode</span><div style="color:#C9C0AC;font-size:28px;margin-top:20px;max-width:520px;line-height:1.35">The app speaks: “This is a demo. Drop, cover and hold on…”</div></div>` : ''}`;
 }
 
 function roomScene(t, seg, mode) {
@@ -239,7 +246,7 @@ function roomScene(t, seg, mode) {
     return `<path d="${o.outline}" fill="${o.role === 'hazard' ? 'rgba(255,122,26,.18)' : 'rgba(255,255,255,.08)'}" fill-opacity="${p}" stroke="${c}" stroke-width="5" pathLength="1" stroke-dasharray="1" stroke-dashoffset="${1 - p}" stroke-linejoin="round"/>`;
   }).join('');
   const prompts = ['wardrobe', 'cabinet', 'bookshelf', 'bed', 'table', 'desk', 'door', 'window', 'mirror', 'box', 'lamp', 'tv', 'shelf'];
-  const relA = cue(seg, 'This wardrobe'), relB = cue(seg, 'That box');
+  const relA = cue(seg, 'works out'), relB = cue(seg, 'trap');
   const right = mode === 'sam'
     ? `<div class="abs" style="left:1290px;top:200px;width:520px;${up(t, .2)}"><div class="kick">Meta SAM 3.1</div><div style="font-size:30px;font-weight:700;margin:14px 0 22px">13 prompts, sent at once. Masks and boxes back.</div>
        <div style="display:flex;flex-wrap:wrap;gap:12px">${prompts.map((p, i) => `<span class="mono" style="font-size:22px;padding:8px 14px;border:2px solid var(--ink);border-radius:8px;background:${['wardrobe', 'cabinet', 'bed', 'door', 'box'].includes(p) && drawP > .3 ? 'var(--accent)' : '#fff'};${pop(t, .5 + i * .08, .3)}">${p}</span>`).join('')}</div>
@@ -271,7 +278,7 @@ window.seek = async (T) => {
   if (sub) html += `<div class="cap"><span>${sub}</span></div>`;
   const fade = Math.min(1, t / .25, (seg.dur - t) / .25);
   S.style.opacity = seg.fadeIn === false ? 1 : 1;
-  S.style.color = ['tolls','dec5','gap','works','shake','clip','after','close'].includes(seg.scene) ? 'var(--cream)' : 'var(--ink)';
+  S.style.color = ['tolls','dec5','gap','works','shake','clip','after','close','reenact'].includes(seg.scene) ? 'var(--cream)' : 'var(--ink)';
   S.innerHTML = html;
   await Promise.all([...S.querySelectorAll('img')].map((i) => i.decode().catch(() => {})));
 };

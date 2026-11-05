@@ -1,0 +1,19 @@
+[
+{"id":"b01","text":"Japan, 2011. Nearly sixteen thousand dead, and twenty-five hundred still missing. Indian Ocean, 2004. Over two hundred twenty thousand, gone."},
+{"id":"b02","text":"When the ground shakes, you have seconds. In 2024, 5 million Californians got a tsunami warning that never said if they were in the zone, or where to go. Frantic Google searches during an emergency just aren't effective, and you don't have time to gamble your life."},
+{"id":"b04","text":"That's why I built SafeZone: an earthquake and tsunami plan for your whole household, powered by Meta's SAM 3.1 and Muse Spark. It can help save lives at every stage: before, during, and after an emergency."},
+{"id":"b05","text":"First up, preparation. This is where it counts the most. Only 31% of American households know their evacuation route. Japan estimates that if everyone evacuates within 10 minutes, deaths from its next great tsunami would fall by 70%."},
+{"id":"b06","text":"SafeZone gets your family ready in less than five minutes."},
+{"id":"b07","text":"First, it checks your address against the government's official tsunami hazard map. Now you know if you're in the zone. It cross-references evacuation routes at the same time."},
+{"id":"b08a","text":"Next, one photo per room. Meta's SAM 3.1 outlines everything that could tip, fall, or swing open."},
+{"id":"b08b","text":"Muse Spark works out the danger: for example, this wardrobe could trap someone underneath it."},
+{"id":"b09","text":"Then the code checks the AI. Muse Spark suggested taking cover in a doorway. SafeZone rejected it, because studies show doorways aren't any safer. The AI suggests. The code decides."},
+{"id":"b10","text":"Muse Spark checks your go bag against Ready.gov's emergency kit, and shows which essentials it can't find."},
+{"id":"b11","text":"Then SafeZone plans your way out: a walking route to exit the tsunami zone, checked to optimize for speed, and to never lead you deeper in. It's saved on your phone, so it works even when your phone's signal goes out."},
+{"id":"b12","text":"Right now it's set up for both California, where I live, and Japan, where my family lives, using each country's official maps and evacuation sites."},
+{"id":"b13","text":"Over there, my parents and brother have been through more earthquakes than I can count. I know how stressful it can be, and here's how SafeZone can help them out."},
+{"id":"b14","text":"The shaking starts. SafeZone says one thing, out loud: drop, cover, and hold on. It never tells you to move while the ground is shaking."},
+{"id":"b15","text":"When the shaking stops: go now, on foot, no waiting for a warning. SafeZone talks you out of the dangerous areas, turn by turn, then algorithmically identifies which shelter will fit your family and their needs, whether that's wheelchair access, pets, or medical services. Routing people to avoid overcrowding."},
+{"id":"b16","text":"In a disaster, every minute you spend figuring out what to do is a minute you don't have. With SafeZone, you've already figured it out, thanks to Muse and SAM."},
+{"id":"b17","text":"SafeZone. Built with Meta to save your loved ones when it matters most."}
+]

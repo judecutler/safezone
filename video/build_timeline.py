@@ -1,18 +1,18 @@
-"""Lays the scenes on a timeline from the narration durations. Usage: python video/build_timeline.py <vo dir> <out.json>"""
+"""Lays the scenes on a timeline from the narration durations. Usage: python video/build_timeline.py <vo dir> <out.json> <lines.json>"""
 import json, re, sys
 from pathlib import Path
 
 VO = Path(sys.argv[1])
 DUR = json.loads((VO / "durations.json").read_text())
-TEXT = {l["id"]: l["text"] for l in json.loads((Path(__file__).parent / "lines.json").read_text())}
+TEXT = {l["id"]: l["text"] for l in json.loads(Path(sys.argv[3]).read_text())}
 # scene, narration, silence before the line, silence after, fixed length (no narration)
-PLAN = [("tolls", "n01", 2.0, .5, None), ("dec5", "n02", .2, .5, None), ("gap", "n03", .2, .5, None),
-        ("works", "n04", .2, .7, None), ("title", "n05", .6, .5, None), ("hazard", "n06", .2, .3, None),
-        ("sam", "n07", .2, .4, None), ("muse", "n08", .2, .3, None), ("guard", "n09", .2, .3, None),
-        ("react", None, 0, 0, 3.7), ("gobag", "n10", .2, .6, None), ("route", "n11", .2, .3, None),
-        ("japan", "n12", .2, .4, None), ("bench", "n13", .2, .8, None), ("shake", "n14", .3, .3, None),
-        ("clip", None, 0, 0, 8.0), ("after", "n15", .3, .8, None), ("close", "n16", .3, .6, None),
-        ("end", "n17", .4, 1.8, None)]
+PLAN = [("tolls", "b01", 1.6, .3, None), ("dec5", "b02", .2, .3, None), ("title", "b04", .2, .3, None),
+        ("gap", "b05", .2, .3, None), ("bench", "b06", .2, .4, None), ("hazard", "b07", .2, .3, None),
+        ("sam", "b08a", .2, .1, None), ("muse", "b08b", .1, .3, None), ("guard", "b09", .2, .3, None),
+        ("gobag", "b10", .2, .3, None), ("route", "b11", .2, .3, None), ("japan", "b12", .2, .3, None),
+        ("reenact", "b13", .3, .3, None), ("react", None, 0, 0, 3.7), ("shake", "b14", .2, .3, None),
+        ("clip", None, 0, 0, 8.0), ("after", "b15", .2, .4, None), ("close", "b16", .3, .4, None),
+        ("end", "b17", .3, 2.0, None)]
 SHOW = [("Safe Zone", "SafeZone"), ("Sam three point one", "SAM 3.1"), ("Meta A I", "Meta AI"), ("Ready dot gov", "Ready.gov"),
         ("thirty-one percent", "31%"), ("seventy percent", "70%"), ("twenty twenty-four", "2024"), ("twenty eleven", "2011"),
         ("December fifth", "December 5"), ("Five million", "5 million"), ("ten times", "10 times"), ("ten minutes", "10 minutes"),
@@ -32,7 +32,7 @@ for scene, vo, pre, post, fixed in PLAN:
         d = DUR[vo]
         text = TEXT[vo]
         caps, pos = [], 0
-        for sent in re.findall(r"[^.!?]+[.!?]", text):
+        for sent in re.findall(r".+?[.!?](?=\s|$)", text):
             a = pre + d * pos / len(text)
             pos += len(sent)
             caps.append({"at": round(a, 3), "end": round(pre + d * pos / len(text), 3), "text": show(sent.strip())})
